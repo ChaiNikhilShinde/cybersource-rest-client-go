@@ -38,7 +38,7 @@ func main() {
 	fixInvalid := func(name string, obj jwalk.ObjectWalker) (string, interface{}, error) {
 
 		hasStringType, hasMaximum := false, false
-		hasBoolType, hasMaxLength := false, false
+		hasBoolType, hasNumType, hasMaxLength := false, false, false
 
 		err := obj.Walk(func(key string, value interface{}) (string, interface{}, error) {
 
@@ -49,8 +49,13 @@ func main() {
 				hasMaximum = true
 			}
 
-			if key == "type" && checkStringValue(value, "boolean") {
-				hasBoolType = true
+			if key == "type" {
+				if checkStringValue(value, "boolean") {
+					hasBoolType = true
+				}
+				if checkStringValue(value, "number") {
+					hasNumType = true
+				}
 			}
 			if key == "maxLength" {
 				hasMaxLength = true
@@ -72,14 +77,24 @@ func main() {
 			})
 		}
 
-		if hasBoolType && hasMaxLength {
-			log.Print("Found a boolean type with a maxLength field")
-			err = obj.Walk(func(key string, value interface{}) (string, interface{}, error) {
-				if key == "maxLength" {
-					return "", nil, jwalk.RemoveField
-				}
-				return key, value, nil
-			})
+		if hasMaxLength {
+			remove := true
+			switch {
+			case hasBoolType:
+				log.Print("Found a boolean type with a maxLength field")
+			case hasNumType:
+				log.Print("Found a number type with a maxLength field")
+			default:
+				remove = false
+			}
+			if remove {
+				err = obj.Walk(func(key string, value interface{}) (string, interface{}, error) {
+					if key == "maxLength" {
+						return "", nil, jwalk.RemoveField
+					}
+					return key, value, nil
+				})
+			}
 		}
 
 		return name, obj, err
