@@ -13,8 +13,7 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	cr "github.com/go-openapi/runtime/client"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 )
 
 // NewCreateReportParams creates a new CreateReportParams object
@@ -61,16 +60,16 @@ for the create report operation typically these are written to a http.Request
 */
 type CreateReportParams struct {
 
+	/*CreateAdhocReportRequest
+	  Report subscription request payload
+
+	*/
+	CreateAdhocReportRequest CreateReportBody
 	/*OrganizationID
 	  Valid Cybersource Organization Id
 
 	*/
 	OrganizationID *string
-	/*RequestBody
-	  Report subscription request payload
-
-	*/
-	RequestBody CreateReportBody
 
 	timeout    time.Duration
 	Context    context.Context
@@ -110,6 +109,17 @@ func (o *CreateReportParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
+// WithCreateAdhocReportRequest adds the createAdhocReportRequest to the create report params
+func (o *CreateReportParams) WithCreateAdhocReportRequest(createAdhocReportRequest CreateReportBody) *CreateReportParams {
+	o.SetCreateAdhocReportRequest(createAdhocReportRequest)
+	return o
+}
+
+// SetCreateAdhocReportRequest adds the createAdhocReportRequest to the create report params
+func (o *CreateReportParams) SetCreateAdhocReportRequest(createAdhocReportRequest CreateReportBody) {
+	o.CreateAdhocReportRequest = createAdhocReportRequest
+}
+
 // WithOrganizationID adds the organizationID to the create report params
 func (o *CreateReportParams) WithOrganizationID(organizationID *string) *CreateReportParams {
 	o.SetOrganizationID(organizationID)
@@ -121,17 +131,6 @@ func (o *CreateReportParams) SetOrganizationID(organizationID *string) {
 	o.OrganizationID = organizationID
 }
 
-// WithRequestBody adds the requestBody to the create report params
-func (o *CreateReportParams) WithRequestBody(requestBody CreateReportBody) *CreateReportParams {
-	o.SetRequestBody(requestBody)
-	return o
-}
-
-// SetRequestBody adds the requestBody to the create report params
-func (o *CreateReportParams) SetRequestBody(requestBody CreateReportBody) {
-	o.RequestBody = requestBody
-}
-
 // WriteToRequest writes these params to a swagger request
 func (o *CreateReportParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
 
@@ -139,6 +138,10 @@ func (o *CreateReportParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.
 		return err
 	}
 	var res []error
+
+	if err := r.SetBodyParam(o.CreateAdhocReportRequest); err != nil {
+		return err
+	}
 
 	if o.OrganizationID != nil {
 
@@ -154,10 +157,6 @@ func (o *CreateReportParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.
 			}
 		}
 
-	}
-
-	if err := r.SetBodyParam(o.RequestBody); err != nil {
-		return err
 	}
 
 	if len(res) > 0 {

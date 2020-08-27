@@ -13,8 +13,7 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	cr "github.com/go-openapi/runtime/client"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 )
 
 // NewGetResourceV2InfoParams creates a new GetResourceV2InfoParams object
@@ -66,6 +65,15 @@ type GetResourceV2InfoParams struct {
 
 	*/
 	OrganizationID *string
+	/*SubscriptionType
+	  Valid Values:
+	- CLASSIC
+	- CUSTOM
+	- STANDARD
+
+
+	*/
+	SubscriptionType *string
 
 	timeout    time.Duration
 	Context    context.Context
@@ -116,6 +124,17 @@ func (o *GetResourceV2InfoParams) SetOrganizationID(organizationID *string) {
 	o.OrganizationID = organizationID
 }
 
+// WithSubscriptionType adds the subscriptionType to the get resource v2 info params
+func (o *GetResourceV2InfoParams) WithSubscriptionType(subscriptionType *string) *GetResourceV2InfoParams {
+	o.SetSubscriptionType(subscriptionType)
+	return o
+}
+
+// SetSubscriptionType adds the subscriptionType to the get resource v2 info params
+func (o *GetResourceV2InfoParams) SetSubscriptionType(subscriptionType *string) {
+	o.SubscriptionType = subscriptionType
+}
+
 // WriteToRequest writes these params to a swagger request
 func (o *GetResourceV2InfoParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
 
@@ -134,6 +153,22 @@ func (o *GetResourceV2InfoParams) WriteToRequest(r runtime.ClientRequest, reg st
 		qOrganizationID := qrOrganizationID
 		if qOrganizationID != "" {
 			if err := r.SetQueryParam("organizationId", qOrganizationID); err != nil {
+				return err
+			}
+		}
+
+	}
+
+	if o.SubscriptionType != nil {
+
+		// query param subscriptionType
+		var qrSubscriptionType string
+		if o.SubscriptionType != nil {
+			qrSubscriptionType = *o.SubscriptionType
+		}
+		qSubscriptionType := qrSubscriptionType
+		if qSubscriptionType != "" {
+			if err := r.SetQueryParam("subscriptionType", qSubscriptionType); err != nil {
 				return err
 			}
 		}

@@ -9,12 +9,11 @@ import (
 	"fmt"
 
 	"github.com/go-openapi/runtime"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 )
 
 // New creates a new payments API client.
-func New(transport runtime.ClientTransport, formats strfmt.Registry) *Client {
+func New(transport runtime.ClientTransport, formats strfmt.Registry) ClientService {
 	return &Client{transport: transport, formats: formats}
 }
 
@@ -26,10 +25,30 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
-/*
-CreatePayment processes a payment
+// ClientService is the interface for Client methods
+type ClientService interface {
+	CreatePayment(params *CreatePaymentParams) (*CreatePaymentCreated, error)
 
-Authorize the payment for the transaction.
+	IncrementAuth(params *IncrementAuthParams) (*IncrementAuthCreated, error)
+
+	SetTransport(transport runtime.ClientTransport)
+}
+
+/*
+  CreatePayment processes a payment
+
+  A payment authorizes the amount for the transaction. There are a number of supported payment feature,
+such as E-commerce and Card Present - Credit Card/Debit Card, Echeck, e-Wallets, Level II/III Data, etc..
+
+A payment response includes the status of the request. It also includes processor-specific information
+when the request is successful and errors if unsuccessful. See the [Payments Developer Guides Page](https://developer.cybersource.com/api/developer-guides/dita-payments/GettingStarted.html).
+
+Authorization can be requested with Capture, Decision Manager, Payer Authentication(3ds), and Token Creation.
+Find more on [Authorization with Add-On Features page.] (https://developer.cybersource.com/api/authorization-add-ons.html)
+
+Possible [RESPONSE CODES](https://developer.cybersource.com/api/reference/response-codes.html) .
+
+Processor specific [Testing Triggers](https://developer.cybersource.com/hello-world/testing-guide.html).
 
 */
 func (a *Client) CreatePayment(params *CreatePaymentParams) (*CreatePaymentCreated, error) {
@@ -41,8 +60,8 @@ func (a *Client) CreatePayment(params *CreatePaymentParams) (*CreatePaymentCreat
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "createPayment",
 		Method:             "POST",
-		PathPattern:        "/pts/v2/payments/",
-		ProducesMediaTypes: []string{"application/json;charset=utf-8"},
+		PathPattern:        "/pts/v2/payments",
+		ProducesMediaTypes: []string{"application/hal+json;charset=utf-8"},
 		ConsumesMediaTypes: []string{"application/json;charset=utf-8"},
 		Schemes:            []string{"https"},
 		Params:             params,
@@ -60,6 +79,43 @@ func (a *Client) CreatePayment(params *CreatePaymentParams) (*CreatePaymentCreat
 	// unexpected success response
 	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
 	msg := fmt.Sprintf("unexpected success response for createPayment: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
+}
+
+/*
+  IncrementAuth increments an authorization
+
+  Use this service to authorize additional charges in a lodging or autorental transaction. Include the ID returned from the original authorization in the PATCH request to add additional charges to that authorization.
+
+*/
+func (a *Client) IncrementAuth(params *IncrementAuthParams) (*IncrementAuthCreated, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewIncrementAuthParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "incrementAuth",
+		Method:             "PATCH",
+		PathPattern:        "/pts/v2/payments/{id}",
+		ProducesMediaTypes: []string{"application/hal+json;charset=utf-8"},
+		ConsumesMediaTypes: []string{"application/json;charset=utf-8"},
+		Schemes:            []string{"https"},
+		Params:             params,
+		Reader:             &IncrementAuthReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*IncrementAuthCreated)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for incrementAuth: API contract not enforced by server. Client expected to get an error, but got: %T", result)
 	panic(msg)
 }
 

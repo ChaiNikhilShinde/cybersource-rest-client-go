@@ -9,12 +9,11 @@ import (
 	"fmt"
 
 	"github.com/go-openapi/runtime"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 )
 
 // New creates a new decision manager API client.
-func New(transport runtime.ClientTransport, formats strfmt.Registry) *Client {
+func New(transport runtime.ClientTransport, formats strfmt.Registry) ClientService {
 	return &Client{transport: transport, formats: formats}
 }
 
@@ -26,41 +25,132 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
-/*
-CreateDecisionManagerCase creates decision manager case
+// ClientService is the interface for Client methods
+type ClientService interface {
+	AddNegative(params *AddNegativeParams) (*AddNegativeCreated, error)
 
-This is the combined request to the Decision Manager Service for a transaction sent to Cybersource.
-Decision Manager will return a decision based on the request values.
+	CreateBundledDecisionManagerCase(params *CreateBundledDecisionManagerCaseParams) (*CreateBundledDecisionManagerCaseCreated, error)
+
+	FraudUpdate(params *FraudUpdateParams) (*FraudUpdateCreated, error)
+
+	SetTransport(transport runtime.ClientTransport)
+}
+
+/*
+  AddNegative lists management
+
+  This call adds/deletes/converts the request information in the negative list.
+
+Provide the list to be updated as the path parameter. This value can be 'postiive', 'negative' or 'review'.
 
 */
-func (a *Client) CreateDecisionManagerCase(params *CreateDecisionManagerCaseParams) (*CreateDecisionManagerCaseCreated, error) {
+func (a *Client) AddNegative(params *AddNegativeParams) (*AddNegativeCreated, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewCreateDecisionManagerCaseParams()
+		params = NewAddNegativeParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "createDecisionManagerCase",
+		ID:                 "addNegative",
 		Method:             "POST",
-		PathPattern:        "/risk/v1/decisions",
+		PathPattern:        "/risk/v1/lists/{type}/entries",
 		ProducesMediaTypes: []string{"application/hal+json;charset=utf-8"},
 		ConsumesMediaTypes: []string{"application/json;charset=utf-8"},
 		Schemes:            []string{"https"},
 		Params:             params,
-		Reader:             &CreateDecisionManagerCaseReader{formats: a.formats},
+		Reader:             &AddNegativeReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*CreateDecisionManagerCaseCreated)
+	success, ok := result.(*AddNegativeCreated)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
 	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
-	msg := fmt.Sprintf("unexpected success response for createDecisionManagerCase: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	msg := fmt.Sprintf("unexpected success response for addNegative: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
+}
+
+/*
+  CreateBundledDecisionManagerCase creates decision manager
+
+  Decision Manager can help you automate and streamline your fraud operations. Decision Manager will return a decision based on the request values.
+*/
+func (a *Client) CreateBundledDecisionManagerCase(params *CreateBundledDecisionManagerCaseParams) (*CreateBundledDecisionManagerCaseCreated, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewCreateBundledDecisionManagerCaseParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "createBundledDecisionManagerCase",
+		Method:             "POST",
+		PathPattern:        "/risk/v1/decisions",
+		ProducesMediaTypes: []string{"application/hal+json;charset=utf-8"},
+		ConsumesMediaTypes: []string{"application/json;charset=utf-8"},
+		Schemes:            []string{"https"},
+		Params:             params,
+		Reader:             &CreateBundledDecisionManagerCaseReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*CreateBundledDecisionManagerCaseCreated)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for createBundledDecisionManagerCase: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
+}
+
+/*
+  FraudUpdate frauds marking
+
+  This can be used to -
+1. Add known fraudulent data to the fraud history
+2. Remove data added to history with Transaction Marking Tool or by uploading chargeback files
+3. Remove chargeback data from history that was automatically added.
+For detailed information, contact your Cybersource representative
+
+Place the request ID of the transaction you want to mark as suspect (or remove from history) as the path parameter in this request.
+
+*/
+func (a *Client) FraudUpdate(params *FraudUpdateParams) (*FraudUpdateCreated, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewFraudUpdateParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "fraudUpdate",
+		Method:             "POST",
+		PathPattern:        "/risk/v1/decisions/{id}/marking",
+		ProducesMediaTypes: []string{"application/hal+json;charset=utf-8"},
+		ConsumesMediaTypes: []string{"application/json;charset=utf-8"},
+		Schemes:            []string{"https"},
+		Params:             params,
+		Reader:             &FraudUpdateReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*FraudUpdateCreated)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for fraudUpdate: API contract not enforced by server. Client expected to get an error, but got: %T", result)
 	panic(msg)
 }
 

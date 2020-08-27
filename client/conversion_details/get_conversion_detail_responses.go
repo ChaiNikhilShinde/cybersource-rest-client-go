@@ -12,10 +12,9 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
-
-	strfmt "github.com/go-openapi/strfmt"
 )
 
 // GetConversionDetailReader is a Reader for the GetConversionDetail structure.
@@ -46,7 +45,7 @@ func (o *GetConversionDetailReader) ReadResponse(response runtime.ClientResponse
 		return nil, result
 
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
 	}
 }
 
@@ -147,216 +146,6 @@ func (o *GetConversionDetailNotFound) readResponse(response runtime.ClientRespon
 	return nil
 }
 
-/*ConversionDetailsItems0 conversion details items0
-swagger:model ConversionDetailsItems0
-*/
-type ConversionDetailsItems0 struct {
-
-	// Date of conversion
-	// Format: date-time
-	ConversionTime strfmt.DateTime `json:"conversionTime,omitempty" xml:"ConversionDate,attr"`
-
-	// Merchant reference number of a merchant
-	MerchantReferenceNumber string `json:"merchantReferenceNumber,omitempty" xml:"MerchantReferenceNumber,attr"`
-
-	// New decision
-	NewDecision string `json:"newDecision,omitempty" xml:"NewDecision"`
-
-	// notes
-	Notes []*ConversionDetailsItems0NotesItems0 `json:"notes" xml:"Notes"`
-
-	// Original decision
-	OriginalDecision string `json:"originalDecision,omitempty" xml:"OriginalDecision"`
-
-	// Name of the profile
-	Profile string `json:"profile,omitempty" xml:"Profile"`
-
-	// Name of the queue
-	Queue string `json:"queue,omitempty" xml:"Queue"`
-
-	// Cybersource Transation request id
-	RequestID string `json:"requestId,omitempty" xml:"RequestID,attr"`
-
-	// User name of the reviewer
-	Reviewer string `json:"reviewer,omitempty" xml:"Reviewer"`
-
-	// Comments of the reviewer
-	ReviewerComments string `json:"reviewerComments,omitempty" xml:"ReviewerComments"`
-}
-
-// Validate validates this conversion details items0
-func (o *ConversionDetailsItems0) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateConversionTime(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateNotes(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *ConversionDetailsItems0) validateConversionTime(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.ConversionTime) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("conversionTime", "body", "date-time", o.ConversionTime.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (o *ConversionDetailsItems0) validateNotes(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Notes) { // not required
-		return nil
-	}
-
-	for i := 0; i < len(o.Notes); i++ {
-		if swag.IsZero(o.Notes[i]) { // not required
-			continue
-		}
-
-		if o.Notes[i] != nil {
-			if err := o.Notes[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("notes" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *ConversionDetailsItems0) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *ConversionDetailsItems0) UnmarshalBinary(b []byte) error {
-	var res ConversionDetailsItems0
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*ConversionDetailsItems0NotesItems0 conversion details items0 notes items0
-swagger:model ConversionDetailsItems0NotesItems0
-*/
-type ConversionDetailsItems0NotesItems0 struct {
-
-	// Note added by reviewer
-	AddedBy string `json:"addedBy,omitempty" xml:"AddedBy,attr"`
-
-	// Comments given by the reviewer
-	Comments string `json:"comments,omitempty" xml:"Comment,attr"`
-
-	// Time of the note added by reviewer
-	// Format: date-time
-	Time strfmt.DateTime `json:"time,omitempty" xml:"Date,attr"`
-}
-
-// Validate validates this conversion details items0 notes items0
-func (o *ConversionDetailsItems0NotesItems0) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateTime(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *ConversionDetailsItems0NotesItems0) validateTime(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Time) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("time", "body", "date-time", o.Time.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *ConversionDetailsItems0NotesItems0) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *ConversionDetailsItems0NotesItems0) UnmarshalBinary(b []byte) error {
-	var res ConversionDetailsItems0NotesItems0
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*DetailsItems0 Provides failed validation input field detail
-//
-swagger:model DetailsItems0
-*/
-type DetailsItems0 struct {
-
-	// Field in request that caused an error
-	//
-	Field string `json:"field,omitempty"`
-
-	// Documented reason code
-	//
-	Reason string `json:"reason,omitempty"`
-}
-
-// Validate validates this details items0
-func (o *DetailsItems0) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *DetailsItems0) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *DetailsItems0) UnmarshalBinary(b []byte) error {
-	var res DetailsItems0
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
 /*GetConversionDetailBadRequestBody reportingV3ConversionDetailsGet400Response
 //
 // HTTP status code for client application
@@ -367,7 +156,7 @@ type GetConversionDetailBadRequestBody struct {
 	// Error field list
 	//
 	// Required: true
-	Details []*DetailsItems0 `json:"details"`
+	Details []*GetConversionDetailBadRequestBodyDetailsItems0 `json:"details"`
 
 	// Short descriptive message to the user.
 	//
@@ -486,24 +275,62 @@ func (o *GetConversionDetailBadRequestBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
+/*GetConversionDetailBadRequestBodyDetailsItems0 Provides failed validation input field detail
+//
+swagger:model GetConversionDetailBadRequestBodyDetailsItems0
+*/
+type GetConversionDetailBadRequestBodyDetailsItems0 struct {
+
+	// Field in request that caused an error
+	//
+	Field string `json:"field,omitempty"`
+
+	// Documented reason code
+	//
+	Reason string `json:"reason,omitempty"`
+}
+
+// Validate validates this get conversion detail bad request body details items0
+func (o *GetConversionDetailBadRequestBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetConversionDetailBadRequestBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetConversionDetailBadRequestBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res GetConversionDetailBadRequestBodyDetailsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*GetConversionDetailOKBody reportingV3ConversionDetailsGet200Response
 swagger:model GetConversionDetailOKBody
 */
 type GetConversionDetailOKBody struct {
 
 	// conversion details
-	ConversionDetails []*ConversionDetailsItems0 `json:"conversionDetails"`
+	ConversionDetails []*GetConversionDetailOKBodyConversionDetailsItems0 `json:"conversionDetails"`
 
 	// end time
 	// Format: date-time
-	EndTime strfmt.DateTime `json:"endTime,omitempty" xml:"ReportEndDate,attr"`
+	EndTime strfmt.DateTime `json:"endTime,omitempty" xml:"ReportEndDate,attr,omitempty"`
 
 	// Merchant Id
-	OrganizationID string `json:"organizationId,omitempty" xml:"MerchantID,attr"`
+	OrganizationID string `json:"organizationId,omitempty" xml:"MerchantID,attr,omitempty"`
 
 	// start time
 	// Format: date-time
-	StartTime strfmt.DateTime `json:"startTime,omitempty" xml:"ReportStartDate,attr"`
+	StartTime strfmt.DateTime `json:"startTime,omitempty" xml:"ReportStartDate,attr,omitempty"`
 }
 
 // Validate validates this get conversion detail o k body
@@ -590,6 +417,178 @@ func (o *GetConversionDetailOKBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *GetConversionDetailOKBody) UnmarshalBinary(b []byte) error {
 	var res GetConversionDetailOKBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*GetConversionDetailOKBodyConversionDetailsItems0 get conversion detail o k body conversion details items0
+swagger:model GetConversionDetailOKBodyConversionDetailsItems0
+*/
+type GetConversionDetailOKBodyConversionDetailsItems0 struct {
+
+	// Date of conversion
+	// Format: date-time
+	ConversionTime strfmt.DateTime `json:"conversionTime,omitempty" xml:"ConversionDate,attr,omitempty"`
+
+	// Merchant reference number of a merchant
+	MerchantReferenceNumber string `json:"merchantReferenceNumber,omitempty" xml:"MerchantReferenceNumber,attr,omitempty"`
+
+	// New decision
+	NewDecision string `json:"newDecision,omitempty" xml:"NewDecision,omitempty"`
+
+	// notes
+	Notes []*GetConversionDetailOKBodyConversionDetailsItems0NotesItems0 `json:"notes" xml:"Notes"`
+
+	// Original decision
+	OriginalDecision string `json:"originalDecision,omitempty" xml:"OriginalDecision,omitempty"`
+
+	// Name of the profile
+	Profile string `json:"profile,omitempty" xml:"Profile,omitempty"`
+
+	// Name of the queue
+	Queue string `json:"queue,omitempty" xml:"Queue,omitempty"`
+
+	// Cybersource Transation request id
+	RequestID string `json:"requestId,omitempty" xml:"RequestID,attr,omitempty"`
+
+	// User name of the reviewer
+	Reviewer string `json:"reviewer,omitempty" xml:"Reviewer,omitempty"`
+
+	// Comments of the reviewer
+	ReviewerComments string `json:"reviewerComments,omitempty" xml:"ReviewerComments,omitempty"`
+}
+
+// Validate validates this get conversion detail o k body conversion details items0
+func (o *GetConversionDetailOKBodyConversionDetailsItems0) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateConversionTime(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateNotes(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetConversionDetailOKBodyConversionDetailsItems0) validateConversionTime(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.ConversionTime) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("conversionTime", "body", "date-time", o.ConversionTime.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *GetConversionDetailOKBodyConversionDetailsItems0) validateNotes(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Notes) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Notes); i++ {
+		if swag.IsZero(o.Notes[i]) { // not required
+			continue
+		}
+
+		if o.Notes[i] != nil {
+			if err := o.Notes[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("notes" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetConversionDetailOKBodyConversionDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetConversionDetailOKBodyConversionDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res GetConversionDetailOKBodyConversionDetailsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*GetConversionDetailOKBodyConversionDetailsItems0NotesItems0 get conversion detail o k body conversion details items0 notes items0
+swagger:model GetConversionDetailOKBodyConversionDetailsItems0NotesItems0
+*/
+type GetConversionDetailOKBodyConversionDetailsItems0NotesItems0 struct {
+
+	// Note added by reviewer
+	AddedBy string `json:"addedBy,omitempty" xml:"AddedBy,attr,omitempty"`
+
+	// Comments given by the reviewer
+	Comments string `json:"comments,omitempty" xml:"Comment,attr,omitempty"`
+
+	// Time of the note added by reviewer
+	// Format: date-time
+	Time strfmt.DateTime `json:"time,omitempty" xml:"Date,attr,omitempty"`
+}
+
+// Validate validates this get conversion detail o k body conversion details items0 notes items0
+func (o *GetConversionDetailOKBodyConversionDetailsItems0NotesItems0) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateTime(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetConversionDetailOKBodyConversionDetailsItems0NotesItems0) validateTime(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Time) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("time", "body", "date-time", o.Time.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetConversionDetailOKBodyConversionDetailsItems0NotesItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetConversionDetailOKBodyConversionDetailsItems0NotesItems0) UnmarshalBinary(b []byte) error {
+	var res GetConversionDetailOKBodyConversionDetailsItems0NotesItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

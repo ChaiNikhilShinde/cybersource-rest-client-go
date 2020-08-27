@@ -12,10 +12,9 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
-
-	strfmt "github.com/go-openapi/strfmt"
 )
 
 // GetPurchaseAndRefundDetailsReader is a Reader for the GetPurchaseAndRefundDetails structure.
@@ -58,7 +57,7 @@ func (o *GetPurchaseAndRefundDetailsReader) ReadResponse(response runtime.Client
 		return nil, result
 
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
 	}
 }
 
@@ -227,211 +226,6 @@ func (o *GetPurchaseAndRefundDetailsInternalServerError) readResponse(response r
 	return nil
 }
 
-/*AuthorizationsItems0 Authorization Info Values
-swagger:model AuthorizationsItems0
-*/
-type AuthorizationsItems0 struct {
-
-	// Authorization Amount
-	Amount string `json:"amount,omitempty"`
-
-	// Authorization Request Id
-	AuthorizationRequestID string `json:"authorizationRequestId,omitempty"`
-
-	// Authorization Code
-	Code string `json:"code,omitempty"`
-
-	// Valid ISO 4217 ALPHA-3 currency code
-	CurrencyCode string `json:"currencyCode,omitempty"`
-
-	// Authorization RCode
-	Rcode string `json:"rcode,omitempty"`
-
-	// An unique identification number assigned by CyberSource to identify the submitted request.
-	RequestID string `json:"requestId,omitempty"`
-
-	// Authorization Date
-	// Format: date-time
-	Time strfmt.DateTime `json:"time,omitempty"`
-
-	// Authorization Transaction Reference Number
-	TransactionReferenceNumber string `json:"transactionReferenceNumber,omitempty"`
-}
-
-// Validate validates this authorizations items0
-func (o *AuthorizationsItems0) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateTime(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *AuthorizationsItems0) validateTime(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Time) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("time", "body", "date-time", o.Time.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *AuthorizationsItems0) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *AuthorizationsItems0) UnmarshalBinary(b []byte) error {
-	var res AuthorizationsItems0
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*DetailsItems0 Provides failed validation input field detail
-//
-swagger:model DetailsItems0
-*/
-type DetailsItems0 struct {
-
-	// Field in request that caused an error
-	//
-	Field string `json:"field,omitempty"`
-
-	// Documented reason code
-	//
-	Reason string `json:"reason,omitempty"`
-}
-
-// Validate validates this details items0
-func (o *DetailsItems0) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *DetailsItems0) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *DetailsItems0) UnmarshalBinary(b []byte) error {
-	var res DetailsItems0
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*FeeAndFundingDetailsItems0 Fee Funding Section
-swagger:model FeeAndFundingDetailsItems0
-*/
-type FeeAndFundingDetailsItems0 struct {
-
-	// Discount Amount
-	DiscountAmount string `json:"discountAmount,omitempty"`
-
-	// Discount Per Item Fee
-	DiscountPerItemFee string `json:"discountPerItemFee,omitempty"`
-
-	// Discount Percentage
-	DiscountPercentage string `json:"discountPercentage,omitempty"`
-
-	// Dues Assessments
-	DuesAssessments string `json:"duesAssessments,omitempty"`
-
-	// Fee Currency
-	FeeCurrency string `json:"feeCurrency,omitempty"`
-
-	// Funding Amount
-	FundingAmount string `json:"fundingAmount,omitempty"`
-
-	// Funding Currency (ISO 4217)
-	FundingCurrency string `json:"fundingCurrency,omitempty"`
-
-	// interchange Description
-	InterchangeDescription string `json:"interchangeDescription,omitempty"`
-
-	// interchange Per Item Fee
-	InterchangePerItemFee string `json:"interchangePerItemFee,omitempty"`
-
-	// interchange Percentage
-	InterchangePercentage string `json:"interchangePercentage,omitempty"`
-
-	// interchange Percentage Amount
-	InterchangePercentageAmount string `json:"interchangePercentageAmount,omitempty"`
-
-	// An unique identification number assigned by CyberSource to identify the submitted request.
-	// Max Length: 26
-	RequestID string `json:"requestId,omitempty"`
-
-	// Total Fee
-	TotalFee string `json:"totalFee,omitempty"`
-}
-
-// Validate validates this fee and funding details items0
-func (o *FeeAndFundingDetailsItems0) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateRequestID(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *FeeAndFundingDetailsItems0) validateRequestID(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.RequestID) { // not required
-		return nil
-	}
-
-	if err := validate.MaxLength("requestId", "body", string(o.RequestID), 26); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *FeeAndFundingDetailsItems0) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *FeeAndFundingDetailsItems0) UnmarshalBinary(b []byte) error {
-	var res FeeAndFundingDetailsItems0
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
 /*GetPurchaseAndRefundDetailsBadRequestBody reportingV3PurchaseRefundDetailsGet400Response
 //
 // HTTP status code for client application
@@ -442,7 +236,7 @@ type GetPurchaseAndRefundDetailsBadRequestBody struct {
 	// Error field list
 	//
 	// Required: true
-	Details []*DetailsItems0 `json:"details"`
+	Details []*GetPurchaseAndRefundDetailsBadRequestBodyDetailsItems0 `json:"details"`
 
 	// Short descriptive message to the user.
 	//
@@ -561,6 +355,44 @@ func (o *GetPurchaseAndRefundDetailsBadRequestBody) UnmarshalBinary(b []byte) er
 	return nil
 }
 
+/*GetPurchaseAndRefundDetailsBadRequestBodyDetailsItems0 Provides failed validation input field detail
+//
+swagger:model GetPurchaseAndRefundDetailsBadRequestBodyDetailsItems0
+*/
+type GetPurchaseAndRefundDetailsBadRequestBodyDetailsItems0 struct {
+
+	// Field in request that caused an error
+	//
+	Field string `json:"field,omitempty"`
+
+	// Documented reason code
+	//
+	Reason string `json:"reason,omitempty"`
+}
+
+// Validate validates this get purchase and refund details bad request body details items0
+func (o *GetPurchaseAndRefundDetailsBadRequestBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetPurchaseAndRefundDetailsBadRequestBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetPurchaseAndRefundDetailsBadRequestBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res GetPurchaseAndRefundDetailsBadRequestBodyDetailsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*GetPurchaseAndRefundDetailsInternalServerErrorBody reportingV3PurchaseRefundDetailsGet500Response
 //
 // HTTP status code for client application
@@ -571,7 +403,7 @@ type GetPurchaseAndRefundDetailsInternalServerErrorBody struct {
 	// Error field list
 	//
 	// Required: true
-	Details []*DetailsItems0 `json:"details"`
+	Details []*GetPurchaseAndRefundDetailsInternalServerErrorBodyDetailsItems0 `json:"details"`
 
 	// Short descriptive message to the user.
 	//
@@ -690,6 +522,44 @@ func (o *GetPurchaseAndRefundDetailsInternalServerErrorBody) UnmarshalBinary(b [
 	return nil
 }
 
+/*GetPurchaseAndRefundDetailsInternalServerErrorBodyDetailsItems0 Provides failed validation input field detail
+//
+swagger:model GetPurchaseAndRefundDetailsInternalServerErrorBodyDetailsItems0
+*/
+type GetPurchaseAndRefundDetailsInternalServerErrorBodyDetailsItems0 struct {
+
+	// Field in request that caused an error
+	//
+	Field string `json:"field,omitempty"`
+
+	// Documented reason code
+	//
+	Reason string `json:"reason,omitempty"`
+}
+
+// Validate validates this get purchase and refund details internal server error body details items0
+func (o *GetPurchaseAndRefundDetailsInternalServerErrorBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetPurchaseAndRefundDetailsInternalServerErrorBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetPurchaseAndRefundDetailsInternalServerErrorBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res GetPurchaseAndRefundDetailsInternalServerErrorBodyDetailsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*GetPurchaseAndRefundDetailsNotFoundBody reportingV3PurchaseRefundDetailsGet404Response
 //
 // HTTP status code for client application
@@ -700,7 +570,7 @@ type GetPurchaseAndRefundDetailsNotFoundBody struct {
 	// Error field list
 	//
 	// Required: true
-	Details []*DetailsItems0 `json:"details"`
+	Details []*GetPurchaseAndRefundDetailsNotFoundBodyDetailsItems0 `json:"details"`
 
 	// Short descriptive message to the user.
 	//
@@ -819,16 +689,54 @@ func (o *GetPurchaseAndRefundDetailsNotFoundBody) UnmarshalBinary(b []byte) erro
 	return nil
 }
 
+/*GetPurchaseAndRefundDetailsNotFoundBodyDetailsItems0 Provides failed validation input field detail
+//
+swagger:model GetPurchaseAndRefundDetailsNotFoundBodyDetailsItems0
+*/
+type GetPurchaseAndRefundDetailsNotFoundBodyDetailsItems0 struct {
+
+	// Field in request that caused an error
+	//
+	Field string `json:"field,omitempty"`
+
+	// Documented reason code
+	//
+	Reason string `json:"reason,omitempty"`
+}
+
+// Validate validates this get purchase and refund details not found body details items0
+func (o *GetPurchaseAndRefundDetailsNotFoundBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetPurchaseAndRefundDetailsNotFoundBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetPurchaseAndRefundDetailsNotFoundBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res GetPurchaseAndRefundDetailsNotFoundBodyDetailsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*GetPurchaseAndRefundDetailsOKBody reportingV3PurchaseRefundDetailsGet200Response
 swagger:model GetPurchaseAndRefundDetailsOKBody
 */
 type GetPurchaseAndRefundDetailsOKBody struct {
 
 	// List of Authorization Info values
-	Authorizations []*AuthorizationsItems0 `json:"authorizations"`
+	Authorizations []*GetPurchaseAndRefundDetailsOKBodyAuthorizationsItems0 `json:"authorizations"`
 
 	// List of Fee Funding Info values
-	FeeAndFundingDetails []*FeeAndFundingDetailsItems0 `json:"feeAndFundingDetails"`
+	FeeAndFundingDetails []*GetPurchaseAndRefundDetailsOKBodyFeeAndFundingDetailsItems0 `json:"feeAndFundingDetails"`
 
 	// limit
 	Limit int64 `json:"limit,omitempty"`
@@ -837,19 +745,19 @@ type GetPurchaseAndRefundDetailsOKBody struct {
 	Offset int64 `json:"offset,omitempty"`
 
 	// List of Other Info values
-	Others []*OthersItems0 `json:"others"`
+	Others []*GetPurchaseAndRefundDetailsOKBodyOthersItems0 `json:"others"`
 
 	// page results
 	PageResults int64 `json:"pageResults,omitempty"`
 
 	// List of Request Info values
-	RequestDetails []*RequestDetailsItems0 `json:"requestDetails"`
+	RequestDetails []*GetPurchaseAndRefundDetailsOKBodyRequestDetailsItems0 `json:"requestDetails"`
 
 	// List of Settlement Status Info values
-	SettlementStatuses []*SettlementStatusesItems0 `json:"settlementStatuses"`
+	SettlementStatuses []*GetPurchaseAndRefundDetailsOKBodySettlementStatusesItems0 `json:"settlementStatuses"`
 
 	// List of Settlement Info values
-	Settlements []*SettlementsItems0 `json:"settlements"`
+	Settlements []*GetPurchaseAndRefundDetailsOKBodySettlementsItems0 `json:"settlements"`
 }
 
 // Validate validates this get purchase and refund details o k body
@@ -1054,6 +962,487 @@ func (o *GetPurchaseAndRefundDetailsOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
+/*GetPurchaseAndRefundDetailsOKBodyAuthorizationsItems0 Authorization Info Values
+swagger:model GetPurchaseAndRefundDetailsOKBodyAuthorizationsItems0
+*/
+type GetPurchaseAndRefundDetailsOKBodyAuthorizationsItems0 struct {
+
+	// Authorization Amount
+	Amount string `json:"amount,omitempty"`
+
+	// Authorization Request Id
+	AuthorizationRequestID string `json:"authorizationRequestId,omitempty"`
+
+	// Authorization Code
+	Code string `json:"code,omitempty"`
+
+	// Valid ISO 4217 ALPHA-3 currency code
+	CurrencyCode string `json:"currencyCode,omitempty"`
+
+	// Authorization RCode
+	Rcode string `json:"rcode,omitempty"`
+
+	// An unique identification number assigned by CyberSource to identify the submitted request.
+	RequestID string `json:"requestId,omitempty"`
+
+	// Authorization Date
+	// Format: date-time
+	Time strfmt.DateTime `json:"time,omitempty"`
+
+	// Authorization Transaction Reference Number
+	TransactionReferenceNumber string `json:"transactionReferenceNumber,omitempty"`
+}
+
+// Validate validates this get purchase and refund details o k body authorizations items0
+func (o *GetPurchaseAndRefundDetailsOKBodyAuthorizationsItems0) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateTime(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetPurchaseAndRefundDetailsOKBodyAuthorizationsItems0) validateTime(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Time) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("time", "body", "date-time", o.Time.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetPurchaseAndRefundDetailsOKBodyAuthorizationsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetPurchaseAndRefundDetailsOKBodyAuthorizationsItems0) UnmarshalBinary(b []byte) error {
+	var res GetPurchaseAndRefundDetailsOKBodyAuthorizationsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*GetPurchaseAndRefundDetailsOKBodyFeeAndFundingDetailsItems0 Fee Funding Section
+swagger:model GetPurchaseAndRefundDetailsOKBodyFeeAndFundingDetailsItems0
+*/
+type GetPurchaseAndRefundDetailsOKBodyFeeAndFundingDetailsItems0 struct {
+
+	// Discount Amount
+	DiscountAmount string `json:"discountAmount,omitempty"`
+
+	// Discount Per Item Fee
+	DiscountPerItemFee string `json:"discountPerItemFee,omitempty"`
+
+	// Discount Percentage
+	DiscountPercentage string `json:"discountPercentage,omitempty"`
+
+	// Dues Assessments
+	DuesAssessments string `json:"duesAssessments,omitempty"`
+
+	// Fee Currency
+	FeeCurrency string `json:"feeCurrency,omitempty"`
+
+	// Funding Amount
+	FundingAmount string `json:"fundingAmount,omitempty"`
+
+	// Funding Currency (ISO 4217)
+	FundingCurrency string `json:"fundingCurrency,omitempty"`
+
+	// interchange Description
+	InterchangeDescription string `json:"interchangeDescription,omitempty"`
+
+	// interchange Per Item Fee
+	InterchangePerItemFee string `json:"interchangePerItemFee,omitempty"`
+
+	// interchange Percentage
+	InterchangePercentage string `json:"interchangePercentage,omitempty"`
+
+	// interchange Percentage Amount
+	InterchangePercentageAmount string `json:"interchangePercentageAmount,omitempty"`
+
+	// An unique identification number assigned by CyberSource to identify the submitted request.
+	// Max Length: 26
+	RequestID string `json:"requestId,omitempty"`
+
+	// Total Fee
+	TotalFee string `json:"totalFee,omitempty"`
+}
+
+// Validate validates this get purchase and refund details o k body fee and funding details items0
+func (o *GetPurchaseAndRefundDetailsOKBodyFeeAndFundingDetailsItems0) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateRequestID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetPurchaseAndRefundDetailsOKBodyFeeAndFundingDetailsItems0) validateRequestID(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.RequestID) { // not required
+		return nil
+	}
+
+	if err := validate.MaxLength("requestId", "body", string(o.RequestID), 26); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetPurchaseAndRefundDetailsOKBodyFeeAndFundingDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetPurchaseAndRefundDetailsOKBodyFeeAndFundingDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res GetPurchaseAndRefundDetailsOKBodyFeeAndFundingDetailsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*GetPurchaseAndRefundDetailsOKBodyOthersItems0 Other Merchant Details Values.
+swagger:model GetPurchaseAndRefundDetailsOKBodyOthersItems0
+*/
+type GetPurchaseAndRefundDetailsOKBodyOthersItems0 struct {
+
+	// First Name
+	FirstName string `json:"firstName,omitempty"`
+
+	// Last Name
+	LastName string `json:"lastName,omitempty"`
+
+	// Merchant Defined Data
+	MerchantData1 string `json:"merchantData1,omitempty"`
+
+	// Merchant Defined Data
+	MerchantData2 string `json:"merchantData2,omitempty"`
+
+	// Merchant Defined Data
+	MerchantData3 string `json:"merchantData3,omitempty"`
+
+	// Merchant Defined Data
+	MerchantData4 string `json:"merchantData4,omitempty"`
+
+	// An unique identification number assigned by CyberSource to identify the submitted request.
+	// Max Length: 26
+	RequestID string `json:"requestId,omitempty"`
+}
+
+// Validate validates this get purchase and refund details o k body others items0
+func (o *GetPurchaseAndRefundDetailsOKBodyOthersItems0) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateRequestID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetPurchaseAndRefundDetailsOKBodyOthersItems0) validateRequestID(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.RequestID) { // not required
+		return nil
+	}
+
+	if err := validate.MaxLength("requestId", "body", string(o.RequestID), 26); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetPurchaseAndRefundDetailsOKBodyOthersItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetPurchaseAndRefundDetailsOKBodyOthersItems0) UnmarshalBinary(b []byte) error {
+	var res GetPurchaseAndRefundDetailsOKBodyOthersItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*GetPurchaseAndRefundDetailsOKBodyRequestDetailsItems0 Request Info Section
+swagger:model GetPurchaseAndRefundDetailsOKBodyRequestDetailsItems0
+*/
+type GetPurchaseAndRefundDetailsOKBodyRequestDetailsItems0 struct {
+
+	// Cybersource Merchant Id
+	CybersourceMerchantID string `json:"cybersourceMerchantId,omitempty"`
+
+	// Group Name
+	GroupName string `json:"groupName,omitempty"`
+
+	// Merchant Reference Number
+	MerchantReferenceNumber string `json:"merchantReferenceNumber,omitempty"`
+
+	// Cybersource Processor Merchant Id
+	ProcessorMerchantID string `json:"processorMerchantId,omitempty"`
+
+	// An unique identification number assigned by CyberSource to identify the submitted request.
+	RequestID string `json:"requestId,omitempty"`
+
+	// Transaction Reference Number
+	TransactionReferenceNumber string `json:"transactionReferenceNumber,omitempty"`
+}
+
+// Validate validates this get purchase and refund details o k body request details items0
+func (o *GetPurchaseAndRefundDetailsOKBodyRequestDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetPurchaseAndRefundDetailsOKBodyRequestDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetPurchaseAndRefundDetailsOKBodyRequestDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res GetPurchaseAndRefundDetailsOKBodyRequestDetailsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*GetPurchaseAndRefundDetailsOKBodySettlementStatusesItems0 Settlement Status Section Values.
+swagger:model GetPurchaseAndRefundDetailsOKBodySettlementStatusesItems0
+*/
+type GetPurchaseAndRefundDetailsOKBodySettlementStatusesItems0 struct {
+
+	// errorText
+	ErrorText string `json:"errorText,omitempty"`
+
+	// ReasonCode
+	ReasonCode string `json:"reasonCode,omitempty"`
+
+	// An unique identification number assigned by CyberSource to identify the submitted request.
+	// Max Length: 26
+	RequestID string `json:"requestId,omitempty"`
+
+	// Settlement Date
+	// Format: date-time
+	SettlementTime strfmt.DateTime `json:"settlementTime,omitempty"`
+
+	// Settlement Status
+	Status string `json:"status,omitempty"`
+}
+
+// Validate validates this get purchase and refund details o k body settlement statuses items0
+func (o *GetPurchaseAndRefundDetailsOKBodySettlementStatusesItems0) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateRequestID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateSettlementTime(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetPurchaseAndRefundDetailsOKBodySettlementStatusesItems0) validateRequestID(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.RequestID) { // not required
+		return nil
+	}
+
+	if err := validate.MaxLength("requestId", "body", string(o.RequestID), 26); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *GetPurchaseAndRefundDetailsOKBodySettlementStatusesItems0) validateSettlementTime(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.SettlementTime) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("settlementTime", "body", "date-time", o.SettlementTime.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetPurchaseAndRefundDetailsOKBodySettlementStatusesItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetPurchaseAndRefundDetailsOKBodySettlementStatusesItems0) UnmarshalBinary(b []byte) error {
+	var res GetPurchaseAndRefundDetailsOKBodySettlementStatusesItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*GetPurchaseAndRefundDetailsOKBodySettlementsItems0 get purchase and refund details o k body settlements items0
+swagger:model GetPurchaseAndRefundDetailsOKBodySettlementsItems0
+*/
+type GetPurchaseAndRefundDetailsOKBodySettlementsItems0 struct {
+
+	// Account Suffix
+	AccountSuffix string `json:"accountSuffix,omitempty"`
+
+	// Amount
+	Amount string `json:"amount,omitempty"`
+
+	// Card Type
+	CardType string `json:"cardType,omitempty"`
+
+	// Valid ISO 4217 ALPHA-3 currency code
+	CurrencyCode string `json:"currencyCode,omitempty"`
+
+	// Cybersource Batch Id
+	CybersourceBatchID string `json:"cybersourceBatchId,omitempty"`
+
+	// Cybersource Batch Time
+	// Format: date-time
+	CybersourceBatchTime strfmt.DateTime `json:"cybersourceBatchTime,omitempty"`
+
+	// Debit Network
+	DebitNetwork string `json:"debitNetwork,omitempty"`
+
+	// payment method
+	PaymentMethod string `json:"paymentMethod,omitempty"`
+
+	// Payment Type
+	PaymentType string `json:"paymentType,omitempty"`
+
+	// An unique identification number assigned by CyberSource to identify the submitted request.
+	RequestID string `json:"requestId,omitempty"`
+
+	// Submission Date
+	// Format: date-time
+	SubmissionTime strfmt.DateTime `json:"submissionTime,omitempty"`
+
+	// Transaction Type
+	TransactionType string `json:"transactionType,omitempty"`
+
+	// Solution Type (Wallet)
+	WalletType string `json:"walletType,omitempty"`
+}
+
+// Validate validates this get purchase and refund details o k body settlements items0
+func (o *GetPurchaseAndRefundDetailsOKBodySettlementsItems0) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateCybersourceBatchTime(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateSubmissionTime(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetPurchaseAndRefundDetailsOKBodySettlementsItems0) validateCybersourceBatchTime(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.CybersourceBatchTime) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("cybersourceBatchTime", "body", "date-time", o.CybersourceBatchTime.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *GetPurchaseAndRefundDetailsOKBodySettlementsItems0) validateSubmissionTime(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.SubmissionTime) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("submissionTime", "body", "date-time", o.SubmissionTime.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetPurchaseAndRefundDetailsOKBodySettlementsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetPurchaseAndRefundDetailsOKBodySettlementsItems0) UnmarshalBinary(b []byte) error {
+	var res GetPurchaseAndRefundDetailsOKBodySettlementsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*GetPurchaseAndRefundDetailsUnauthorizedBody reportingV3PurchaseRefundDetailsGet401Response
 //
 // HTTP status code for client application
@@ -1064,7 +1453,7 @@ type GetPurchaseAndRefundDetailsUnauthorizedBody struct {
 	// Error field list
 	//
 	// Required: true
-	Details []*DetailsItems0 `json:"details"`
+	Details []*GetPurchaseAndRefundDetailsUnauthorizedBodyDetailsItems0 `json:"details"`
 
 	// Short descriptive message to the user.
 	//
@@ -1183,63 +1572,28 @@ func (o *GetPurchaseAndRefundDetailsUnauthorizedBody) UnmarshalBinary(b []byte) 
 	return nil
 }
 
-/*OthersItems0 Other Merchant Details Values.
-swagger:model OthersItems0
+/*GetPurchaseAndRefundDetailsUnauthorizedBodyDetailsItems0 Provides failed validation input field detail
+//
+swagger:model GetPurchaseAndRefundDetailsUnauthorizedBodyDetailsItems0
 */
-type OthersItems0 struct {
+type GetPurchaseAndRefundDetailsUnauthorizedBodyDetailsItems0 struct {
 
-	// First Name
-	FirstName string `json:"firstName,omitempty"`
+	// Field in request that caused an error
+	//
+	Field string `json:"field,omitempty"`
 
-	// Last Name
-	LastName string `json:"lastName,omitempty"`
-
-	// Merchant Defined Data
-	MerchantData1 string `json:"merchantData1,omitempty"`
-
-	// Merchant Defined Data
-	MerchantData2 string `json:"merchantData2,omitempty"`
-
-	// Merchant Defined Data
-	MerchantData3 string `json:"merchantData3,omitempty"`
-
-	// Merchant Defined Data
-	MerchantData4 string `json:"merchantData4,omitempty"`
-
-	// An unique identification number assigned by CyberSource to identify the submitted request.
-	// Max Length: 26
-	RequestID string `json:"requestId,omitempty"`
+	// Documented reason code
+	//
+	Reason string `json:"reason,omitempty"`
 }
 
-// Validate validates this others items0
-func (o *OthersItems0) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateRequestID(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *OthersItems0) validateRequestID(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.RequestID) { // not required
-		return nil
-	}
-
-	if err := validate.MaxLength("requestId", "body", string(o.RequestID), 26); err != nil {
-		return err
-	}
-
+// Validate validates this get purchase and refund details unauthorized body details items0
+func (o *GetPurchaseAndRefundDetailsUnauthorizedBodyDetailsItems0) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *OthersItems0) MarshalBinary() ([]byte, error) {
+func (o *GetPurchaseAndRefundDetailsUnauthorizedBodyDetailsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -1247,249 +1601,8 @@ func (o *OthersItems0) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *OthersItems0) UnmarshalBinary(b []byte) error {
-	var res OthersItems0
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*RequestDetailsItems0 Request Info Section
-swagger:model RequestDetailsItems0
-*/
-type RequestDetailsItems0 struct {
-
-	// Cybersource Merchant Id
-	CybersourceMerchantID string `json:"cybersourceMerchantId,omitempty"`
-
-	// Group Name
-	GroupName string `json:"groupName,omitempty"`
-
-	// Merchant Reference Number
-	MerchantReferenceNumber string `json:"merchantReferenceNumber,omitempty"`
-
-	// Cybersource Processor Merchant Id
-	ProcessorMerchantID string `json:"processorMerchantId,omitempty"`
-
-	// An unique identification number assigned by CyberSource to identify the submitted request.
-	RequestID string `json:"requestId,omitempty"`
-
-	// Transaction Reference Number
-	TransactionReferenceNumber string `json:"transactionReferenceNumber,omitempty"`
-}
-
-// Validate validates this request details items0
-func (o *RequestDetailsItems0) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *RequestDetailsItems0) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *RequestDetailsItems0) UnmarshalBinary(b []byte) error {
-	var res RequestDetailsItems0
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*SettlementStatusesItems0 Settlement Status Section Values.
-swagger:model SettlementStatusesItems0
-*/
-type SettlementStatusesItems0 struct {
-
-	// errorText
-	ErrorText string `json:"errorText,omitempty"`
-
-	// ReasonCode
-	ReasonCode string `json:"reasonCode,omitempty"`
-
-	// An unique identification number assigned by CyberSource to identify the submitted request.
-	// Max Length: 26
-	RequestID string `json:"requestId,omitempty"`
-
-	// Settlement Date
-	// Format: date-time
-	SettlementTime strfmt.DateTime `json:"settlementTime,omitempty"`
-
-	// Settlement Status
-	Status string `json:"status,omitempty"`
-}
-
-// Validate validates this settlement statuses items0
-func (o *SettlementStatusesItems0) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateRequestID(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateSettlementTime(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *SettlementStatusesItems0) validateRequestID(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.RequestID) { // not required
-		return nil
-	}
-
-	if err := validate.MaxLength("requestId", "body", string(o.RequestID), 26); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (o *SettlementStatusesItems0) validateSettlementTime(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.SettlementTime) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("settlementTime", "body", "date-time", o.SettlementTime.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *SettlementStatusesItems0) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *SettlementStatusesItems0) UnmarshalBinary(b []byte) error {
-	var res SettlementStatusesItems0
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*SettlementsItems0 settlements items0
-swagger:model SettlementsItems0
-*/
-type SettlementsItems0 struct {
-
-	// Account Suffix
-	AccountSuffix string `json:"accountSuffix,omitempty"`
-
-	// Amount
-	Amount string `json:"amount,omitempty"`
-
-	// Card Type
-	CardType string `json:"cardType,omitempty"`
-
-	// Valid ISO 4217 ALPHA-3 currency code
-	CurrencyCode string `json:"currencyCode,omitempty"`
-
-	// Cybersource Batch Id
-	CybersourceBatchID string `json:"cybersourceBatchId,omitempty"`
-
-	// Cybersource Batch Time
-	// Format: date-time
-	CybersourceBatchTime strfmt.DateTime `json:"cybersourceBatchTime,omitempty"`
-
-	// Debit Network
-	DebitNetwork string `json:"debitNetwork,omitempty"`
-
-	// payment method
-	PaymentMethod string `json:"paymentMethod,omitempty"`
-
-	// Payment Type
-	PaymentType string `json:"paymentType,omitempty"`
-
-	// An unique identification number assigned by CyberSource to identify the submitted request.
-	RequestID string `json:"requestId,omitempty"`
-
-	// Submission Date
-	// Format: date-time
-	SubmissionTime strfmt.DateTime `json:"submissionTime,omitempty"`
-
-	// Transaction Type
-	TransactionType string `json:"transactionType,omitempty"`
-
-	// Solution Type (Wallet)
-	WalletType string `json:"walletType,omitempty"`
-}
-
-// Validate validates this settlements items0
-func (o *SettlementsItems0) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateCybersourceBatchTime(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateSubmissionTime(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *SettlementsItems0) validateCybersourceBatchTime(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.CybersourceBatchTime) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("cybersourceBatchTime", "body", "date-time", o.CybersourceBatchTime.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (o *SettlementsItems0) validateSubmissionTime(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.SubmissionTime) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("submissionTime", "body", "date-time", o.SubmissionTime.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *SettlementsItems0) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *SettlementsItems0) UnmarshalBinary(b []byte) error {
-	var res SettlementsItems0
+func (o *GetPurchaseAndRefundDetailsUnauthorizedBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res GetPurchaseAndRefundDetailsUnauthorizedBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

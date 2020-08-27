@@ -13,8 +13,7 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	cr "github.com/go-openapi/runtime/client"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 )
 
 // NewGetSubscriptionParams creates a new GetSubscriptionParams object
@@ -61,6 +60,11 @@ for the get subscription operation typically these are written to a http.Request
 */
 type GetSubscriptionParams struct {
 
+	/*OrganizationID
+	  Valid Cybersource Organization Id
+
+	*/
+	OrganizationID *string
 	/*ReportName
 	  Name of the Report to Retrieve
 
@@ -105,6 +109,17 @@ func (o *GetSubscriptionParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
+// WithOrganizationID adds the organizationID to the get subscription params
+func (o *GetSubscriptionParams) WithOrganizationID(organizationID *string) *GetSubscriptionParams {
+	o.SetOrganizationID(organizationID)
+	return o
+}
+
+// SetOrganizationID adds the organizationId to the get subscription params
+func (o *GetSubscriptionParams) SetOrganizationID(organizationID *string) {
+	o.OrganizationID = organizationID
+}
+
 // WithReportName adds the reportName to the get subscription params
 func (o *GetSubscriptionParams) WithReportName(reportName string) *GetSubscriptionParams {
 	o.SetReportName(reportName)
@@ -123,6 +138,22 @@ func (o *GetSubscriptionParams) WriteToRequest(r runtime.ClientRequest, reg strf
 		return err
 	}
 	var res []error
+
+	if o.OrganizationID != nil {
+
+		// query param organizationId
+		var qrOrganizationID string
+		if o.OrganizationID != nil {
+			qrOrganizationID = *o.OrganizationID
+		}
+		qOrganizationID := qrOrganizationID
+		if qOrganizationID != "" {
+			if err := r.SetQueryParam("organizationId", qOrganizationID); err != nil {
+				return err
+			}
+		}
+
+	}
 
 	// path param reportName
 	if err := r.SetPathParam("reportName", o.ReportName); err != nil {

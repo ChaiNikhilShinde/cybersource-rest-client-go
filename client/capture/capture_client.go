@@ -9,12 +9,11 @@ import (
 	"fmt"
 
 	"github.com/go-openapi/runtime"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 )
 
 // New creates a new capture API client.
-func New(transport runtime.ClientTransport, formats strfmt.Registry) *Client {
+func New(transport runtime.ClientTransport, formats strfmt.Registry) ClientService {
 	return &Client{transport: transport, formats: formats}
 }
 
@@ -26,10 +25,17 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
-/*
-CapturePayment captures a payment
+// ClientService is the interface for Client methods
+type ClientService interface {
+	CapturePayment(params *CapturePaymentParams) (*CapturePaymentCreated, error)
 
-Include the payment ID in the POST request to capture the payment amount.
+	SetTransport(transport runtime.ClientTransport)
+}
+
+/*
+  CapturePayment captures a payment
+
+  Include the payment ID in the POST request to capture the payment amount.
 */
 func (a *Client) CapturePayment(params *CapturePaymentParams) (*CapturePaymentCreated, error) {
 	// TODO: Validate the params before sending
@@ -41,7 +47,7 @@ func (a *Client) CapturePayment(params *CapturePaymentParams) (*CapturePaymentCr
 		ID:                 "capturePayment",
 		Method:             "POST",
 		PathPattern:        "/pts/v2/payments/{id}/captures",
-		ProducesMediaTypes: []string{"application/json;charset=utf-8"},
+		ProducesMediaTypes: []string{"application/hal+json;charset=utf-8"},
 		ConsumesMediaTypes: []string{"application/json;charset=utf-8"},
 		Schemes:            []string{"https"},
 		Params:             params,

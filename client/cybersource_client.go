@@ -8,19 +8,25 @@ package client
 import (
 	"github.com/go-openapi/runtime"
 	httptransport "github.com/go-openapi/runtime/client"
+	"github.com/go-openapi/strfmt"
 
-	strfmt "github.com/go-openapi/strfmt"
-
+	"github.com/tooolbox/cybersource-rest-client-go/client/asymmetric_key_management"
 	"github.com/tooolbox/cybersource-rest-client-go/client/capture"
 	"github.com/tooolbox/cybersource-rest-client-go/client/conversion_details"
 	"github.com/tooolbox/cybersource-rest-client-go/client/credit"
+	"github.com/tooolbox/cybersource-rest-client-go/client/customer"
+	"github.com/tooolbox/cybersource-rest-client-go/client/customer_payment_instrument"
+	"github.com/tooolbox/cybersource-rest-client-go/client/customer_shipping_address"
 	"github.com/tooolbox/cybersource-rest-client-go/client/decision_manager"
 	"github.com/tooolbox/cybersource-rest-client-go/client/download_d_t_d"
 	"github.com/tooolbox/cybersource-rest-client-go/client/download_x_s_d"
 	"github.com/tooolbox/cybersource-rest-client-go/client/instrument_identifier"
+	"github.com/tooolbox/cybersource-rest-client-go/client/invoice_settings"
+	"github.com/tooolbox/cybersource-rest-client-go/client/invoices"
 	"github.com/tooolbox/cybersource-rest-client-go/client/key_generation"
 	"github.com/tooolbox/cybersource-rest-client-go/client/net_fundings"
 	"github.com/tooolbox/cybersource-rest-client-go/client/notification_of_changes"
+	"github.com/tooolbox/cybersource-rest-client-go/client/payer_authentication"
 	"github.com/tooolbox/cybersource-rest-client-go/client/payment_batch_summaries"
 	"github.com/tooolbox/cybersource-rest-client-go/client/payment_instrument"
 	"github.com/tooolbox/cybersource-rest-client-go/client/payments"
@@ -34,10 +40,13 @@ import (
 	"github.com/tooolbox/cybersource-rest-client-go/client/reversal"
 	"github.com/tooolbox/cybersource-rest-client-go/client/search_transactions"
 	"github.com/tooolbox/cybersource-rest-client-go/client/secure_file_share"
-	"github.com/tooolbox/cybersource-rest-client-go/client/tokenization"
+	"github.com/tooolbox/cybersource-rest-client-go/client/symmetric_key_management"
+	"github.com/tooolbox/cybersource-rest-client-go/client/taxes"
 	"github.com/tooolbox/cybersource-rest-client-go/client/transaction_batches"
 	"github.com/tooolbox/cybersource-rest-client-go/client/transaction_details"
 	"github.com/tooolbox/cybersource-rest-client-go/client/user_management"
+	"github.com/tooolbox/cybersource-rest-client-go/client/user_management_search"
+	"github.com/tooolbox/cybersource-rest-client-go/client/verification"
 	"github.com/tooolbox/cybersource-rest-client-go/client/void"
 )
 
@@ -83,63 +92,44 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *Cybersourc
 
 	cli := new(Cybersource)
 	cli.Transport = transport
-
+	cli.AsymmetricKeyManagement = asymmetric_key_management.New(transport, formats)
 	cli.Capture = capture.New(transport, formats)
-
 	cli.ConversionDetails = conversion_details.New(transport, formats)
-
 	cli.Credit = credit.New(transport, formats)
-
+	cli.Customer = customer.New(transport, formats)
+	cli.CustomerPaymentInstrument = customer_payment_instrument.New(transport, formats)
+	cli.CustomerShippingAddress = customer_shipping_address.New(transport, formats)
 	cli.DecisionManager = decision_manager.New(transport, formats)
-
 	cli.Downloaddtd = download_d_t_d.New(transport, formats)
-
 	cli.Downloadxsd = download_x_s_d.New(transport, formats)
-
 	cli.InstrumentIdentifier = instrument_identifier.New(transport, formats)
-
+	cli.InvoiceSettings = invoice_settings.New(transport, formats)
+	cli.Invoices = invoices.New(transport, formats)
 	cli.KeyGeneration = key_generation.New(transport, formats)
-
 	cli.NetFundings = net_fundings.New(transport, formats)
-
 	cli.NotificationOfChanges = notification_of_changes.New(transport, formats)
-
+	cli.PayerAuthentication = payer_authentication.New(transport, formats)
 	cli.PaymentBatchSummaries = payment_batch_summaries.New(transport, formats)
-
 	cli.PaymentInstrument = payment_instrument.New(transport, formats)
-
 	cli.Payments = payments.New(transport, formats)
-
 	cli.Payouts = payouts.New(transport, formats)
-
 	cli.PurchaseAndRefundDetails = purchase_and_refund_details.New(transport, formats)
-
 	cli.Refund = refund.New(transport, formats)
-
 	cli.ReportDefinitions = report_definitions.New(transport, formats)
-
 	cli.ReportDownloads = report_downloads.New(transport, formats)
-
 	cli.ReportSubscriptions = report_subscriptions.New(transport, formats)
-
 	cli.Reports = reports.New(transport, formats)
-
 	cli.Reversal = reversal.New(transport, formats)
-
 	cli.SearchTransactions = search_transactions.New(transport, formats)
-
 	cli.SecureFileShare = secure_file_share.New(transport, formats)
-
-	cli.Tokenization = tokenization.New(transport, formats)
-
+	cli.SymmetricKeyManagement = symmetric_key_management.New(transport, formats)
+	cli.Taxes = taxes.New(transport, formats)
 	cli.TransactionBatches = transaction_batches.New(transport, formats)
-
 	cli.TransactionDetails = transaction_details.New(transport, formats)
-
 	cli.UserManagement = user_management.New(transport, formats)
-
+	cli.UserManagementSearch = user_management_search.New(transport, formats)
+	cli.Verification = verification.New(transport, formats)
 	cli.Void = void.New(transport, formats)
-
 	return cli
 }
 
@@ -184,61 +174,81 @@ func (cfg *TransportConfig) WithSchemes(schemes []string) *TransportConfig {
 
 // Cybersource is a client for cybersource
 type Cybersource struct {
-	Capture *capture.Client
+	AsymmetricKeyManagement asymmetric_key_management.ClientService
 
-	ConversionDetails *conversion_details.Client
+	Capture capture.ClientService
 
-	Credit *credit.Client
+	ConversionDetails conversion_details.ClientService
 
-	DecisionManager *decision_manager.Client
+	Credit credit.ClientService
 
-	Downloaddtd *download_d_t_d.Client
+	Customer customer.ClientService
 
-	Downloadxsd *download_x_s_d.Client
+	CustomerPaymentInstrument customer_payment_instrument.ClientService
 
-	InstrumentIdentifier *instrument_identifier.Client
+	CustomerShippingAddress customer_shipping_address.ClientService
 
-	KeyGeneration *key_generation.Client
+	DecisionManager decision_manager.ClientService
 
-	NetFundings *net_fundings.Client
+	Downloaddtd download_d_t_d.ClientService
 
-	NotificationOfChanges *notification_of_changes.Client
+	Downloadxsd download_x_s_d.ClientService
 
-	PaymentBatchSummaries *payment_batch_summaries.Client
+	InstrumentIdentifier instrument_identifier.ClientService
 
-	PaymentInstrument *payment_instrument.Client
+	InvoiceSettings invoice_settings.ClientService
 
-	Payments *payments.Client
+	Invoices invoices.ClientService
 
-	Payouts *payouts.Client
+	KeyGeneration key_generation.ClientService
 
-	PurchaseAndRefundDetails *purchase_and_refund_details.Client
+	NetFundings net_fundings.ClientService
 
-	Refund *refund.Client
+	NotificationOfChanges notification_of_changes.ClientService
 
-	ReportDefinitions *report_definitions.Client
+	PayerAuthentication payer_authentication.ClientService
 
-	ReportDownloads *report_downloads.Client
+	PaymentBatchSummaries payment_batch_summaries.ClientService
 
-	ReportSubscriptions *report_subscriptions.Client
+	PaymentInstrument payment_instrument.ClientService
 
-	Reports *reports.Client
+	Payments payments.ClientService
 
-	Reversal *reversal.Client
+	Payouts payouts.ClientService
 
-	SearchTransactions *search_transactions.Client
+	PurchaseAndRefundDetails purchase_and_refund_details.ClientService
 
-	SecureFileShare *secure_file_share.Client
+	Refund refund.ClientService
 
-	Tokenization *tokenization.Client
+	ReportDefinitions report_definitions.ClientService
 
-	TransactionBatches *transaction_batches.Client
+	ReportDownloads report_downloads.ClientService
 
-	TransactionDetails *transaction_details.Client
+	ReportSubscriptions report_subscriptions.ClientService
 
-	UserManagement *user_management.Client
+	Reports reports.ClientService
 
-	Void *void.Client
+	Reversal reversal.ClientService
+
+	SearchTransactions search_transactions.ClientService
+
+	SecureFileShare secure_file_share.ClientService
+
+	SymmetricKeyManagement symmetric_key_management.ClientService
+
+	Taxes taxes.ClientService
+
+	TransactionBatches transaction_batches.ClientService
+
+	TransactionDetails transaction_details.ClientService
+
+	UserManagement user_management.ClientService
+
+	UserManagementSearch user_management_search.ClientService
+
+	Verification verification.ClientService
+
+	Void void.ClientService
 
 	Transport runtime.ClientTransport
 }
@@ -246,61 +256,42 @@ type Cybersource struct {
 // SetTransport changes the transport on the client and all its subresources
 func (c *Cybersource) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
-
+	c.AsymmetricKeyManagement.SetTransport(transport)
 	c.Capture.SetTransport(transport)
-
 	c.ConversionDetails.SetTransport(transport)
-
 	c.Credit.SetTransport(transport)
-
+	c.Customer.SetTransport(transport)
+	c.CustomerPaymentInstrument.SetTransport(transport)
+	c.CustomerShippingAddress.SetTransport(transport)
 	c.DecisionManager.SetTransport(transport)
-
 	c.Downloaddtd.SetTransport(transport)
-
 	c.Downloadxsd.SetTransport(transport)
-
 	c.InstrumentIdentifier.SetTransport(transport)
-
+	c.InvoiceSettings.SetTransport(transport)
+	c.Invoices.SetTransport(transport)
 	c.KeyGeneration.SetTransport(transport)
-
 	c.NetFundings.SetTransport(transport)
-
 	c.NotificationOfChanges.SetTransport(transport)
-
+	c.PayerAuthentication.SetTransport(transport)
 	c.PaymentBatchSummaries.SetTransport(transport)
-
 	c.PaymentInstrument.SetTransport(transport)
-
 	c.Payments.SetTransport(transport)
-
 	c.Payouts.SetTransport(transport)
-
 	c.PurchaseAndRefundDetails.SetTransport(transport)
-
 	c.Refund.SetTransport(transport)
-
 	c.ReportDefinitions.SetTransport(transport)
-
 	c.ReportDownloads.SetTransport(transport)
-
 	c.ReportSubscriptions.SetTransport(transport)
-
 	c.Reports.SetTransport(transport)
-
 	c.Reversal.SetTransport(transport)
-
 	c.SearchTransactions.SetTransport(transport)
-
 	c.SecureFileShare.SetTransport(transport)
-
-	c.Tokenization.SetTransport(transport)
-
+	c.SymmetricKeyManagement.SetTransport(transport)
+	c.Taxes.SetTransport(transport)
 	c.TransactionBatches.SetTransport(transport)
-
 	c.TransactionDetails.SetTransport(transport)
-
 	c.UserManagement.SetTransport(transport)
-
+	c.UserManagementSearch.SetTransport(transport)
+	c.Verification.SetTransport(transport)
 	c.Void.SetTransport(transport)
-
 }

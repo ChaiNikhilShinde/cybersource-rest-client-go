@@ -8,13 +8,13 @@ package instrument_identifier
 import (
 	"fmt"
 	"io"
+	"strconv"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
-
-	strfmt "github.com/go-openapi/strfmt"
 )
 
 // GetInstrumentIdentifierReader is a Reader for the GetInstrumentIdentifier structure.
@@ -69,7 +69,7 @@ func (o *GetInstrumentIdentifierReader) ReadResponse(response runtime.ClientResp
 		return nil, result
 
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
 	}
 }
 
@@ -80,18 +80,24 @@ func NewGetInstrumentIdentifierOK() *GetInstrumentIdentifierOK {
 
 /*GetInstrumentIdentifierOK handles this case with default header values.
 
-An existing Instrument Identifier associated with the supplied `tokenId` has been returned.
+Returns an existing Instrument Identifier associated with the supplied token id.
 */
 type GetInstrumentIdentifierOK struct {
+	/*An ETag is an identifier assigned to a specific version of a resource.
+	 */
+	ETag string
 	/*A globally-unique ID associated with your request.
 	 */
 	UniqueTransactionID string
+	/*The mandatory correlation id passed by upstream (calling) system.
+	 */
+	VcCorrelationID string
 
 	Payload *GetInstrumentIdentifierOKBody
 }
 
 func (o *GetInstrumentIdentifierOK) Error() string {
-	return fmt.Sprintf("[GET /tms/v1/instrumentidentifiers/{tokenId}][%d] getInstrumentIdentifierOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[GET /tms/v1/instrumentidentifiers/{instrumentIdentifierTokenId}][%d] getInstrumentIdentifierOK  %+v", 200, o.Payload)
 }
 
 func (o *GetInstrumentIdentifierOK) GetPayload() *GetInstrumentIdentifierOKBody {
@@ -100,8 +106,14 @@ func (o *GetInstrumentIdentifierOK) GetPayload() *GetInstrumentIdentifierOKBody 
 
 func (o *GetInstrumentIdentifierOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	// response header ETag
+	o.ETag = response.GetHeader("ETag")
+
 	// response header uniqueTransactionID
 	o.UniqueTransactionID = response.GetHeader("uniqueTransactionID")
+
+	// response header v-c-correlation-id
+	o.VcCorrelationID = response.GetHeader("v-c-correlation-id")
 
 	o.Payload = new(GetInstrumentIdentifierOKBody)
 
@@ -120,21 +132,24 @@ func NewGetInstrumentIdentifierBadRequest() *GetInstrumentIdentifierBadRequest {
 
 /*GetInstrumentIdentifierBadRequest handles this case with default header values.
 
-Bad Request. A required header value could be missing.
+Bad Request: e.g. A required header value could be missing.
 */
 type GetInstrumentIdentifierBadRequest struct {
-	/*A globally unique ID associated with your request.
+	/*A globally unique id associated with your request.
 	 */
 	UniqueTransactionID string
+	/*The mandatory correlation id passed by upstream (calling) system.
+	 */
+	VcCorrelationID string
 
-	Payload []*GetInstrumentIdentifierBadRequestBodyItems0
+	Payload *GetInstrumentIdentifierBadRequestBody
 }
 
 func (o *GetInstrumentIdentifierBadRequest) Error() string {
-	return fmt.Sprintf("[GET /tms/v1/instrumentidentifiers/{tokenId}][%d] getInstrumentIdentifierBadRequest  %+v", 400, o.Payload)
+	return fmt.Sprintf("[GET /tms/v1/instrumentidentifiers/{instrumentIdentifierTokenId}][%d] getInstrumentIdentifierBadRequest  %+v", 400, o.Payload)
 }
 
-func (o *GetInstrumentIdentifierBadRequest) GetPayload() []*GetInstrumentIdentifierBadRequestBodyItems0 {
+func (o *GetInstrumentIdentifierBadRequest) GetPayload() *GetInstrumentIdentifierBadRequestBody {
 	return o.Payload
 }
 
@@ -143,8 +158,13 @@ func (o *GetInstrumentIdentifierBadRequest) readResponse(response runtime.Client
 	// response header uniqueTransactionID
 	o.UniqueTransactionID = response.GetHeader("uniqueTransactionID")
 
+	// response header v-c-correlation-id
+	o.VcCorrelationID = response.GetHeader("v-c-correlation-id")
+
+	o.Payload = new(GetInstrumentIdentifierBadRequestBody)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -158,21 +178,24 @@ func NewGetInstrumentIdentifierForbidden() *GetInstrumentIdentifierForbidden {
 
 /*GetInstrumentIdentifierForbidden handles this case with default header values.
 
-Forbidden. The profile might not have permission to perform the token operation.
+403ForbiddenResponse: e.g. The profile might not have permission to perform the operation.
 */
 type GetInstrumentIdentifierForbidden struct {
-	/*A globally unique ID associated with your request.
+	/*A globally unique id associated with your request.
 	 */
 	UniqueTransactionID string
+	/*The mandatory correlation id passed by upstream (calling) system.
+	 */
+	VcCorrelationID string
 
-	Payload []*GetInstrumentIdentifierForbiddenBodyItems0
+	Payload *GetInstrumentIdentifierForbiddenBody
 }
 
 func (o *GetInstrumentIdentifierForbidden) Error() string {
-	return fmt.Sprintf("[GET /tms/v1/instrumentidentifiers/{tokenId}][%d] getInstrumentIdentifierForbidden  %+v", 403, o.Payload)
+	return fmt.Sprintf("[GET /tms/v1/instrumentidentifiers/{instrumentIdentifierTokenId}][%d] getInstrumentIdentifierForbidden  %+v", 403, o.Payload)
 }
 
-func (o *GetInstrumentIdentifierForbidden) GetPayload() []*GetInstrumentIdentifierForbiddenBodyItems0 {
+func (o *GetInstrumentIdentifierForbidden) GetPayload() *GetInstrumentIdentifierForbiddenBody {
 	return o.Payload
 }
 
@@ -181,8 +204,13 @@ func (o *GetInstrumentIdentifierForbidden) readResponse(response runtime.ClientR
 	// response header uniqueTransactionID
 	o.UniqueTransactionID = response.GetHeader("uniqueTransactionID")
 
+	// response header v-c-correlation-id
+	o.VcCorrelationID = response.GetHeader("v-c-correlation-id")
+
+	o.Payload = new(GetInstrumentIdentifierForbiddenBody)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -202,15 +230,18 @@ type GetInstrumentIdentifierNotFound struct {
 	/*A globally unique ID associated with your request.
 	 */
 	UniqueTransactionID string
+	/*The mandatory correlation id passed by upstream (calling) system.
+	 */
+	VcCorrelationID string
 
-	Payload []*GetInstrumentIdentifierNotFoundBodyItems0
+	Payload *GetInstrumentIdentifierNotFoundBody
 }
 
 func (o *GetInstrumentIdentifierNotFound) Error() string {
-	return fmt.Sprintf("[GET /tms/v1/instrumentidentifiers/{tokenId}][%d] getInstrumentIdentifierNotFound  %+v", 404, o.Payload)
+	return fmt.Sprintf("[GET /tms/v1/instrumentidentifiers/{instrumentIdentifierTokenId}][%d] getInstrumentIdentifierNotFound  %+v", 404, o.Payload)
 }
 
-func (o *GetInstrumentIdentifierNotFound) GetPayload() []*GetInstrumentIdentifierNotFoundBodyItems0 {
+func (o *GetInstrumentIdentifierNotFound) GetPayload() *GetInstrumentIdentifierNotFoundBody {
 	return o.Payload
 }
 
@@ -219,8 +250,13 @@ func (o *GetInstrumentIdentifierNotFound) readResponse(response runtime.ClientRe
 	// response header uniqueTransactionID
 	o.UniqueTransactionID = response.GetHeader("uniqueTransactionID")
 
+	// response header v-c-correlation-id
+	o.VcCorrelationID = response.GetHeader("v-c-correlation-id")
+
+	o.Payload = new(GetInstrumentIdentifierNotFoundBody)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -240,15 +276,18 @@ type GetInstrumentIdentifierGone struct {
 	/*A globally unique ID associated with your request.
 	 */
 	UniqueTransactionID string
+	/*The mandatory correlation id passed by upstream (calling) system.
+	 */
+	VcCorrelationID string
 
-	Payload []*GetInstrumentIdentifierGoneBodyItems0
+	Payload *GetInstrumentIdentifierGoneBody
 }
 
 func (o *GetInstrumentIdentifierGone) Error() string {
-	return fmt.Sprintf("[GET /tms/v1/instrumentidentifiers/{tokenId}][%d] getInstrumentIdentifierGone  %+v", 410, o.Payload)
+	return fmt.Sprintf("[GET /tms/v1/instrumentidentifiers/{instrumentIdentifierTokenId}][%d] getInstrumentIdentifierGone  %+v", 410, o.Payload)
 }
 
-func (o *GetInstrumentIdentifierGone) GetPayload() []*GetInstrumentIdentifierGoneBodyItems0 {
+func (o *GetInstrumentIdentifierGone) GetPayload() *GetInstrumentIdentifierGoneBody {
 	return o.Payload
 }
 
@@ -257,8 +296,13 @@ func (o *GetInstrumentIdentifierGone) readResponse(response runtime.ClientRespon
 	// response header uniqueTransactionID
 	o.UniqueTransactionID = response.GetHeader("uniqueTransactionID")
 
+	// response header v-c-correlation-id
+	o.VcCorrelationID = response.GetHeader("v-c-correlation-id")
+
+	o.Payload = new(GetInstrumentIdentifierGoneBody)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -278,15 +322,18 @@ type GetInstrumentIdentifierFailedDependency struct {
 	/*A globally unique id associated with your request.
 	 */
 	UniqueTransactionID string
+	/*The mandatory correlation id passed by upstream (calling) system.
+	 */
+	VcCorrelationID string
 
-	Payload []*GetInstrumentIdentifierFailedDependencyBodyItems0
+	Payload *GetInstrumentIdentifierFailedDependencyBody
 }
 
 func (o *GetInstrumentIdentifierFailedDependency) Error() string {
-	return fmt.Sprintf("[GET /tms/v1/instrumentidentifiers/{tokenId}][%d] getInstrumentIdentifierFailedDependency  %+v", 424, o.Payload)
+	return fmt.Sprintf("[GET /tms/v1/instrumentidentifiers/{instrumentIdentifierTokenId}][%d] getInstrumentIdentifierFailedDependency  %+v", 424, o.Payload)
 }
 
-func (o *GetInstrumentIdentifierFailedDependency) GetPayload() []*GetInstrumentIdentifierFailedDependencyBodyItems0 {
+func (o *GetInstrumentIdentifierFailedDependency) GetPayload() *GetInstrumentIdentifierFailedDependencyBody {
 	return o.Payload
 }
 
@@ -295,8 +342,13 @@ func (o *GetInstrumentIdentifierFailedDependency) readResponse(response runtime.
 	// response header uniqueTransactionID
 	o.UniqueTransactionID = response.GetHeader("uniqueTransactionID")
 
+	// response header v-c-correlation-id
+	o.VcCorrelationID = response.GetHeader("v-c-correlation-id")
+
+	o.Payload = new(GetInstrumentIdentifierFailedDependencyBody)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -316,15 +368,18 @@ type GetInstrumentIdentifierInternalServerError struct {
 	/*A globally unique id associated with your request.
 	 */
 	UniqueTransactionID string
+	/*The mandatory correlation id passed by upstream (calling) system.
+	 */
+	VcCorrelationID string
 
-	Payload []*GetInstrumentIdentifierInternalServerErrorBodyItems0
+	Payload *GetInstrumentIdentifierInternalServerErrorBody
 }
 
 func (o *GetInstrumentIdentifierInternalServerError) Error() string {
-	return fmt.Sprintf("[GET /tms/v1/instrumentidentifiers/{tokenId}][%d] getInstrumentIdentifierInternalServerError  %+v", 500, o.Payload)
+	return fmt.Sprintf("[GET /tms/v1/instrumentidentifiers/{instrumentIdentifierTokenId}][%d] getInstrumentIdentifierInternalServerError  %+v", 500, o.Payload)
 }
 
-func (o *GetInstrumentIdentifierInternalServerError) GetPayload() []*GetInstrumentIdentifierInternalServerErrorBodyItems0 {
+func (o *GetInstrumentIdentifierInternalServerError) GetPayload() *GetInstrumentIdentifierInternalServerErrorBody {
 	return o.Payload
 }
 
@@ -333,31 +388,106 @@ func (o *GetInstrumentIdentifierInternalServerError) readResponse(response runti
 	// response header uniqueTransactionID
 	o.UniqueTransactionID = response.GetHeader("uniqueTransactionID")
 
+	// response header v-c-correlation-id
+	o.VcCorrelationID = response.GetHeader("v-c-correlation-id")
+
+	o.Payload = new(GetInstrumentIdentifierInternalServerErrorBody)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
 	return nil
 }
 
-/*GetInstrumentIdentifierBadRequestBodyItems0 get instrument identifier bad request body items0
-swagger:model GetInstrumentIdentifierBadRequestBodyItems0
+/*GetInstrumentIdentifierBadRequestBody get instrument identifier bad request body
+swagger:model GetInstrumentIdentifierBadRequestBody
 */
-type GetInstrumentIdentifierBadRequestBodyItems0 struct {
+type GetInstrumentIdentifierBadRequestBody struct {
+
+	// errors
+	// Read Only: true
+	Errors []*GetInstrumentIdentifierBadRequestBodyErrorsItems0 `json:"errors"`
+}
+
+// Validate validates this get instrument identifier bad request body
+func (o *GetInstrumentIdentifierBadRequestBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateErrors(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetInstrumentIdentifierBadRequestBody) validateErrors(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Errors) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Errors); i++ {
+		if swag.IsZero(o.Errors[i]) { // not required
+			continue
+		}
+
+		if o.Errors[i] != nil {
+			if err := o.Errors[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("getInstrumentIdentifierBadRequest" + "." + "errors" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetInstrumentIdentifierBadRequestBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetInstrumentIdentifierBadRequestBody) UnmarshalBinary(b []byte) error {
+	var res GetInstrumentIdentifierBadRequestBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*GetInstrumentIdentifierBadRequestBodyErrorsItems0 get instrument identifier bad request body errors items0
+swagger:model GetInstrumentIdentifierBadRequestBodyErrorsItems0
+*/
+type GetInstrumentIdentifierBadRequestBodyErrorsItems0 struct {
 
 	// details
-	Details *GetInstrumentIdentifierBadRequestBodyItems0Details `json:"details,omitempty"`
+	// Read Only: true
+	Details []*GetInstrumentIdentifierBadRequestBodyErrorsItems0DetailsItems0 `json:"details"`
 
 	// The detailed message related to the type stated above.
+	// Read Only: true
 	Message string `json:"message,omitempty"`
 
-	// type
+	// The type of error.
+	// Read Only: true
 	Type string `json:"type,omitempty"`
 }
 
-// Validate validates this get instrument identifier bad request body items0
-func (o *GetInstrumentIdentifierBadRequestBodyItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this get instrument identifier bad request body errors items0
+func (o *GetInstrumentIdentifierBadRequestBodyErrorsItems0) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateDetails(formats); err != nil {
@@ -370,26 +500,33 @@ func (o *GetInstrumentIdentifierBadRequestBodyItems0) Validate(formats strfmt.Re
 	return nil
 }
 
-func (o *GetInstrumentIdentifierBadRequestBodyItems0) validateDetails(formats strfmt.Registry) error {
+func (o *GetInstrumentIdentifierBadRequestBodyErrorsItems0) validateDetails(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
 
-	if o.Details != nil {
-		if err := o.Details.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("details")
-			}
-			return err
+	for i := 0; i < len(o.Details); i++ {
+		if swag.IsZero(o.Details[i]) { // not required
+			continue
 		}
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
 	}
 
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *GetInstrumentIdentifierBadRequestBodyItems0) MarshalBinary() ([]byte, error) {
+func (o *GetInstrumentIdentifierBadRequestBodyErrorsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -397,8 +534,8 @@ func (o *GetInstrumentIdentifierBadRequestBodyItems0) MarshalBinary() ([]byte, e
 }
 
 // UnmarshalBinary interface implementation
-func (o *GetInstrumentIdentifierBadRequestBodyItems0) UnmarshalBinary(b []byte) error {
-	var res GetInstrumentIdentifierBadRequestBodyItems0
+func (o *GetInstrumentIdentifierBadRequestBodyErrorsItems0) UnmarshalBinary(b []byte) error {
+	var res GetInstrumentIdentifierBadRequestBodyErrorsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -406,25 +543,27 @@ func (o *GetInstrumentIdentifierBadRequestBodyItems0) UnmarshalBinary(b []byte) 
 	return nil
 }
 
-/*GetInstrumentIdentifierBadRequestBodyItems0Details get instrument identifier bad request body items0 details
-swagger:model GetInstrumentIdentifierBadRequestBodyItems0Details
+/*GetInstrumentIdentifierBadRequestBodyErrorsItems0DetailsItems0 get instrument identifier bad request body errors items0 details items0
+swagger:model GetInstrumentIdentifierBadRequestBodyErrorsItems0DetailsItems0
 */
-type GetInstrumentIdentifierBadRequestBodyItems0Details struct {
+type GetInstrumentIdentifierBadRequestBodyErrorsItems0DetailsItems0 struct {
 
-	// The location of the field that threw the error.
+	// The location of the field that caused the error.
+	// Read Only: true
 	Location string `json:"location,omitempty"`
 
-	// The name of the field that threw the error.
+	// The name of the field that caused the error.
+	// Read Only: true
 	Name string `json:"name,omitempty"`
 }
 
-// Validate validates this get instrument identifier bad request body items0 details
-func (o *GetInstrumentIdentifierBadRequestBodyItems0Details) Validate(formats strfmt.Registry) error {
+// Validate validates this get instrument identifier bad request body errors items0 details items0
+func (o *GetInstrumentIdentifierBadRequestBodyErrorsItems0DetailsItems0) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *GetInstrumentIdentifierBadRequestBodyItems0Details) MarshalBinary() ([]byte, error) {
+func (o *GetInstrumentIdentifierBadRequestBodyErrorsItems0DetailsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -432,8 +571,8 @@ func (o *GetInstrumentIdentifierBadRequestBodyItems0Details) MarshalBinary() ([]
 }
 
 // UnmarshalBinary interface implementation
-func (o *GetInstrumentIdentifierBadRequestBodyItems0Details) UnmarshalBinary(b []byte) error {
-	var res GetInstrumentIdentifierBadRequestBodyItems0Details
+func (o *GetInstrumentIdentifierBadRequestBodyErrorsItems0DetailsItems0) UnmarshalBinary(b []byte) error {
+	var res GetInstrumentIdentifierBadRequestBodyErrorsItems0DetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -441,23 +580,93 @@ func (o *GetInstrumentIdentifierBadRequestBodyItems0Details) UnmarshalBinary(b [
 	return nil
 }
 
-/*GetInstrumentIdentifierFailedDependencyBodyItems0 get instrument identifier failed dependency body items0
-swagger:model GetInstrumentIdentifierFailedDependencyBodyItems0
+/*GetInstrumentIdentifierFailedDependencyBody get instrument identifier failed dependency body
+swagger:model GetInstrumentIdentifierFailedDependencyBody
 */
-type GetInstrumentIdentifierFailedDependencyBodyItems0 struct {
+type GetInstrumentIdentifierFailedDependencyBody struct {
+
+	// errors
+	// Read Only: true
+	Errors []*GetInstrumentIdentifierFailedDependencyBodyErrorsItems0 `json:"errors"`
+}
+
+// Validate validates this get instrument identifier failed dependency body
+func (o *GetInstrumentIdentifierFailedDependencyBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateErrors(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetInstrumentIdentifierFailedDependencyBody) validateErrors(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Errors) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Errors); i++ {
+		if swag.IsZero(o.Errors[i]) { // not required
+			continue
+		}
+
+		if o.Errors[i] != nil {
+			if err := o.Errors[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("getInstrumentIdentifierFailedDependency" + "." + "errors" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetInstrumentIdentifierFailedDependencyBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetInstrumentIdentifierFailedDependencyBody) UnmarshalBinary(b []byte) error {
+	var res GetInstrumentIdentifierFailedDependencyBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*GetInstrumentIdentifierFailedDependencyBodyErrorsItems0 get instrument identifier failed dependency body errors items0
+swagger:model GetInstrumentIdentifierFailedDependencyBodyErrorsItems0
+*/
+type GetInstrumentIdentifierFailedDependencyBodyErrorsItems0 struct {
 
 	// details
-	Details *GetInstrumentIdentifierFailedDependencyBodyItems0Details `json:"details,omitempty"`
+	// Read Only: true
+	Details []*GetInstrumentIdentifierFailedDependencyBodyErrorsItems0DetailsItems0 `json:"details"`
 
 	// The detailed message related to the type stated above.
+	// Read Only: true
 	Message string `json:"message,omitempty"`
 
-	// type
+	// The type of error.
+	// Read Only: true
 	Type string `json:"type,omitempty"`
 }
 
-// Validate validates this get instrument identifier failed dependency body items0
-func (o *GetInstrumentIdentifierFailedDependencyBodyItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this get instrument identifier failed dependency body errors items0
+func (o *GetInstrumentIdentifierFailedDependencyBodyErrorsItems0) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateDetails(formats); err != nil {
@@ -470,26 +679,33 @@ func (o *GetInstrumentIdentifierFailedDependencyBodyItems0) Validate(formats str
 	return nil
 }
 
-func (o *GetInstrumentIdentifierFailedDependencyBodyItems0) validateDetails(formats strfmt.Registry) error {
+func (o *GetInstrumentIdentifierFailedDependencyBodyErrorsItems0) validateDetails(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
 
-	if o.Details != nil {
-		if err := o.Details.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("details")
-			}
-			return err
+	for i := 0; i < len(o.Details); i++ {
+		if swag.IsZero(o.Details[i]) { // not required
+			continue
 		}
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
 	}
 
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *GetInstrumentIdentifierFailedDependencyBodyItems0) MarshalBinary() ([]byte, error) {
+func (o *GetInstrumentIdentifierFailedDependencyBodyErrorsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -497,8 +713,8 @@ func (o *GetInstrumentIdentifierFailedDependencyBodyItems0) MarshalBinary() ([]b
 }
 
 // UnmarshalBinary interface implementation
-func (o *GetInstrumentIdentifierFailedDependencyBodyItems0) UnmarshalBinary(b []byte) error {
-	var res GetInstrumentIdentifierFailedDependencyBodyItems0
+func (o *GetInstrumentIdentifierFailedDependencyBodyErrorsItems0) UnmarshalBinary(b []byte) error {
+	var res GetInstrumentIdentifierFailedDependencyBodyErrorsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -506,25 +722,27 @@ func (o *GetInstrumentIdentifierFailedDependencyBodyItems0) UnmarshalBinary(b []
 	return nil
 }
 
-/*GetInstrumentIdentifierFailedDependencyBodyItems0Details get instrument identifier failed dependency body items0 details
-swagger:model GetInstrumentIdentifierFailedDependencyBodyItems0Details
+/*GetInstrumentIdentifierFailedDependencyBodyErrorsItems0DetailsItems0 get instrument identifier failed dependency body errors items0 details items0
+swagger:model GetInstrumentIdentifierFailedDependencyBodyErrorsItems0DetailsItems0
 */
-type GetInstrumentIdentifierFailedDependencyBodyItems0Details struct {
+type GetInstrumentIdentifierFailedDependencyBodyErrorsItems0DetailsItems0 struct {
 
-	// The location of the field that threw the error.
+	// The location of the field that caused the error.
+	// Read Only: true
 	Location string `json:"location,omitempty"`
 
-	// The name of the field that threw the error.
+	// The name of the field that caused the error.
+	// Read Only: true
 	Name string `json:"name,omitempty"`
 }
 
-// Validate validates this get instrument identifier failed dependency body items0 details
-func (o *GetInstrumentIdentifierFailedDependencyBodyItems0Details) Validate(formats strfmt.Registry) error {
+// Validate validates this get instrument identifier failed dependency body errors items0 details items0
+func (o *GetInstrumentIdentifierFailedDependencyBodyErrorsItems0DetailsItems0) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *GetInstrumentIdentifierFailedDependencyBodyItems0Details) MarshalBinary() ([]byte, error) {
+func (o *GetInstrumentIdentifierFailedDependencyBodyErrorsItems0DetailsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -532,8 +750,8 @@ func (o *GetInstrumentIdentifierFailedDependencyBodyItems0Details) MarshalBinary
 }
 
 // UnmarshalBinary interface implementation
-func (o *GetInstrumentIdentifierFailedDependencyBodyItems0Details) UnmarshalBinary(b []byte) error {
-	var res GetInstrumentIdentifierFailedDependencyBodyItems0Details
+func (o *GetInstrumentIdentifierFailedDependencyBodyErrorsItems0DetailsItems0) UnmarshalBinary(b []byte) error {
+	var res GetInstrumentIdentifierFailedDependencyBodyErrorsItems0DetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -541,23 +759,93 @@ func (o *GetInstrumentIdentifierFailedDependencyBodyItems0Details) UnmarshalBina
 	return nil
 }
 
-/*GetInstrumentIdentifierForbiddenBodyItems0 get instrument identifier forbidden body items0
-swagger:model GetInstrumentIdentifierForbiddenBodyItems0
+/*GetInstrumentIdentifierForbiddenBody get instrument identifier forbidden body
+swagger:model GetInstrumentIdentifierForbiddenBody
 */
-type GetInstrumentIdentifierForbiddenBodyItems0 struct {
+type GetInstrumentIdentifierForbiddenBody struct {
+
+	// errors
+	// Read Only: true
+	Errors []*GetInstrumentIdentifierForbiddenBodyErrorsItems0 `json:"errors"`
+}
+
+// Validate validates this get instrument identifier forbidden body
+func (o *GetInstrumentIdentifierForbiddenBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateErrors(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetInstrumentIdentifierForbiddenBody) validateErrors(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Errors) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Errors); i++ {
+		if swag.IsZero(o.Errors[i]) { // not required
+			continue
+		}
+
+		if o.Errors[i] != nil {
+			if err := o.Errors[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("getInstrumentIdentifierForbidden" + "." + "errors" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetInstrumentIdentifierForbiddenBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetInstrumentIdentifierForbiddenBody) UnmarshalBinary(b []byte) error {
+	var res GetInstrumentIdentifierForbiddenBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*GetInstrumentIdentifierForbiddenBodyErrorsItems0 get instrument identifier forbidden body errors items0
+swagger:model GetInstrumentIdentifierForbiddenBodyErrorsItems0
+*/
+type GetInstrumentIdentifierForbiddenBodyErrorsItems0 struct {
 
 	// details
-	Details *GetInstrumentIdentifierForbiddenBodyItems0Details `json:"details,omitempty"`
+	// Read Only: true
+	Details []*GetInstrumentIdentifierForbiddenBodyErrorsItems0DetailsItems0 `json:"details"`
 
 	// The detailed message related to the type stated above.
+	// Read Only: true
 	Message string `json:"message,omitempty"`
 
-	// type
+	// The type of error.
+	// Read Only: true
 	Type string `json:"type,omitempty"`
 }
 
-// Validate validates this get instrument identifier forbidden body items0
-func (o *GetInstrumentIdentifierForbiddenBodyItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this get instrument identifier forbidden body errors items0
+func (o *GetInstrumentIdentifierForbiddenBodyErrorsItems0) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateDetails(formats); err != nil {
@@ -570,26 +858,33 @@ func (o *GetInstrumentIdentifierForbiddenBodyItems0) Validate(formats strfmt.Reg
 	return nil
 }
 
-func (o *GetInstrumentIdentifierForbiddenBodyItems0) validateDetails(formats strfmt.Registry) error {
+func (o *GetInstrumentIdentifierForbiddenBodyErrorsItems0) validateDetails(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
 
-	if o.Details != nil {
-		if err := o.Details.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("details")
-			}
-			return err
+	for i := 0; i < len(o.Details); i++ {
+		if swag.IsZero(o.Details[i]) { // not required
+			continue
 		}
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
 	}
 
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *GetInstrumentIdentifierForbiddenBodyItems0) MarshalBinary() ([]byte, error) {
+func (o *GetInstrumentIdentifierForbiddenBodyErrorsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -597,8 +892,8 @@ func (o *GetInstrumentIdentifierForbiddenBodyItems0) MarshalBinary() ([]byte, er
 }
 
 // UnmarshalBinary interface implementation
-func (o *GetInstrumentIdentifierForbiddenBodyItems0) UnmarshalBinary(b []byte) error {
-	var res GetInstrumentIdentifierForbiddenBodyItems0
+func (o *GetInstrumentIdentifierForbiddenBodyErrorsItems0) UnmarshalBinary(b []byte) error {
+	var res GetInstrumentIdentifierForbiddenBodyErrorsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -606,25 +901,27 @@ func (o *GetInstrumentIdentifierForbiddenBodyItems0) UnmarshalBinary(b []byte) e
 	return nil
 }
 
-/*GetInstrumentIdentifierForbiddenBodyItems0Details get instrument identifier forbidden body items0 details
-swagger:model GetInstrumentIdentifierForbiddenBodyItems0Details
+/*GetInstrumentIdentifierForbiddenBodyErrorsItems0DetailsItems0 get instrument identifier forbidden body errors items0 details items0
+swagger:model GetInstrumentIdentifierForbiddenBodyErrorsItems0DetailsItems0
 */
-type GetInstrumentIdentifierForbiddenBodyItems0Details struct {
+type GetInstrumentIdentifierForbiddenBodyErrorsItems0DetailsItems0 struct {
 
-	// The location of the field that threw the error.
+	// The location of the field that caused the error.
+	// Read Only: true
 	Location string `json:"location,omitempty"`
 
-	// The name of the field that threw the error.
+	// The name of the field that caused the error.
+	// Read Only: true
 	Name string `json:"name,omitempty"`
 }
 
-// Validate validates this get instrument identifier forbidden body items0 details
-func (o *GetInstrumentIdentifierForbiddenBodyItems0Details) Validate(formats strfmt.Registry) error {
+// Validate validates this get instrument identifier forbidden body errors items0 details items0
+func (o *GetInstrumentIdentifierForbiddenBodyErrorsItems0DetailsItems0) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *GetInstrumentIdentifierForbiddenBodyItems0Details) MarshalBinary() ([]byte, error) {
+func (o *GetInstrumentIdentifierForbiddenBodyErrorsItems0DetailsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -632,8 +929,8 @@ func (o *GetInstrumentIdentifierForbiddenBodyItems0Details) MarshalBinary() ([]b
 }
 
 // UnmarshalBinary interface implementation
-func (o *GetInstrumentIdentifierForbiddenBodyItems0Details) UnmarshalBinary(b []byte) error {
-	var res GetInstrumentIdentifierForbiddenBodyItems0Details
+func (o *GetInstrumentIdentifierForbiddenBodyErrorsItems0DetailsItems0) UnmarshalBinary(b []byte) error {
+	var res GetInstrumentIdentifierForbiddenBodyErrorsItems0DetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -641,23 +938,93 @@ func (o *GetInstrumentIdentifierForbiddenBodyItems0Details) UnmarshalBinary(b []
 	return nil
 }
 
-/*GetInstrumentIdentifierGoneBodyItems0 get instrument identifier gone body items0
-swagger:model GetInstrumentIdentifierGoneBodyItems0
+/*GetInstrumentIdentifierGoneBody get instrument identifier gone body
+swagger:model GetInstrumentIdentifierGoneBody
 */
-type GetInstrumentIdentifierGoneBodyItems0 struct {
+type GetInstrumentIdentifierGoneBody struct {
+
+	// errors
+	// Read Only: true
+	Errors []*GetInstrumentIdentifierGoneBodyErrorsItems0 `json:"errors"`
+}
+
+// Validate validates this get instrument identifier gone body
+func (o *GetInstrumentIdentifierGoneBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateErrors(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetInstrumentIdentifierGoneBody) validateErrors(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Errors) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Errors); i++ {
+		if swag.IsZero(o.Errors[i]) { // not required
+			continue
+		}
+
+		if o.Errors[i] != nil {
+			if err := o.Errors[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("getInstrumentIdentifierGone" + "." + "errors" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetInstrumentIdentifierGoneBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetInstrumentIdentifierGoneBody) UnmarshalBinary(b []byte) error {
+	var res GetInstrumentIdentifierGoneBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*GetInstrumentIdentifierGoneBodyErrorsItems0 get instrument identifier gone body errors items0
+swagger:model GetInstrumentIdentifierGoneBodyErrorsItems0
+*/
+type GetInstrumentIdentifierGoneBodyErrorsItems0 struct {
 
 	// details
-	Details *GetInstrumentIdentifierGoneBodyItems0Details `json:"details,omitempty"`
+	// Read Only: true
+	Details []*GetInstrumentIdentifierGoneBodyErrorsItems0DetailsItems0 `json:"details"`
 
 	// The detailed message related to the type stated above.
+	// Read Only: true
 	Message string `json:"message,omitempty"`
 
-	// type
+	// The type of error.
+	// Read Only: true
 	Type string `json:"type,omitempty"`
 }
 
-// Validate validates this get instrument identifier gone body items0
-func (o *GetInstrumentIdentifierGoneBodyItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this get instrument identifier gone body errors items0
+func (o *GetInstrumentIdentifierGoneBodyErrorsItems0) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateDetails(formats); err != nil {
@@ -670,26 +1037,33 @@ func (o *GetInstrumentIdentifierGoneBodyItems0) Validate(formats strfmt.Registry
 	return nil
 }
 
-func (o *GetInstrumentIdentifierGoneBodyItems0) validateDetails(formats strfmt.Registry) error {
+func (o *GetInstrumentIdentifierGoneBodyErrorsItems0) validateDetails(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
 
-	if o.Details != nil {
-		if err := o.Details.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("details")
-			}
-			return err
+	for i := 0; i < len(o.Details); i++ {
+		if swag.IsZero(o.Details[i]) { // not required
+			continue
 		}
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
 	}
 
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *GetInstrumentIdentifierGoneBodyItems0) MarshalBinary() ([]byte, error) {
+func (o *GetInstrumentIdentifierGoneBodyErrorsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -697,8 +1071,8 @@ func (o *GetInstrumentIdentifierGoneBodyItems0) MarshalBinary() ([]byte, error) 
 }
 
 // UnmarshalBinary interface implementation
-func (o *GetInstrumentIdentifierGoneBodyItems0) UnmarshalBinary(b []byte) error {
-	var res GetInstrumentIdentifierGoneBodyItems0
+func (o *GetInstrumentIdentifierGoneBodyErrorsItems0) UnmarshalBinary(b []byte) error {
+	var res GetInstrumentIdentifierGoneBodyErrorsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -706,25 +1080,27 @@ func (o *GetInstrumentIdentifierGoneBodyItems0) UnmarshalBinary(b []byte) error 
 	return nil
 }
 
-/*GetInstrumentIdentifierGoneBodyItems0Details get instrument identifier gone body items0 details
-swagger:model GetInstrumentIdentifierGoneBodyItems0Details
+/*GetInstrumentIdentifierGoneBodyErrorsItems0DetailsItems0 get instrument identifier gone body errors items0 details items0
+swagger:model GetInstrumentIdentifierGoneBodyErrorsItems0DetailsItems0
 */
-type GetInstrumentIdentifierGoneBodyItems0Details struct {
+type GetInstrumentIdentifierGoneBodyErrorsItems0DetailsItems0 struct {
 
-	// The location of the field that threw the error.
+	// The location of the field that caused the error.
+	// Read Only: true
 	Location string `json:"location,omitempty"`
 
-	// The name of the field that threw the error.
+	// The name of the field that caused the error.
+	// Read Only: true
 	Name string `json:"name,omitempty"`
 }
 
-// Validate validates this get instrument identifier gone body items0 details
-func (o *GetInstrumentIdentifierGoneBodyItems0Details) Validate(formats strfmt.Registry) error {
+// Validate validates this get instrument identifier gone body errors items0 details items0
+func (o *GetInstrumentIdentifierGoneBodyErrorsItems0DetailsItems0) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *GetInstrumentIdentifierGoneBodyItems0Details) MarshalBinary() ([]byte, error) {
+func (o *GetInstrumentIdentifierGoneBodyErrorsItems0DetailsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -732,8 +1108,8 @@ func (o *GetInstrumentIdentifierGoneBodyItems0Details) MarshalBinary() ([]byte, 
 }
 
 // UnmarshalBinary interface implementation
-func (o *GetInstrumentIdentifierGoneBodyItems0Details) UnmarshalBinary(b []byte) error {
-	var res GetInstrumentIdentifierGoneBodyItems0Details
+func (o *GetInstrumentIdentifierGoneBodyErrorsItems0DetailsItems0) UnmarshalBinary(b []byte) error {
+	var res GetInstrumentIdentifierGoneBodyErrorsItems0DetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -741,23 +1117,93 @@ func (o *GetInstrumentIdentifierGoneBodyItems0Details) UnmarshalBinary(b []byte)
 	return nil
 }
 
-/*GetInstrumentIdentifierInternalServerErrorBodyItems0 get instrument identifier internal server error body items0
-swagger:model GetInstrumentIdentifierInternalServerErrorBodyItems0
+/*GetInstrumentIdentifierInternalServerErrorBody get instrument identifier internal server error body
+swagger:model GetInstrumentIdentifierInternalServerErrorBody
 */
-type GetInstrumentIdentifierInternalServerErrorBodyItems0 struct {
+type GetInstrumentIdentifierInternalServerErrorBody struct {
+
+	// errors
+	// Read Only: true
+	Errors []*GetInstrumentIdentifierInternalServerErrorBodyErrorsItems0 `json:"errors"`
+}
+
+// Validate validates this get instrument identifier internal server error body
+func (o *GetInstrumentIdentifierInternalServerErrorBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateErrors(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetInstrumentIdentifierInternalServerErrorBody) validateErrors(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Errors) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Errors); i++ {
+		if swag.IsZero(o.Errors[i]) { // not required
+			continue
+		}
+
+		if o.Errors[i] != nil {
+			if err := o.Errors[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("getInstrumentIdentifierInternalServerError" + "." + "errors" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetInstrumentIdentifierInternalServerErrorBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetInstrumentIdentifierInternalServerErrorBody) UnmarshalBinary(b []byte) error {
+	var res GetInstrumentIdentifierInternalServerErrorBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*GetInstrumentIdentifierInternalServerErrorBodyErrorsItems0 get instrument identifier internal server error body errors items0
+swagger:model GetInstrumentIdentifierInternalServerErrorBodyErrorsItems0
+*/
+type GetInstrumentIdentifierInternalServerErrorBodyErrorsItems0 struct {
 
 	// details
-	Details *GetInstrumentIdentifierInternalServerErrorBodyItems0Details `json:"details,omitempty"`
+	// Read Only: true
+	Details []*GetInstrumentIdentifierInternalServerErrorBodyErrorsItems0DetailsItems0 `json:"details"`
 
 	// The detailed message related to the type stated above.
+	// Read Only: true
 	Message string `json:"message,omitempty"`
 
-	// type
+	// The type of error.
+	// Read Only: true
 	Type string `json:"type,omitempty"`
 }
 
-// Validate validates this get instrument identifier internal server error body items0
-func (o *GetInstrumentIdentifierInternalServerErrorBodyItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this get instrument identifier internal server error body errors items0
+func (o *GetInstrumentIdentifierInternalServerErrorBodyErrorsItems0) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateDetails(formats); err != nil {
@@ -770,26 +1216,33 @@ func (o *GetInstrumentIdentifierInternalServerErrorBodyItems0) Validate(formats 
 	return nil
 }
 
-func (o *GetInstrumentIdentifierInternalServerErrorBodyItems0) validateDetails(formats strfmt.Registry) error {
+func (o *GetInstrumentIdentifierInternalServerErrorBodyErrorsItems0) validateDetails(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
 
-	if o.Details != nil {
-		if err := o.Details.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("details")
-			}
-			return err
+	for i := 0; i < len(o.Details); i++ {
+		if swag.IsZero(o.Details[i]) { // not required
+			continue
 		}
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
 	}
 
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *GetInstrumentIdentifierInternalServerErrorBodyItems0) MarshalBinary() ([]byte, error) {
+func (o *GetInstrumentIdentifierInternalServerErrorBodyErrorsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -797,8 +1250,8 @@ func (o *GetInstrumentIdentifierInternalServerErrorBodyItems0) MarshalBinary() (
 }
 
 // UnmarshalBinary interface implementation
-func (o *GetInstrumentIdentifierInternalServerErrorBodyItems0) UnmarshalBinary(b []byte) error {
-	var res GetInstrumentIdentifierInternalServerErrorBodyItems0
+func (o *GetInstrumentIdentifierInternalServerErrorBodyErrorsItems0) UnmarshalBinary(b []byte) error {
+	var res GetInstrumentIdentifierInternalServerErrorBodyErrorsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -806,25 +1259,27 @@ func (o *GetInstrumentIdentifierInternalServerErrorBodyItems0) UnmarshalBinary(b
 	return nil
 }
 
-/*GetInstrumentIdentifierInternalServerErrorBodyItems0Details get instrument identifier internal server error body items0 details
-swagger:model GetInstrumentIdentifierInternalServerErrorBodyItems0Details
+/*GetInstrumentIdentifierInternalServerErrorBodyErrorsItems0DetailsItems0 get instrument identifier internal server error body errors items0 details items0
+swagger:model GetInstrumentIdentifierInternalServerErrorBodyErrorsItems0DetailsItems0
 */
-type GetInstrumentIdentifierInternalServerErrorBodyItems0Details struct {
+type GetInstrumentIdentifierInternalServerErrorBodyErrorsItems0DetailsItems0 struct {
 
-	// The location of the field that threw the error.
+	// The location of the field that caused the error.
+	// Read Only: true
 	Location string `json:"location,omitempty"`
 
-	// The name of the field that threw the error.
+	// The name of the field that caused the error.
+	// Read Only: true
 	Name string `json:"name,omitempty"`
 }
 
-// Validate validates this get instrument identifier internal server error body items0 details
-func (o *GetInstrumentIdentifierInternalServerErrorBodyItems0Details) Validate(formats strfmt.Registry) error {
+// Validate validates this get instrument identifier internal server error body errors items0 details items0
+func (o *GetInstrumentIdentifierInternalServerErrorBodyErrorsItems0DetailsItems0) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *GetInstrumentIdentifierInternalServerErrorBodyItems0Details) MarshalBinary() ([]byte, error) {
+func (o *GetInstrumentIdentifierInternalServerErrorBodyErrorsItems0DetailsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -832,8 +1287,8 @@ func (o *GetInstrumentIdentifierInternalServerErrorBodyItems0Details) MarshalBin
 }
 
 // UnmarshalBinary interface implementation
-func (o *GetInstrumentIdentifierInternalServerErrorBodyItems0Details) UnmarshalBinary(b []byte) error {
-	var res GetInstrumentIdentifierInternalServerErrorBodyItems0Details
+func (o *GetInstrumentIdentifierInternalServerErrorBodyErrorsItems0DetailsItems0) UnmarshalBinary(b []byte) error {
+	var res GetInstrumentIdentifierInternalServerErrorBodyErrorsItems0DetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -841,23 +1296,93 @@ func (o *GetInstrumentIdentifierInternalServerErrorBodyItems0Details) UnmarshalB
 	return nil
 }
 
-/*GetInstrumentIdentifierNotFoundBodyItems0 get instrument identifier not found body items0
-swagger:model GetInstrumentIdentifierNotFoundBodyItems0
+/*GetInstrumentIdentifierNotFoundBody get instrument identifier not found body
+swagger:model GetInstrumentIdentifierNotFoundBody
 */
-type GetInstrumentIdentifierNotFoundBodyItems0 struct {
+type GetInstrumentIdentifierNotFoundBody struct {
+
+	// errors
+	// Read Only: true
+	Errors []*GetInstrumentIdentifierNotFoundBodyErrorsItems0 `json:"errors"`
+}
+
+// Validate validates this get instrument identifier not found body
+func (o *GetInstrumentIdentifierNotFoundBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateErrors(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetInstrumentIdentifierNotFoundBody) validateErrors(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Errors) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Errors); i++ {
+		if swag.IsZero(o.Errors[i]) { // not required
+			continue
+		}
+
+		if o.Errors[i] != nil {
+			if err := o.Errors[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("getInstrumentIdentifierNotFound" + "." + "errors" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetInstrumentIdentifierNotFoundBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetInstrumentIdentifierNotFoundBody) UnmarshalBinary(b []byte) error {
+	var res GetInstrumentIdentifierNotFoundBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*GetInstrumentIdentifierNotFoundBodyErrorsItems0 get instrument identifier not found body errors items0
+swagger:model GetInstrumentIdentifierNotFoundBodyErrorsItems0
+*/
+type GetInstrumentIdentifierNotFoundBodyErrorsItems0 struct {
 
 	// details
-	Details *GetInstrumentIdentifierNotFoundBodyItems0Details `json:"details,omitempty"`
+	// Read Only: true
+	Details []*GetInstrumentIdentifierNotFoundBodyErrorsItems0DetailsItems0 `json:"details"`
 
 	// The detailed message related to the type stated above.
+	// Read Only: true
 	Message string `json:"message,omitempty"`
 
-	// type
+	// The type of error.
+	// Read Only: true
 	Type string `json:"type,omitempty"`
 }
 
-// Validate validates this get instrument identifier not found body items0
-func (o *GetInstrumentIdentifierNotFoundBodyItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this get instrument identifier not found body errors items0
+func (o *GetInstrumentIdentifierNotFoundBodyErrorsItems0) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateDetails(formats); err != nil {
@@ -870,26 +1395,33 @@ func (o *GetInstrumentIdentifierNotFoundBodyItems0) Validate(formats strfmt.Regi
 	return nil
 }
 
-func (o *GetInstrumentIdentifierNotFoundBodyItems0) validateDetails(formats strfmt.Registry) error {
+func (o *GetInstrumentIdentifierNotFoundBodyErrorsItems0) validateDetails(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
 
-	if o.Details != nil {
-		if err := o.Details.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("details")
-			}
-			return err
+	for i := 0; i < len(o.Details); i++ {
+		if swag.IsZero(o.Details[i]) { // not required
+			continue
 		}
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
 	}
 
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *GetInstrumentIdentifierNotFoundBodyItems0) MarshalBinary() ([]byte, error) {
+func (o *GetInstrumentIdentifierNotFoundBodyErrorsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -897,8 +1429,8 @@ func (o *GetInstrumentIdentifierNotFoundBodyItems0) MarshalBinary() ([]byte, err
 }
 
 // UnmarshalBinary interface implementation
-func (o *GetInstrumentIdentifierNotFoundBodyItems0) UnmarshalBinary(b []byte) error {
-	var res GetInstrumentIdentifierNotFoundBodyItems0
+func (o *GetInstrumentIdentifierNotFoundBodyErrorsItems0) UnmarshalBinary(b []byte) error {
+	var res GetInstrumentIdentifierNotFoundBodyErrorsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -906,25 +1438,27 @@ func (o *GetInstrumentIdentifierNotFoundBodyItems0) UnmarshalBinary(b []byte) er
 	return nil
 }
 
-/*GetInstrumentIdentifierNotFoundBodyItems0Details get instrument identifier not found body items0 details
-swagger:model GetInstrumentIdentifierNotFoundBodyItems0Details
+/*GetInstrumentIdentifierNotFoundBodyErrorsItems0DetailsItems0 get instrument identifier not found body errors items0 details items0
+swagger:model GetInstrumentIdentifierNotFoundBodyErrorsItems0DetailsItems0
 */
-type GetInstrumentIdentifierNotFoundBodyItems0Details struct {
+type GetInstrumentIdentifierNotFoundBodyErrorsItems0DetailsItems0 struct {
 
-	// The location of the field that threw the error.
+	// The location of the field that caused the error.
+	// Read Only: true
 	Location string `json:"location,omitempty"`
 
-	// The name of the field that threw the error.
+	// The name of the field that caused the error.
+	// Read Only: true
 	Name string `json:"name,omitempty"`
 }
 
-// Validate validates this get instrument identifier not found body items0 details
-func (o *GetInstrumentIdentifierNotFoundBodyItems0Details) Validate(formats strfmt.Registry) error {
+// Validate validates this get instrument identifier not found body errors items0 details items0
+func (o *GetInstrumentIdentifierNotFoundBodyErrorsItems0DetailsItems0) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *GetInstrumentIdentifierNotFoundBodyItems0Details) MarshalBinary() ([]byte, error) {
+func (o *GetInstrumentIdentifierNotFoundBodyErrorsItems0DetailsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -932,8 +1466,8 @@ func (o *GetInstrumentIdentifierNotFoundBodyItems0Details) MarshalBinary() ([]by
 }
 
 // UnmarshalBinary interface implementation
-func (o *GetInstrumentIdentifierNotFoundBodyItems0Details) UnmarshalBinary(b []byte) error {
-	var res GetInstrumentIdentifierNotFoundBodyItems0Details
+func (o *GetInstrumentIdentifierNotFoundBodyErrorsItems0DetailsItems0) UnmarshalBinary(b []byte) error {
+	var res GetInstrumentIdentifierNotFoundBodyErrorsItems0DetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -941,7 +1475,7 @@ func (o *GetInstrumentIdentifierNotFoundBodyItems0Details) UnmarshalBinary(b []b
 	return nil
 }
 
-/*GetInstrumentIdentifierOKBody tmsV1InstrumentIdentifiersGet200Response
+/*GetInstrumentIdentifierOKBody get instrument identifier o k body
 swagger:model GetInstrumentIdentifierOKBody
 */
 type GetInstrumentIdentifierOKBody struct {
@@ -952,17 +1486,23 @@ type GetInstrumentIdentifierOKBody struct {
 	// bank account
 	BankAccount *GetInstrumentIdentifierOKBodyBankAccount `json:"bankAccount,omitempty"`
 
+	// bill to
+	BillTo *GetInstrumentIdentifierOKBodyBillTo `json:"billTo,omitempty"`
+
 	// card
 	Card *GetInstrumentIdentifierOKBodyCard `json:"card,omitempty"`
 
-	// Unique identification number assigned by CyberSource to the submitted request.
-	// Read Only: true
+	// The id of the Instrument Identifier Token.
+	//
 	ID string `json:"id,omitempty"`
+
+	// issuer
+	Issuer *GetInstrumentIdentifierOKBodyIssuer `json:"issuer,omitempty"`
 
 	// metadata
 	Metadata *GetInstrumentIdentifierOKBodyMetadata `json:"metadata,omitempty"`
 
-	// 'Describes type of token.'
+	// The type of token.
 	//
 	// Valid values:
 	// - instrumentIdentifier
@@ -973,14 +1513,22 @@ type GetInstrumentIdentifierOKBody struct {
 	// processing information
 	ProcessingInformation *GetInstrumentIdentifierOKBodyProcessingInformation `json:"processingInformation,omitempty"`
 
-	// 'Current state of the token.'
-	//
+	// Issuers state for the card number.
 	// Valid values:
 	// - ACTIVE
-	// - CLOSED
+	// - CLOSED : The account has been closed.
 	//
 	// Read Only: true
 	State string `json:"state,omitempty"`
+
+	// tokenized card
+	TokenizedCard *GetInstrumentIdentifierOKBodyTokenizedCard `json:"tokenizedCard,omitempty"`
+
+	// The type of Instrument Identifier.
+	// Valid values:
+	// - enrollable card
+	//
+	Type string `json:"type,omitempty"`
 }
 
 // Validate validates this get instrument identifier o k body
@@ -995,7 +1543,15 @@ func (o *GetInstrumentIdentifierOKBody) Validate(formats strfmt.Registry) error 
 		res = append(res, err)
 	}
 
+	if err := o.validateBillTo(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := o.validateCard(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateIssuer(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1004,6 +1560,10 @@ func (o *GetInstrumentIdentifierOKBody) Validate(formats strfmt.Registry) error 
 	}
 
 	if err := o.validateProcessingInformation(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateTokenizedCard(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1049,6 +1609,24 @@ func (o *GetInstrumentIdentifierOKBody) validateBankAccount(formats strfmt.Regis
 	return nil
 }
 
+func (o *GetInstrumentIdentifierOKBody) validateBillTo(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.BillTo) { // not required
+		return nil
+	}
+
+	if o.BillTo != nil {
+		if err := o.BillTo.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getInstrumentIdentifierOK" + "." + "billTo")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (o *GetInstrumentIdentifierOKBody) validateCard(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.Card) { // not required
@@ -1059,6 +1637,24 @@ func (o *GetInstrumentIdentifierOKBody) validateCard(formats strfmt.Registry) er
 		if err := o.Card.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("getInstrumentIdentifierOK" + "." + "card")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *GetInstrumentIdentifierOKBody) validateIssuer(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Issuer) { // not required
+		return nil
+	}
+
+	if o.Issuer != nil {
+		if err := o.Issuer.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getInstrumentIdentifierOK" + "." + "issuer")
 			}
 			return err
 		}
@@ -1103,6 +1699,24 @@ func (o *GetInstrumentIdentifierOKBody) validateProcessingInformation(formats st
 	return nil
 }
 
+func (o *GetInstrumentIdentifierOKBody) validateTokenizedCard(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.TokenizedCard) { // not required
+		return nil
+	}
+
+	if o.TokenizedCard != nil {
+		if err := o.TokenizedCard.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getInstrumentIdentifierOK" + "." + "tokenizedCard")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *GetInstrumentIdentifierOKBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -1126,14 +1740,17 @@ swagger:model GetInstrumentIdentifierOKBodyBankAccount
 */
 type GetInstrumentIdentifierOKBodyBankAccount struct {
 
-	// Checking account number.
-	// Max Length: 19
-	// Min Length: 1
+	// Account number.
+	//
+	// When processing encoded account numbers, use this field for the encoded account number.
+	//
+	// Max Length: 17
 	Number string `json:"number,omitempty"`
 
-	// Routing number.
-	// Max Length: 9
-	// Min Length: 1
+	// Bank routing number. This is also called the transit number.
+	//
+	// For details, see `ecp_rdfi` field description in the [Electronic Check Services Using the SCMP API Guide.](https://apps.cybersource.com/library/documentation/dev_guides/EChecks_SCMP_API/html/)
+	//
 	RoutingNumber string `json:"routingNumber,omitempty"`
 }
 
@@ -1142,10 +1759,6 @@ func (o *GetInstrumentIdentifierOKBodyBankAccount) Validate(formats strfmt.Regis
 	var res []error
 
 	if err := o.validateNumber(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateRoutingNumber(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1161,28 +1774,7 @@ func (o *GetInstrumentIdentifierOKBodyBankAccount) validateNumber(formats strfmt
 		return nil
 	}
 
-	if err := validate.MinLength("getInstrumentIdentifierOK"+"."+"bankAccount"+"."+"number", "body", string(o.Number), 1); err != nil {
-		return err
-	}
-
-	if err := validate.MaxLength("getInstrumentIdentifierOK"+"."+"bankAccount"+"."+"number", "body", string(o.Number), 19); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (o *GetInstrumentIdentifierOKBodyBankAccount) validateRoutingNumber(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.RoutingNumber) { // not required
-		return nil
-	}
-
-	if err := validate.MinLength("getInstrumentIdentifierOK"+"."+"bankAccount"+"."+"routingNumber", "body", string(o.RoutingNumber), 1); err != nil {
-		return err
-	}
-
-	if err := validate.MaxLength("getInstrumentIdentifierOK"+"."+"bankAccount"+"."+"routingNumber", "body", string(o.RoutingNumber), 9); err != nil {
+	if err := validate.MaxLength("getInstrumentIdentifierOK"+"."+"bankAccount"+"."+"number", "body", string(o.Number), 17); err != nil {
 		return err
 	}
 
@@ -1207,28 +1799,268 @@ func (o *GetInstrumentIdentifierOKBodyBankAccount) UnmarshalBinary(b []byte) err
 	return nil
 }
 
-/*GetInstrumentIdentifierOKBodyCard get instrument identifier o k body card
-swagger:model GetInstrumentIdentifierOKBodyCard
+/*GetInstrumentIdentifierOKBodyBillTo This information is sent to the issuer as part of network token enrollment and is not stored under the Instrument Identifier token.
+//
+swagger:model GetInstrumentIdentifierOKBodyBillTo
 */
-type GetInstrumentIdentifierOKBodyCard struct {
+type GetInstrumentIdentifierOKBodyBillTo struct {
 
-	// Customer’s credit card number.
-	// Max Length: 19
-	// Min Length: 12
-	Number string `json:"number,omitempty"`
+	// Payment card billing street address as it appears on the credit card issuer’s records.
+	//
+	// Max Length: 60
+	Address1 string `json:"address1,omitempty"`
+
+	// Additional address information.
+	//
+	// Max Length: 60
+	Address2 string `json:"address2,omitempty"`
+
+	// State or province of the billing address. Use the State, Province, and Territory Codes for the United States
+	// and Canada.
+	//
+	// Max Length: 20
+	AdministrativeArea string `json:"administrativeArea,omitempty"`
+
+	// Payment card billing country. Use the two-character ISO Standard Country Codes.
+	//
+	// Max Length: 2
+	Country string `json:"country,omitempty"`
+
+	// Payment card billing city.
+	//
+	// Max Length: 50
+	Locality string `json:"locality,omitempty"`
+
+	// Postal code for the billing address. The postal code must consist of 5 to 9 digits.
+	//
+	// When the billing country is the U.S., the 9-digit postal code must follow this format:
+	// [5 digits][dash][4 digits]
+	//
+	// **Example** `12345-6789`
+	//
+	// When the billing country is Canada, the 6-digit postal code must follow this format:
+	// [alpha][numeric][alpha][space][numeric][alpha][numeric]
+	//
+	// **Example** `A1B 2C3`
+	//
+	// Max Length: 10
+	PostalCode string `json:"postalCode,omitempty"`
 }
 
-// Validate validates this get instrument identifier o k body card
-func (o *GetInstrumentIdentifierOKBodyCard) Validate(formats strfmt.Registry) error {
+// Validate validates this get instrument identifier o k body bill to
+func (o *GetInstrumentIdentifierOKBodyBillTo) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateNumber(formats); err != nil {
+	if err := o.validateAddress1(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateAddress2(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateAdministrativeArea(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateCountry(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLocality(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validatePostalCode(formats); err != nil {
 		res = append(res, err)
 	}
 
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (o *GetInstrumentIdentifierOKBodyBillTo) validateAddress1(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Address1) { // not required
+		return nil
+	}
+
+	if err := validate.MaxLength("getInstrumentIdentifierOK"+"."+"billTo"+"."+"address1", "body", string(o.Address1), 60); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *GetInstrumentIdentifierOKBodyBillTo) validateAddress2(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Address2) { // not required
+		return nil
+	}
+
+	if err := validate.MaxLength("getInstrumentIdentifierOK"+"."+"billTo"+"."+"address2", "body", string(o.Address2), 60); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *GetInstrumentIdentifierOKBodyBillTo) validateAdministrativeArea(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.AdministrativeArea) { // not required
+		return nil
+	}
+
+	if err := validate.MaxLength("getInstrumentIdentifierOK"+"."+"billTo"+"."+"administrativeArea", "body", string(o.AdministrativeArea), 20); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *GetInstrumentIdentifierOKBodyBillTo) validateCountry(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Country) { // not required
+		return nil
+	}
+
+	if err := validate.MaxLength("getInstrumentIdentifierOK"+"."+"billTo"+"."+"country", "body", string(o.Country), 2); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *GetInstrumentIdentifierOKBodyBillTo) validateLocality(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Locality) { // not required
+		return nil
+	}
+
+	if err := validate.MaxLength("getInstrumentIdentifierOK"+"."+"billTo"+"."+"locality", "body", string(o.Locality), 50); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *GetInstrumentIdentifierOKBodyBillTo) validatePostalCode(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.PostalCode) { // not required
+		return nil
+	}
+
+	if err := validate.MaxLength("getInstrumentIdentifierOK"+"."+"billTo"+"."+"postalCode", "body", string(o.PostalCode), 10); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetInstrumentIdentifierOKBodyBillTo) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetInstrumentIdentifierOKBodyBillTo) UnmarshalBinary(b []byte) error {
+	var res GetInstrumentIdentifierOKBodyBillTo
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*GetInstrumentIdentifierOKBodyCard The expirationMonth, expirationYear and securityCode is sent to the issuer as part of network token enrollment and is not stored under the Instrument Identifier token.
+//
+swagger:model GetInstrumentIdentifierOKBodyCard
+*/
+type GetInstrumentIdentifierOKBodyCard struct {
+
+	// Two-digit month in which the payment card expires.
+	//
+	// Format: `MM`.
+	//
+	// Valid values: `01` through `12`.
+	//
+	// Max Length: 2
+	ExpirationMonth string `json:"expirationMonth,omitempty"`
+
+	// Four-digit year in which the credit card expires.
+	//
+	// Format: `YYYY`.
+	//
+	// Max Length: 4
+	ExpirationYear string `json:"expirationYear,omitempty"`
+
+	// The customer’s payment card number, also known as the Primary Account Number (PAN). You can also use this field
+	// for encoded account numbers.
+	//
+	// Max Length: 19
+	// Min Length: 12
+	Number string `json:"number,omitempty"`
+
+	// Card Verification Number.
+	//
+	// Max Length: 4
+	SecurityCode string `json:"securityCode,omitempty"`
+}
+
+// Validate validates this get instrument identifier o k body card
+func (o *GetInstrumentIdentifierOKBodyCard) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateExpirationMonth(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateExpirationYear(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateNumber(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateSecurityCode(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetInstrumentIdentifierOKBodyCard) validateExpirationMonth(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.ExpirationMonth) { // not required
+		return nil
+	}
+
+	if err := validate.MaxLength("getInstrumentIdentifierOK"+"."+"card"+"."+"expirationMonth", "body", string(o.ExpirationMonth), 2); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *GetInstrumentIdentifierOKBodyCard) validateExpirationYear(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.ExpirationYear) { // not required
+		return nil
+	}
+
+	if err := validate.MaxLength("getInstrumentIdentifierOK"+"."+"card"+"."+"expirationYear", "body", string(o.ExpirationYear), 4); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -1243,6 +2075,19 @@ func (o *GetInstrumentIdentifierOKBodyCard) validateNumber(formats strfmt.Regist
 	}
 
 	if err := validate.MaxLength("getInstrumentIdentifierOK"+"."+"card"+"."+"number", "body", string(o.Number), 19); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *GetInstrumentIdentifierOKBodyCard) validateSecurityCode(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.SecurityCode) { // not required
+		return nil
+	}
+
+	if err := validate.MaxLength("getInstrumentIdentifierOK"+"."+"card"+"."+"securityCode", "body", string(o.SecurityCode), 4); err != nil {
 		return err
 	}
 
@@ -1267,34 +2112,23 @@ func (o *GetInstrumentIdentifierOKBodyCard) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetInstrumentIdentifierOKBodyLinks get instrument identifier o k body links
-swagger:model GetInstrumentIdentifierOKBodyLinks
+/*GetInstrumentIdentifierOKBodyIssuer get instrument identifier o k body issuer
+swagger:model GetInstrumentIdentifierOKBodyIssuer
 */
-type GetInstrumentIdentifierOKBodyLinks struct {
+type GetInstrumentIdentifierOKBodyIssuer struct {
 
-	// ancestor
-	Ancestor *GetInstrumentIdentifierOKBodyLinksAncestor `json:"ancestor,omitempty"`
-
-	// self
-	Self *GetInstrumentIdentifierOKBodyLinksSelf `json:"self,omitempty"`
-
-	// successor
-	Successor *GetInstrumentIdentifierOKBodyLinksSuccessor `json:"successor,omitempty"`
+	// This reference number serves as a link to the cardholder account and to all transactions for that account.
+	//
+	// Read Only: true
+	// Max Length: 32
+	PaymentAccountReference string `json:"paymentAccountReference,omitempty"`
 }
 
-// Validate validates this get instrument identifier o k body links
-func (o *GetInstrumentIdentifierOKBodyLinks) Validate(formats strfmt.Registry) error {
+// Validate validates this get instrument identifier o k body issuer
+func (o *GetInstrumentIdentifierOKBodyIssuer) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateAncestor(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateSelf(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateSuccessor(formats); err != nil {
+	if err := o.validatePaymentAccountReference(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1304,16 +2138,77 @@ func (o *GetInstrumentIdentifierOKBodyLinks) Validate(formats strfmt.Registry) e
 	return nil
 }
 
-func (o *GetInstrumentIdentifierOKBodyLinks) validateAncestor(formats strfmt.Registry) error {
+func (o *GetInstrumentIdentifierOKBodyIssuer) validatePaymentAccountReference(formats strfmt.Registry) error {
 
-	if swag.IsZero(o.Ancestor) { // not required
+	if swag.IsZero(o.PaymentAccountReference) { // not required
 		return nil
 	}
 
-	if o.Ancestor != nil {
-		if err := o.Ancestor.Validate(formats); err != nil {
+	if err := validate.MaxLength("getInstrumentIdentifierOK"+"."+"issuer"+"."+"paymentAccountReference", "body", string(o.PaymentAccountReference), 32); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetInstrumentIdentifierOKBodyIssuer) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetInstrumentIdentifierOKBodyIssuer) UnmarshalBinary(b []byte) error {
+	var res GetInstrumentIdentifierOKBodyIssuer
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*GetInstrumentIdentifierOKBodyLinks get instrument identifier o k body links
+swagger:model GetInstrumentIdentifierOKBodyLinks
+*/
+type GetInstrumentIdentifierOKBodyLinks struct {
+
+	// payment instruments
+	PaymentInstruments *GetInstrumentIdentifierOKBodyLinksPaymentInstruments `json:"paymentInstruments,omitempty"`
+
+	// self
+	Self *GetInstrumentIdentifierOKBodyLinksSelf `json:"self,omitempty"`
+}
+
+// Validate validates this get instrument identifier o k body links
+func (o *GetInstrumentIdentifierOKBodyLinks) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validatePaymentInstruments(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateSelf(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetInstrumentIdentifierOKBodyLinks) validatePaymentInstruments(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.PaymentInstruments) { // not required
+		return nil
+	}
+
+	if o.PaymentInstruments != nil {
+		if err := o.PaymentInstruments.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("getInstrumentIdentifierOK" + "." + "_links" + "." + "ancestor")
+				return ve.ValidateName("getInstrumentIdentifierOK" + "." + "_links" + "." + "paymentInstruments")
 			}
 			return err
 		}
@@ -1340,24 +2235,6 @@ func (o *GetInstrumentIdentifierOKBodyLinks) validateSelf(formats strfmt.Registr
 	return nil
 }
 
-func (o *GetInstrumentIdentifierOKBodyLinks) validateSuccessor(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Successor) { // not required
-		return nil
-	}
-
-	if o.Successor != nil {
-		if err := o.Successor.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("getInstrumentIdentifierOK" + "." + "_links" + "." + "successor")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
 // MarshalBinary interface implementation
 func (o *GetInstrumentIdentifierOKBodyLinks) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -1376,22 +2253,24 @@ func (o *GetInstrumentIdentifierOKBodyLinks) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetInstrumentIdentifierOKBodyLinksAncestor get instrument identifier o k body links ancestor
-swagger:model GetInstrumentIdentifierOKBodyLinksAncestor
+/*GetInstrumentIdentifierOKBodyLinksPaymentInstruments get instrument identifier o k body links payment instruments
+swagger:model GetInstrumentIdentifierOKBodyLinksPaymentInstruments
 */
-type GetInstrumentIdentifierOKBodyLinksAncestor struct {
+type GetInstrumentIdentifierOKBodyLinksPaymentInstruments struct {
 
-	// href
+	// Link to the Instrument Identifiers Payment Instruments.
+	//
+	// Read Only: true
 	Href string `json:"href,omitempty"`
 }
 
-// Validate validates this get instrument identifier o k body links ancestor
-func (o *GetInstrumentIdentifierOKBodyLinksAncestor) Validate(formats strfmt.Registry) error {
+// Validate validates this get instrument identifier o k body links payment instruments
+func (o *GetInstrumentIdentifierOKBodyLinksPaymentInstruments) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *GetInstrumentIdentifierOKBodyLinksAncestor) MarshalBinary() ([]byte, error) {
+func (o *GetInstrumentIdentifierOKBodyLinksPaymentInstruments) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -1399,8 +2278,8 @@ func (o *GetInstrumentIdentifierOKBodyLinksAncestor) MarshalBinary() ([]byte, er
 }
 
 // UnmarshalBinary interface implementation
-func (o *GetInstrumentIdentifierOKBodyLinksAncestor) UnmarshalBinary(b []byte) error {
-	var res GetInstrumentIdentifierOKBodyLinksAncestor
+func (o *GetInstrumentIdentifierOKBodyLinksPaymentInstruments) UnmarshalBinary(b []byte) error {
+	var res GetInstrumentIdentifierOKBodyLinksPaymentInstruments
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -1413,7 +2292,9 @@ swagger:model GetInstrumentIdentifierOKBodyLinksSelf
 */
 type GetInstrumentIdentifierOKBodyLinksSelf struct {
 
-	// href
+	// Link to the Instrument Identifier.
+	//
+	// Read Only: true
 	Href string `json:"href,omitempty"`
 }
 
@@ -1440,44 +2321,13 @@ func (o *GetInstrumentIdentifierOKBodyLinksSelf) UnmarshalBinary(b []byte) error
 	return nil
 }
 
-/*GetInstrumentIdentifierOKBodyLinksSuccessor get instrument identifier o k body links successor
-swagger:model GetInstrumentIdentifierOKBodyLinksSuccessor
-*/
-type GetInstrumentIdentifierOKBodyLinksSuccessor struct {
-
-	// href
-	Href string `json:"href,omitempty"`
-}
-
-// Validate validates this get instrument identifier o k body links successor
-func (o *GetInstrumentIdentifierOKBodyLinksSuccessor) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *GetInstrumentIdentifierOKBodyLinksSuccessor) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *GetInstrumentIdentifierOKBodyLinksSuccessor) UnmarshalBinary(b []byte) error {
-	var res GetInstrumentIdentifierOKBodyLinksSuccessor
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
 /*GetInstrumentIdentifierOKBodyMetadata get instrument identifier o k body metadata
 swagger:model GetInstrumentIdentifierOKBodyMetadata
 */
 type GetInstrumentIdentifierOKBodyMetadata struct {
 
-	// The creator of the token.
+	// The creator of the Instrument Identifier token.
+	// Read Only: true
 	Creator string `json:"creator,omitempty"`
 }
 
@@ -1686,7 +2536,10 @@ swagger:model GetInstrumentIdentifierOKBodyProcessingInformationAuthorizationOpt
 */
 type GetInstrumentIdentifierOKBodyProcessingInformationAuthorizationOptionsInitiatorMerchantInitiatedTransaction struct {
 
-	// Previous Consumer Initiated Transaction Id.
+	// Network transaction identifier that was returned in the payment response field _processorInformation.transactionID_
+	// in the reply message for either the original merchant-initiated payment in the series or the previous
+	// merchant-initiated payment in the series.
+	//
 	// Max Length: 15
 	PreviousTransactionID string `json:"previousTransactionId,omitempty"`
 }
@@ -1729,6 +2582,236 @@ func (o *GetInstrumentIdentifierOKBodyProcessingInformationAuthorizationOptionsI
 // UnmarshalBinary interface implementation
 func (o *GetInstrumentIdentifierOKBodyProcessingInformationAuthorizationOptionsInitiatorMerchantInitiatedTransaction) UnmarshalBinary(b []byte) error {
 	var res GetInstrumentIdentifierOKBodyProcessingInformationAuthorizationOptionsInitiatorMerchantInitiatedTransaction
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*GetInstrumentIdentifierOKBodyTokenizedCard get instrument identifier o k body tokenized card
+swagger:model GetInstrumentIdentifierOKBodyTokenizedCard
+*/
+type GetInstrumentIdentifierOKBodyTokenizedCard struct {
+
+	// card
+	Card *GetInstrumentIdentifierOKBodyTokenizedCardCard `json:"card,omitempty"`
+
+	// Generated value used in conjunction with the network token for making a payment.
+	//
+	// Read Only: true
+	Cryptogram string `json:"cryptogram,omitempty"`
+
+	// Two-digit month in which the network token expires.
+	//
+	// Format: `MM`.
+	//
+	// Valid values: `01` through `12`.
+	//
+	// Read Only: true
+	// Max Length: 2
+	ExpirationMonth string `json:"expirationMonth,omitempty"`
+
+	// Four-digit year in which the network token expires.
+	//
+	// Format: `YYYY`.
+	//
+	// Read Only: true
+	// Max Length: 4
+	ExpirationYear string `json:"expirationYear,omitempty"`
+
+	// The token requestors customer’s payment network token
+	//
+	// Read Only: true
+	Number string `json:"number,omitempty"`
+
+	// Issuers state for the network token
+	// Valid values:
+	// - ACTIVE
+	// - SUSPENDED : This state can change to ACTIVE or DELETED.
+	// - DELETED : This is a final state for the network token.
+	//
+	// Read Only: true
+	State string `json:"state,omitempty"`
+
+	// The network token card association brand
+	// Valid values:
+	// - visa
+	// - mastercard
+	//
+	// Read Only: true
+	Type string `json:"type,omitempty"`
+}
+
+// Validate validates this get instrument identifier o k body tokenized card
+func (o *GetInstrumentIdentifierOKBodyTokenizedCard) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateCard(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateExpirationMonth(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateExpirationYear(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetInstrumentIdentifierOKBodyTokenizedCard) validateCard(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Card) { // not required
+		return nil
+	}
+
+	if o.Card != nil {
+		if err := o.Card.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getInstrumentIdentifierOK" + "." + "tokenizedCard" + "." + "card")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *GetInstrumentIdentifierOKBodyTokenizedCard) validateExpirationMonth(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.ExpirationMonth) { // not required
+		return nil
+	}
+
+	if err := validate.MaxLength("getInstrumentIdentifierOK"+"."+"tokenizedCard"+"."+"expirationMonth", "body", string(o.ExpirationMonth), 2); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *GetInstrumentIdentifierOKBodyTokenizedCard) validateExpirationYear(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.ExpirationYear) { // not required
+		return nil
+	}
+
+	if err := validate.MaxLength("getInstrumentIdentifierOK"+"."+"tokenizedCard"+"."+"expirationYear", "body", string(o.ExpirationYear), 4); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetInstrumentIdentifierOKBodyTokenizedCard) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetInstrumentIdentifierOKBodyTokenizedCard) UnmarshalBinary(b []byte) error {
+	var res GetInstrumentIdentifierOKBodyTokenizedCard
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*GetInstrumentIdentifierOKBodyTokenizedCardCard The latest card details associated with the network token
+swagger:model GetInstrumentIdentifierOKBodyTokenizedCardCard
+*/
+type GetInstrumentIdentifierOKBodyTokenizedCardCard struct {
+
+	//
+	// Two-digit month in which the customer’s latest payment card expires.
+	//
+	// Format: `MM`.
+	//
+	// Valid values: `01` through `12`.
+	//
+	// Read Only: true
+	// Max Length: 2
+	ExpirationMonth string `json:"expirationMonth,omitempty"`
+
+	// Four-digit year in which the customer’s latest payment card expires.
+	//
+	// Format: `YYYY`.
+	//
+	// Read Only: true
+	// Max Length: 4
+	ExpirationYear string `json:"expirationYear,omitempty"`
+
+	// The customer’s latest payment card number suffix
+	//
+	// Read Only: true
+	Suffix string `json:"suffix,omitempty"`
+}
+
+// Validate validates this get instrument identifier o k body tokenized card card
+func (o *GetInstrumentIdentifierOKBodyTokenizedCardCard) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateExpirationMonth(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateExpirationYear(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetInstrumentIdentifierOKBodyTokenizedCardCard) validateExpirationMonth(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.ExpirationMonth) { // not required
+		return nil
+	}
+
+	if err := validate.MaxLength("getInstrumentIdentifierOK"+"."+"tokenizedCard"+"."+"card"+"."+"expirationMonth", "body", string(o.ExpirationMonth), 2); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *GetInstrumentIdentifierOKBodyTokenizedCardCard) validateExpirationYear(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.ExpirationYear) { // not required
+		return nil
+	}
+
+	if err := validate.MaxLength("getInstrumentIdentifierOK"+"."+"tokenizedCard"+"."+"card"+"."+"expirationYear", "body", string(o.ExpirationYear), 4); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetInstrumentIdentifierOKBodyTokenizedCardCard) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetInstrumentIdentifierOKBodyTokenizedCardCard) UnmarshalBinary(b []byte) error {
+	var res GetInstrumentIdentifierOKBodyTokenizedCardCard
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

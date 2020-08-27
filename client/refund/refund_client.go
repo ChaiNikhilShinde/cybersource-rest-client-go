@@ -9,12 +9,11 @@ import (
 	"fmt"
 
 	"github.com/go-openapi/runtime"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 )
 
 // New creates a new refund API client.
-func New(transport runtime.ClientTransport, formats strfmt.Registry) *Client {
+func New(transport runtime.ClientTransport, formats strfmt.Registry) ClientService {
 	return &Client{transport: transport, formats: formats}
 }
 
@@ -26,9 +25,19 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
-/*
-RefundCapture refunds a capture
+// ClientService is the interface for Client methods
+type ClientService interface {
+	RefundCapture(params *RefundCaptureParams) (*RefundCaptureCreated, error)
 
+	RefundPayment(params *RefundPaymentParams) (*RefundPaymentCreated, error)
+
+	SetTransport(transport runtime.ClientTransport)
+}
+
+/*
+  RefundCapture refunds a capture
+
+  Refund a capture API is only used, if you have requested Capture independenlty using [/pts/v2/payments/{id}/captures](https://developer.cybersource.com/api-reference-assets/index.html#payments_capture) API call
 Include the capture ID in the POST request to refund the captured amount.
 
 */
@@ -42,7 +51,7 @@ func (a *Client) RefundCapture(params *RefundCaptureParams) (*RefundCaptureCreat
 		ID:                 "refundCapture",
 		Method:             "POST",
 		PathPattern:        "/pts/v2/captures/{id}/refunds",
-		ProducesMediaTypes: []string{"application/json;charset=utf-8"},
+		ProducesMediaTypes: []string{"application/hal+json;charset=utf-8"},
 		ConsumesMediaTypes: []string{"application/json;charset=utf-8"},
 		Schemes:            []string{"https"},
 		Params:             params,
@@ -64,9 +73,10 @@ func (a *Client) RefundCapture(params *RefundCaptureParams) (*RefundCaptureCreat
 }
 
 /*
-RefundPayment refunds a payment
+  RefundPayment refunds a payment
 
-Include the payment ID in the POST request to refund the payment amount.
+  Refund a Payment API is only used, if you have requested Authorization and Capture together in [/pts/v2/payments](https://developer.cybersource.com/api-reference-assets/index.html#payments_payments) API call.
+ Include the payment ID in the POST request to refund the payment amount.
 
 */
 func (a *Client) RefundPayment(params *RefundPaymentParams) (*RefundPaymentCreated, error) {
@@ -79,7 +89,7 @@ func (a *Client) RefundPayment(params *RefundPaymentParams) (*RefundPaymentCreat
 		ID:                 "refundPayment",
 		Method:             "POST",
 		PathPattern:        "/pts/v2/payments/{id}/refunds",
-		ProducesMediaTypes: []string{"application/json;charset=utf-8"},
+		ProducesMediaTypes: []string{"application/hal+json;charset=utf-8"},
 		ConsumesMediaTypes: []string{"application/json;charset=utf-8"},
 		Schemes:            []string{"https"},
 		Params:             params,

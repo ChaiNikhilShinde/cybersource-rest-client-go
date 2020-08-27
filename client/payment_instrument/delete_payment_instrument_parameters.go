@@ -13,8 +13,7 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	cr "github.com/go-openapi/runtime/client"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 )
 
 // NewDeletePaymentInstrumentParams creates a new DeletePaymentInstrumentParams object
@@ -61,16 +60,16 @@ for the delete payment instrument operation typically these are written to a htt
 */
 type DeletePaymentInstrumentParams struct {
 
+	/*PaymentInstrumentTokenID
+	  The TokenId of a payment instrument.
+
+	*/
+	PaymentInstrumentTokenID string
 	/*ProfileID
 	  The id of a profile containing user specific TMS configuration.
 
 	*/
-	ProfileID string
-	/*TokenID
-	  The TokenId of a Payment Instrument.
-
-	*/
-	TokenID string
+	ProfileID *string
 
 	timeout    time.Duration
 	Context    context.Context
@@ -110,26 +109,26 @@ func (o *DeletePaymentInstrumentParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
+// WithPaymentInstrumentTokenID adds the paymentInstrumentTokenID to the delete payment instrument params
+func (o *DeletePaymentInstrumentParams) WithPaymentInstrumentTokenID(paymentInstrumentTokenID string) *DeletePaymentInstrumentParams {
+	o.SetPaymentInstrumentTokenID(paymentInstrumentTokenID)
+	return o
+}
+
+// SetPaymentInstrumentTokenID adds the paymentInstrumentTokenId to the delete payment instrument params
+func (o *DeletePaymentInstrumentParams) SetPaymentInstrumentTokenID(paymentInstrumentTokenID string) {
+	o.PaymentInstrumentTokenID = paymentInstrumentTokenID
+}
+
 // WithProfileID adds the profileID to the delete payment instrument params
-func (o *DeletePaymentInstrumentParams) WithProfileID(profileID string) *DeletePaymentInstrumentParams {
+func (o *DeletePaymentInstrumentParams) WithProfileID(profileID *string) *DeletePaymentInstrumentParams {
 	o.SetProfileID(profileID)
 	return o
 }
 
 // SetProfileID adds the profileId to the delete payment instrument params
-func (o *DeletePaymentInstrumentParams) SetProfileID(profileID string) {
+func (o *DeletePaymentInstrumentParams) SetProfileID(profileID *string) {
 	o.ProfileID = profileID
-}
-
-// WithTokenID adds the tokenID to the delete payment instrument params
-func (o *DeletePaymentInstrumentParams) WithTokenID(tokenID string) *DeletePaymentInstrumentParams {
-	o.SetTokenID(tokenID)
-	return o
-}
-
-// SetTokenID adds the tokenId to the delete payment instrument params
-func (o *DeletePaymentInstrumentParams) SetTokenID(tokenID string) {
-	o.TokenID = tokenID
 }
 
 // WriteToRequest writes these params to a swagger request
@@ -140,14 +139,18 @@ func (o *DeletePaymentInstrumentParams) WriteToRequest(r runtime.ClientRequest, 
 	}
 	var res []error
 
-	// header param profile-id
-	if err := r.SetHeaderParam("profile-id", o.ProfileID); err != nil {
+	// path param paymentInstrumentTokenId
+	if err := r.SetPathParam("paymentInstrumentTokenId", o.PaymentInstrumentTokenID); err != nil {
 		return err
 	}
 
-	// path param tokenId
-	if err := r.SetPathParam("tokenId", o.TokenID); err != nil {
-		return err
+	if o.ProfileID != nil {
+
+		// header param profile-id
+		if err := r.SetHeaderParam("profile-id", *o.ProfileID); err != nil {
+			return err
+		}
+
 	}
 
 	if len(res) > 0 {

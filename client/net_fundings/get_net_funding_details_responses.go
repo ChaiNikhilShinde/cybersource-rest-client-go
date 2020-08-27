@@ -12,10 +12,9 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
-
-	strfmt "github.com/go-openapi/strfmt"
 )
 
 // GetNetFundingDetailsReader is a Reader for the GetNetFundingDetails structure.
@@ -64,7 +63,7 @@ func (o *GetNetFundingDetailsReader) ReadResponse(response runtime.ClientRespons
 		return nil, result
 
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
 	}
 }
 
@@ -260,44 +259,6 @@ func (o *GetNetFundingDetailsInternalServerError) readResponse(response runtime.
 	return nil
 }
 
-/*DetailsItems0 Provides failed validation input field detail
-//
-swagger:model DetailsItems0
-*/
-type DetailsItems0 struct {
-
-	// Field in request that caused an error
-	//
-	Field string `json:"field,omitempty"`
-
-	// Documented reason code
-	//
-	Reason string `json:"reason,omitempty"`
-}
-
-// Validate validates this details items0
-func (o *DetailsItems0) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *DetailsItems0) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *DetailsItems0) UnmarshalBinary(b []byte) error {
-	var res DetailsItems0
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
 /*GetNetFundingDetailsBadRequestBody reportingV3NetFundingsGet400Response
 //
 // HTTP status code for client application
@@ -308,7 +269,7 @@ type GetNetFundingDetailsBadRequestBody struct {
 	// Error field list
 	//
 	// Required: true
-	Details []*DetailsItems0 `json:"details"`
+	Details []*GetNetFundingDetailsBadRequestBodyDetailsItems0 `json:"details"`
 
 	// Short descriptive message to the user.
 	//
@@ -427,6 +388,44 @@ func (o *GetNetFundingDetailsBadRequestBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
+/*GetNetFundingDetailsBadRequestBodyDetailsItems0 Provides failed validation input field detail
+//
+swagger:model GetNetFundingDetailsBadRequestBodyDetailsItems0
+*/
+type GetNetFundingDetailsBadRequestBodyDetailsItems0 struct {
+
+	// Field in request that caused an error
+	//
+	Field string `json:"field,omitempty"`
+
+	// Documented reason code
+	//
+	Reason string `json:"reason,omitempty"`
+}
+
+// Validate validates this get net funding details bad request body details items0
+func (o *GetNetFundingDetailsBadRequestBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetNetFundingDetailsBadRequestBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetNetFundingDetailsBadRequestBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res GetNetFundingDetailsBadRequestBodyDetailsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*GetNetFundingDetailsInternalServerErrorBody reportingV3NetFundingsGet500Response
 //
 // HTTP status code for client application
@@ -437,7 +436,7 @@ type GetNetFundingDetailsInternalServerErrorBody struct {
 	// Error field list
 	//
 	// Required: true
-	Details []*DetailsItems0 `json:"details"`
+	Details []*GetNetFundingDetailsInternalServerErrorBodyDetailsItems0 `json:"details"`
 
 	// Short descriptive message to the user.
 	//
@@ -556,6 +555,44 @@ func (o *GetNetFundingDetailsInternalServerErrorBody) UnmarshalBinary(b []byte) 
 	return nil
 }
 
+/*GetNetFundingDetailsInternalServerErrorBodyDetailsItems0 Provides failed validation input field detail
+//
+swagger:model GetNetFundingDetailsInternalServerErrorBodyDetailsItems0
+*/
+type GetNetFundingDetailsInternalServerErrorBodyDetailsItems0 struct {
+
+	// Field in request that caused an error
+	//
+	Field string `json:"field,omitempty"`
+
+	// Documented reason code
+	//
+	Reason string `json:"reason,omitempty"`
+}
+
+// Validate validates this get net funding details internal server error body details items0
+func (o *GetNetFundingDetailsInternalServerErrorBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetNetFundingDetailsInternalServerErrorBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetNetFundingDetailsInternalServerErrorBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res GetNetFundingDetailsInternalServerErrorBodyDetailsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*GetNetFundingDetailsOKBody reportingV3NetFundingsGet200Response
 swagger:model GetNetFundingDetailsOKBody
 */
@@ -566,13 +603,13 @@ type GetNetFundingDetailsOKBody struct {
 	// - yyyy-MM-dd'T'HH:mm:ss.SSSZZ
 	//
 	// Format: date-time
-	EndTime strfmt.DateTime `json:"endTime,omitempty" xml:"endTime"`
+	EndTime strfmt.DateTime `json:"endTime,omitempty" xml:"endTime,attr,omitempty"`
 
 	// List of Netfunding summary objects
-	NetFundingSummaries []*NetFundingSummariesItems0 `json:"netFundingSummaries" xml:"NetFundingSummaries"`
+	NetFundingSummaries []*GetNetFundingDetailsOKBodyNetFundingSummariesItems0 `json:"netFundingSummaries" xml:"NetFundingSummaries"`
 
 	// List of new total currency wise
-	NetTotal []*NetTotalItems0 `json:"netTotal" xml:"netTotal"`
+	NetTotal []*GetNetFundingDetailsOKBodyNetTotalItems0 `json:"netTotal" xml:"netTotal"`
 
 	// Valid report Start Date in **ISO 8601 format**.
 	// Please refer the following link to know more about ISO 8601 format.[Rfc Date Format](https://xml2rfc.tools.ietf.org/public/rfc/html/rfc3339.html#anchor14)
@@ -581,19 +618,19 @@ type GetNetFundingDetailsOKBody struct {
 	// - yyyy-MM-dd'T'HH:mm:ss.SSSZZ
 	//
 	// Format: date-time
-	StartTime strfmt.DateTime `json:"startTime,omitempty" xml:"startTime"`
+	StartTime strfmt.DateTime `json:"startTime,omitempty" xml:"startTime,attr,omitempty"`
 
 	// List of total chargebacks currency wise
-	TotalChargebacks []*TotalChargebacksItems0 `json:"totalChargebacks" xml:"totalChargebacks"`
+	TotalChargebacks []*GetNetFundingDetailsOKBodyTotalChargebacksItems0 `json:"totalChargebacks" xml:"totalChargebacks"`
 
 	// List of total fees currency wise
-	TotalFees []*TotalFeesItems0 `json:"totalFees" xml:"totalFees"`
+	TotalFees []*GetNetFundingDetailsOKBodyTotalFeesItems0 `json:"totalFees" xml:"totalFees"`
 
 	// List of total purchases currency wise
-	TotalPurchases []*TotalPurchasesItems0 `json:"totalPurchases" xml:"totalPurchases"`
+	TotalPurchases []*GetNetFundingDetailsOKBodyTotalPurchasesItems0 `json:"totalPurchases" xml:"totalPurchases"`
 
 	// List of total refunds currency wise
-	TotalRefunds []*TotalRefundsItems0 `json:"totalRefunds" xml:"totalRefunds"`
+	TotalRefunds []*GetNetFundingDetailsOKBodyTotalRefundsItems0 `json:"totalRefunds" xml:"totalRefunds"`
 }
 
 // Validate validates this get net funding details o k body
@@ -832,10 +869,10 @@ func (o *GetNetFundingDetailsOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*NetFundingSummariesItems0 net funding summaries items0
-swagger:model NetFundingSummariesItems0
+/*GetNetFundingDetailsOKBodyNetFundingSummariesItems0 get net funding details o k body net funding summaries items0
+swagger:model GetNetFundingDetailsOKBodyNetFundingSummariesItems0
 */
-type NetFundingSummariesItems0 struct {
+type GetNetFundingDetailsOKBodyNetFundingSummariesItems0 struct {
 
 	// conveyed amount
 	ConveyedAmount string `json:"conveyedAmount,omitempty"`
@@ -867,13 +904,13 @@ type NetFundingSummariesItems0 struct {
 	Type string `json:"type,omitempty"`
 }
 
-// Validate validates this net funding summaries items0
-func (o *NetFundingSummariesItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this get net funding details o k body net funding summaries items0
+func (o *GetNetFundingDetailsOKBodyNetFundingSummariesItems0) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *NetFundingSummariesItems0) MarshalBinary() ([]byte, error) {
+func (o *GetNetFundingDetailsOKBodyNetFundingSummariesItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -881,8 +918,8 @@ func (o *NetFundingSummariesItems0) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *NetFundingSummariesItems0) UnmarshalBinary(b []byte) error {
-	var res NetFundingSummariesItems0
+func (o *GetNetFundingDetailsOKBodyNetFundingSummariesItems0) UnmarshalBinary(b []byte) error {
+	var res GetNetFundingDetailsOKBodyNetFundingSummariesItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -890,10 +927,10 @@ func (o *NetFundingSummariesItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*NetTotalItems0 net total items0
-swagger:model NetTotalItems0
+/*GetNetFundingDetailsOKBodyNetTotalItems0 get net funding details o k body net total items0
+swagger:model GetNetFundingDetailsOKBodyNetTotalItems0
 */
-type NetTotalItems0 struct {
+type GetNetFundingDetailsOKBodyNetTotalItems0 struct {
 
 	// Valid ISO 4217 ALPHA-3 currency code
 	// Required: true
@@ -904,8 +941,8 @@ type NetTotalItems0 struct {
 	Value *string `json:"value"`
 }
 
-// Validate validates this net total items0
-func (o *NetTotalItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this get net funding details o k body net total items0
+func (o *GetNetFundingDetailsOKBodyNetTotalItems0) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateCurrency(formats); err != nil {
@@ -922,7 +959,7 @@ func (o *NetTotalItems0) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *NetTotalItems0) validateCurrency(formats strfmt.Registry) error {
+func (o *GetNetFundingDetailsOKBodyNetTotalItems0) validateCurrency(formats strfmt.Registry) error {
 
 	if err := validate.Required("currency", "body", o.Currency); err != nil {
 		return err
@@ -931,7 +968,7 @@ func (o *NetTotalItems0) validateCurrency(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *NetTotalItems0) validateValue(formats strfmt.Registry) error {
+func (o *GetNetFundingDetailsOKBodyNetTotalItems0) validateValue(formats strfmt.Registry) error {
 
 	if err := validate.Required("value", "body", o.Value); err != nil {
 		return err
@@ -941,7 +978,7 @@ func (o *NetTotalItems0) validateValue(formats strfmt.Registry) error {
 }
 
 // MarshalBinary interface implementation
-func (o *NetTotalItems0) MarshalBinary() ([]byte, error) {
+func (o *GetNetFundingDetailsOKBodyNetTotalItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -949,8 +986,8 @@ func (o *NetTotalItems0) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *NetTotalItems0) UnmarshalBinary(b []byte) error {
-	var res NetTotalItems0
+func (o *GetNetFundingDetailsOKBodyNetTotalItems0) UnmarshalBinary(b []byte) error {
+	var res GetNetFundingDetailsOKBodyNetTotalItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -958,10 +995,10 @@ func (o *NetTotalItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*TotalChargebacksItems0 total chargebacks items0
-swagger:model TotalChargebacksItems0
+/*GetNetFundingDetailsOKBodyTotalChargebacksItems0 get net funding details o k body total chargebacks items0
+swagger:model GetNetFundingDetailsOKBodyTotalChargebacksItems0
 */
-type TotalChargebacksItems0 struct {
+type GetNetFundingDetailsOKBodyTotalChargebacksItems0 struct {
 
 	// Valid ISO 4217 ALPHA-3 currency code
 	// Required: true
@@ -972,8 +1009,8 @@ type TotalChargebacksItems0 struct {
 	Value *string `json:"value"`
 }
 
-// Validate validates this total chargebacks items0
-func (o *TotalChargebacksItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this get net funding details o k body total chargebacks items0
+func (o *GetNetFundingDetailsOKBodyTotalChargebacksItems0) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateCurrency(formats); err != nil {
@@ -990,7 +1027,7 @@ func (o *TotalChargebacksItems0) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *TotalChargebacksItems0) validateCurrency(formats strfmt.Registry) error {
+func (o *GetNetFundingDetailsOKBodyTotalChargebacksItems0) validateCurrency(formats strfmt.Registry) error {
 
 	if err := validate.Required("currency", "body", o.Currency); err != nil {
 		return err
@@ -999,7 +1036,7 @@ func (o *TotalChargebacksItems0) validateCurrency(formats strfmt.Registry) error
 	return nil
 }
 
-func (o *TotalChargebacksItems0) validateValue(formats strfmt.Registry) error {
+func (o *GetNetFundingDetailsOKBodyTotalChargebacksItems0) validateValue(formats strfmt.Registry) error {
 
 	if err := validate.Required("value", "body", o.Value); err != nil {
 		return err
@@ -1009,7 +1046,7 @@ func (o *TotalChargebacksItems0) validateValue(formats strfmt.Registry) error {
 }
 
 // MarshalBinary interface implementation
-func (o *TotalChargebacksItems0) MarshalBinary() ([]byte, error) {
+func (o *GetNetFundingDetailsOKBodyTotalChargebacksItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -1017,8 +1054,8 @@ func (o *TotalChargebacksItems0) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *TotalChargebacksItems0) UnmarshalBinary(b []byte) error {
-	var res TotalChargebacksItems0
+func (o *GetNetFundingDetailsOKBodyTotalChargebacksItems0) UnmarshalBinary(b []byte) error {
+	var res GetNetFundingDetailsOKBodyTotalChargebacksItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -1026,10 +1063,10 @@ func (o *TotalChargebacksItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*TotalFeesItems0 total fees items0
-swagger:model TotalFeesItems0
+/*GetNetFundingDetailsOKBodyTotalFeesItems0 get net funding details o k body total fees items0
+swagger:model GetNetFundingDetailsOKBodyTotalFeesItems0
 */
-type TotalFeesItems0 struct {
+type GetNetFundingDetailsOKBodyTotalFeesItems0 struct {
 
 	// Valid ISO 4217 ALPHA-3 currency code
 	// Required: true
@@ -1040,8 +1077,8 @@ type TotalFeesItems0 struct {
 	Value *string `json:"value"`
 }
 
-// Validate validates this total fees items0
-func (o *TotalFeesItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this get net funding details o k body total fees items0
+func (o *GetNetFundingDetailsOKBodyTotalFeesItems0) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateCurrency(formats); err != nil {
@@ -1058,7 +1095,7 @@ func (o *TotalFeesItems0) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *TotalFeesItems0) validateCurrency(formats strfmt.Registry) error {
+func (o *GetNetFundingDetailsOKBodyTotalFeesItems0) validateCurrency(formats strfmt.Registry) error {
 
 	if err := validate.Required("currency", "body", o.Currency); err != nil {
 		return err
@@ -1067,7 +1104,7 @@ func (o *TotalFeesItems0) validateCurrency(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *TotalFeesItems0) validateValue(formats strfmt.Registry) error {
+func (o *GetNetFundingDetailsOKBodyTotalFeesItems0) validateValue(formats strfmt.Registry) error {
 
 	if err := validate.Required("value", "body", o.Value); err != nil {
 		return err
@@ -1077,7 +1114,7 @@ func (o *TotalFeesItems0) validateValue(formats strfmt.Registry) error {
 }
 
 // MarshalBinary interface implementation
-func (o *TotalFeesItems0) MarshalBinary() ([]byte, error) {
+func (o *GetNetFundingDetailsOKBodyTotalFeesItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -1085,8 +1122,8 @@ func (o *TotalFeesItems0) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *TotalFeesItems0) UnmarshalBinary(b []byte) error {
-	var res TotalFeesItems0
+func (o *GetNetFundingDetailsOKBodyTotalFeesItems0) UnmarshalBinary(b []byte) error {
+	var res GetNetFundingDetailsOKBodyTotalFeesItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -1094,10 +1131,10 @@ func (o *TotalFeesItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*TotalPurchasesItems0 total purchases items0
-swagger:model TotalPurchasesItems0
+/*GetNetFundingDetailsOKBodyTotalPurchasesItems0 get net funding details o k body total purchases items0
+swagger:model GetNetFundingDetailsOKBodyTotalPurchasesItems0
 */
-type TotalPurchasesItems0 struct {
+type GetNetFundingDetailsOKBodyTotalPurchasesItems0 struct {
 
 	// Valid ISO 4217 ALPHA-3 currency code
 	// Required: true
@@ -1108,8 +1145,8 @@ type TotalPurchasesItems0 struct {
 	Value *string `json:"value"`
 }
 
-// Validate validates this total purchases items0
-func (o *TotalPurchasesItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this get net funding details o k body total purchases items0
+func (o *GetNetFundingDetailsOKBodyTotalPurchasesItems0) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateCurrency(formats); err != nil {
@@ -1126,7 +1163,7 @@ func (o *TotalPurchasesItems0) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *TotalPurchasesItems0) validateCurrency(formats strfmt.Registry) error {
+func (o *GetNetFundingDetailsOKBodyTotalPurchasesItems0) validateCurrency(formats strfmt.Registry) error {
 
 	if err := validate.Required("currency", "body", o.Currency); err != nil {
 		return err
@@ -1135,7 +1172,7 @@ func (o *TotalPurchasesItems0) validateCurrency(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *TotalPurchasesItems0) validateValue(formats strfmt.Registry) error {
+func (o *GetNetFundingDetailsOKBodyTotalPurchasesItems0) validateValue(formats strfmt.Registry) error {
 
 	if err := validate.Required("value", "body", o.Value); err != nil {
 		return err
@@ -1145,7 +1182,7 @@ func (o *TotalPurchasesItems0) validateValue(formats strfmt.Registry) error {
 }
 
 // MarshalBinary interface implementation
-func (o *TotalPurchasesItems0) MarshalBinary() ([]byte, error) {
+func (o *GetNetFundingDetailsOKBodyTotalPurchasesItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -1153,8 +1190,8 @@ func (o *TotalPurchasesItems0) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *TotalPurchasesItems0) UnmarshalBinary(b []byte) error {
-	var res TotalPurchasesItems0
+func (o *GetNetFundingDetailsOKBodyTotalPurchasesItems0) UnmarshalBinary(b []byte) error {
+	var res GetNetFundingDetailsOKBodyTotalPurchasesItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -1162,10 +1199,10 @@ func (o *TotalPurchasesItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*TotalRefundsItems0 total refunds items0
-swagger:model TotalRefundsItems0
+/*GetNetFundingDetailsOKBodyTotalRefundsItems0 get net funding details o k body total refunds items0
+swagger:model GetNetFundingDetailsOKBodyTotalRefundsItems0
 */
-type TotalRefundsItems0 struct {
+type GetNetFundingDetailsOKBodyTotalRefundsItems0 struct {
 
 	// Valid ISO 4217 ALPHA-3 currency code
 	// Required: true
@@ -1176,8 +1213,8 @@ type TotalRefundsItems0 struct {
 	Value *string `json:"value"`
 }
 
-// Validate validates this total refunds items0
-func (o *TotalRefundsItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this get net funding details o k body total refunds items0
+func (o *GetNetFundingDetailsOKBodyTotalRefundsItems0) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateCurrency(formats); err != nil {
@@ -1194,7 +1231,7 @@ func (o *TotalRefundsItems0) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *TotalRefundsItems0) validateCurrency(formats strfmt.Registry) error {
+func (o *GetNetFundingDetailsOKBodyTotalRefundsItems0) validateCurrency(formats strfmt.Registry) error {
 
 	if err := validate.Required("currency", "body", o.Currency); err != nil {
 		return err
@@ -1203,7 +1240,7 @@ func (o *TotalRefundsItems0) validateCurrency(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *TotalRefundsItems0) validateValue(formats strfmt.Registry) error {
+func (o *GetNetFundingDetailsOKBodyTotalRefundsItems0) validateValue(formats strfmt.Registry) error {
 
 	if err := validate.Required("value", "body", o.Value); err != nil {
 		return err
@@ -1213,7 +1250,7 @@ func (o *TotalRefundsItems0) validateValue(formats strfmt.Registry) error {
 }
 
 // MarshalBinary interface implementation
-func (o *TotalRefundsItems0) MarshalBinary() ([]byte, error) {
+func (o *GetNetFundingDetailsOKBodyTotalRefundsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -1221,8 +1258,8 @@ func (o *TotalRefundsItems0) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *TotalRefundsItems0) UnmarshalBinary(b []byte) error {
-	var res TotalRefundsItems0
+func (o *GetNetFundingDetailsOKBodyTotalRefundsItems0) UnmarshalBinary(b []byte) error {
+	var res GetNetFundingDetailsOKBodyTotalRefundsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

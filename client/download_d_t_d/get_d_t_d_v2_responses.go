@@ -9,8 +9,7 @@ import (
 	"fmt"
 
 	"github.com/go-openapi/runtime"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 )
 
 // GetDTDV2Reader is a Reader for the GetDTDV2 structure.
@@ -47,7 +46,7 @@ func (o *GetDTDV2Reader) ReadResponse(response runtime.ClientResponse, consumer 
 		return nil, result
 
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
 	}
 }
 
@@ -64,7 +63,7 @@ type GetDTDV2OK struct {
 }
 
 func (o *GetDTDV2OK) Error() string {
-	return fmt.Sprintf("[GET /dtds/{reportDefinitionNameVersion}][%d] getDTDV2OK ", 200)
+	return fmt.Sprintf("[GET /reporting/v3/dtds/{reportDefinitionNameVersion}][%d] getDTDV2OK ", 200)
 }
 
 func (o *GetDTDV2OK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -85,7 +84,7 @@ type GetDTDV2BadRequest struct {
 }
 
 func (o *GetDTDV2BadRequest) Error() string {
-	return fmt.Sprintf("[GET /dtds/{reportDefinitionNameVersion}][%d] getDTDV2BadRequest ", 400)
+	return fmt.Sprintf("[GET /reporting/v3/dtds/{reportDefinitionNameVersion}][%d] getDTDV2BadRequest ", 400)
 }
 
 func (o *GetDTDV2BadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -106,7 +105,7 @@ type GetDTDV2NotFound struct {
 }
 
 func (o *GetDTDV2NotFound) Error() string {
-	return fmt.Sprintf("[GET /dtds/{reportDefinitionNameVersion}][%d] getDTDV2NotFound ", 404)
+	return fmt.Sprintf("[GET /reporting/v3/dtds/{reportDefinitionNameVersion}][%d] getDTDV2NotFound ", 404)
 }
 
 func (o *GetDTDV2NotFound) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -127,7 +126,7 @@ type GetDTDV2InternalServerError struct {
 }
 
 func (o *GetDTDV2InternalServerError) Error() string {
-	return fmt.Sprintf("[GET /dtds/{reportDefinitionNameVersion}][%d] getDTDV2InternalServerError ", 500)
+	return fmt.Sprintf("[GET /reporting/v3/dtds/{reportDefinitionNameVersion}][%d] getDTDV2InternalServerError ", 500)
 }
 
 func (o *GetDTDV2InternalServerError) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

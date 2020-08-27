@@ -9,12 +9,11 @@ import (
 	"fmt"
 
 	"github.com/go-openapi/runtime"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 )
 
 // New creates a new payment batch summaries API client.
-func New(transport runtime.ClientTransport, formats strfmt.Registry) *Client {
+func New(transport runtime.ClientTransport, formats strfmt.Registry) ClientService {
 	return &Client{transport: transport, formats: formats}
 }
 
@@ -26,10 +25,17 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
-/*
-GetPaymentBatchSummary gets payment batch summary data
+// ClientService is the interface for Client methods
+type ClientService interface {
+	GetPaymentBatchSummary(params *GetPaymentBatchSummaryParams) (*GetPaymentBatchSummaryOK, error)
 
-Scope can be either account/merchant or reseller.
+	SetTransport(transport runtime.ClientTransport)
+}
+
+/*
+  GetPaymentBatchSummary gets payment batch summary data
+
+  Scope can be either account/merchant or reseller.
 */
 func (a *Client) GetPaymentBatchSummary(params *GetPaymentBatchSummaryParams) (*GetPaymentBatchSummaryOK, error) {
 	// TODO: Validate the params before sending
@@ -41,7 +47,7 @@ func (a *Client) GetPaymentBatchSummary(params *GetPaymentBatchSummaryParams) (*
 		ID:                 "getPaymentBatchSummary",
 		Method:             "GET",
 		PathPattern:        "/reporting/v3/payment-batch-summaries",
-		ProducesMediaTypes: []string{"application/hal+json"},
+		ProducesMediaTypes: []string{"application/hal+json", "application/xml", "text/csv"},
 		ConsumesMediaTypes: []string{"application/json;charset=utf-8"},
 		Schemes:            []string{"https"},
 		Params:             params,

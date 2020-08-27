@@ -13,8 +13,7 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	cr "github.com/go-openapi/runtime/client"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 )
 
 // NewGetResourceInfoByReportDefinitionParams creates a new GetResourceInfoByReportDefinitionParams object
@@ -71,6 +70,25 @@ type GetResourceInfoByReportDefinitionParams struct {
 
 	*/
 	ReportDefinitionName string
+	/*ReportMimeType
+	  The format for which the report definition is required. By default the value will be CSV.
+	Valid Values:
+	- application/xml
+	- text/csv
+
+
+	*/
+	ReportMimeType *string
+	/*SubscriptionType
+	  The subscription type for which report definition is required. By default the type will be CUSTOM.
+	Valid Values:
+	- CLASSIC
+	- CUSTOM
+	- STANDARD
+
+
+	*/
+	SubscriptionType *string
 
 	timeout    time.Duration
 	Context    context.Context
@@ -132,6 +150,28 @@ func (o *GetResourceInfoByReportDefinitionParams) SetReportDefinitionName(report
 	o.ReportDefinitionName = reportDefinitionName
 }
 
+// WithReportMimeType adds the reportMimeType to the get resource info by report definition params
+func (o *GetResourceInfoByReportDefinitionParams) WithReportMimeType(reportMimeType *string) *GetResourceInfoByReportDefinitionParams {
+	o.SetReportMimeType(reportMimeType)
+	return o
+}
+
+// SetReportMimeType adds the reportMimeType to the get resource info by report definition params
+func (o *GetResourceInfoByReportDefinitionParams) SetReportMimeType(reportMimeType *string) {
+	o.ReportMimeType = reportMimeType
+}
+
+// WithSubscriptionType adds the subscriptionType to the get resource info by report definition params
+func (o *GetResourceInfoByReportDefinitionParams) WithSubscriptionType(subscriptionType *string) *GetResourceInfoByReportDefinitionParams {
+	o.SetSubscriptionType(subscriptionType)
+	return o
+}
+
+// SetSubscriptionType adds the subscriptionType to the get resource info by report definition params
+func (o *GetResourceInfoByReportDefinitionParams) SetSubscriptionType(subscriptionType *string) {
+	o.SubscriptionType = subscriptionType
+}
+
 // WriteToRequest writes these params to a swagger request
 func (o *GetResourceInfoByReportDefinitionParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
 
@@ -159,6 +199,38 @@ func (o *GetResourceInfoByReportDefinitionParams) WriteToRequest(r runtime.Clien
 	// path param reportDefinitionName
 	if err := r.SetPathParam("reportDefinitionName", o.ReportDefinitionName); err != nil {
 		return err
+	}
+
+	if o.ReportMimeType != nil {
+
+		// query param reportMimeType
+		var qrReportMimeType string
+		if o.ReportMimeType != nil {
+			qrReportMimeType = *o.ReportMimeType
+		}
+		qReportMimeType := qrReportMimeType
+		if qReportMimeType != "" {
+			if err := r.SetQueryParam("reportMimeType", qReportMimeType); err != nil {
+				return err
+			}
+		}
+
+	}
+
+	if o.SubscriptionType != nil {
+
+		// query param subscriptionType
+		var qrSubscriptionType string
+		if o.SubscriptionType != nil {
+			qrSubscriptionType = *o.SubscriptionType
+		}
+		qSubscriptionType := qrSubscriptionType
+		if qSubscriptionType != "" {
+			if err := r.SetQueryParam("subscriptionType", qSubscriptionType); err != nil {
+				return err
+			}
+		}
+
 	}
 
 	if len(res) > 0 {

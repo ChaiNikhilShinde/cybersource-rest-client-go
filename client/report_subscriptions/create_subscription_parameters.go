@@ -13,8 +13,7 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	cr "github.com/go-openapi/runtime/client"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 )
 
 // NewCreateSubscriptionParams creates a new CreateSubscriptionParams object
@@ -61,16 +60,16 @@ for the create subscription operation typically these are written to a http.Requ
 */
 type CreateSubscriptionParams struct {
 
+	/*CreateReportSubscriptionRequest
+	  Report subscription request payload
+
+	*/
+	CreateReportSubscriptionRequest CreateSubscriptionBody
 	/*OrganizationID
 	  Valid Cybersource Organization Id
 
 	*/
 	OrganizationID *string
-	/*RequestBody
-	  Report subscription request payload
-
-	*/
-	RequestBody CreateSubscriptionBody
 
 	timeout    time.Duration
 	Context    context.Context
@@ -110,6 +109,17 @@ func (o *CreateSubscriptionParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
+// WithCreateReportSubscriptionRequest adds the createReportSubscriptionRequest to the create subscription params
+func (o *CreateSubscriptionParams) WithCreateReportSubscriptionRequest(createReportSubscriptionRequest CreateSubscriptionBody) *CreateSubscriptionParams {
+	o.SetCreateReportSubscriptionRequest(createReportSubscriptionRequest)
+	return o
+}
+
+// SetCreateReportSubscriptionRequest adds the createReportSubscriptionRequest to the create subscription params
+func (o *CreateSubscriptionParams) SetCreateReportSubscriptionRequest(createReportSubscriptionRequest CreateSubscriptionBody) {
+	o.CreateReportSubscriptionRequest = createReportSubscriptionRequest
+}
+
 // WithOrganizationID adds the organizationID to the create subscription params
 func (o *CreateSubscriptionParams) WithOrganizationID(organizationID *string) *CreateSubscriptionParams {
 	o.SetOrganizationID(organizationID)
@@ -121,17 +131,6 @@ func (o *CreateSubscriptionParams) SetOrganizationID(organizationID *string) {
 	o.OrganizationID = organizationID
 }
 
-// WithRequestBody adds the requestBody to the create subscription params
-func (o *CreateSubscriptionParams) WithRequestBody(requestBody CreateSubscriptionBody) *CreateSubscriptionParams {
-	o.SetRequestBody(requestBody)
-	return o
-}
-
-// SetRequestBody adds the requestBody to the create subscription params
-func (o *CreateSubscriptionParams) SetRequestBody(requestBody CreateSubscriptionBody) {
-	o.RequestBody = requestBody
-}
-
 // WriteToRequest writes these params to a swagger request
 func (o *CreateSubscriptionParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
 
@@ -139,6 +138,10 @@ func (o *CreateSubscriptionParams) WriteToRequest(r runtime.ClientRequest, reg s
 		return err
 	}
 	var res []error
+
+	if err := r.SetBodyParam(o.CreateReportSubscriptionRequest); err != nil {
+		return err
+	}
 
 	if o.OrganizationID != nil {
 
@@ -154,10 +157,6 @@ func (o *CreateSubscriptionParams) WriteToRequest(r runtime.ClientRequest, reg s
 			}
 		}
 
-	}
-
-	if err := r.SetBodyParam(o.RequestBody); err != nil {
-		return err
 	}
 
 	if len(res) > 0 {

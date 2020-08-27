@@ -12,10 +12,9 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
-
-	strfmt "github.com/go-openapi/strfmt"
 )
 
 // GetResourceInfoByReportDefinitionReader is a Reader for the GetResourceInfoByReportDefinition structure.
@@ -46,7 +45,7 @@ func (o *GetResourceInfoByReportDefinitionReader) ReadResponse(response runtime.
 		return nil, result
 
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
 	}
 }
 
@@ -137,94 +136,6 @@ func (o *GetResourceInfoByReportDefinitionNotFound) readResponse(response runtim
 	return nil
 }
 
-/*AttributesItems0 attributes items0
-swagger:model AttributesItems0
-*/
-type AttributesItems0 struct {
-
-	// default
-	Default bool `json:"default,omitempty"`
-
-	// description
-	Description string `json:"description,omitempty"`
-
-	// Attribute Filter Type.
-	FilterType string `json:"filterType,omitempty"`
-
-	// id
-	ID string `json:"id,omitempty"`
-
-	// name
-	Name string `json:"name,omitempty"`
-
-	// required
-	Required bool `json:"required,omitempty"`
-
-	// Valid values for the filter.
-	SupportedType string `json:"supportedType,omitempty"`
-}
-
-// Validate validates this attributes items0
-func (o *AttributesItems0) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *AttributesItems0) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *AttributesItems0) UnmarshalBinary(b []byte) error {
-	var res AttributesItems0
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*DetailsItems0 Provides failed validation input field detail
-//
-swagger:model DetailsItems0
-*/
-type DetailsItems0 struct {
-
-	// Field in request that caused an error
-	//
-	Field string `json:"field,omitempty"`
-
-	// Documented reason code
-	//
-	Reason string `json:"reason,omitempty"`
-}
-
-// Validate validates this details items0
-func (o *DetailsItems0) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *DetailsItems0) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *DetailsItems0) UnmarshalBinary(b []byte) error {
-	var res DetailsItems0
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
 /*GetResourceInfoByReportDefinitionBadRequestBody reportingV3ReportDefinitionsNameGet400Response
 //
 // HTTP status code for client application
@@ -235,7 +146,7 @@ type GetResourceInfoByReportDefinitionBadRequestBody struct {
 	// Error field list
 	//
 	// Required: true
-	Details []*DetailsItems0 `json:"details"`
+	Details []*GetResourceInfoByReportDefinitionBadRequestBodyDetailsItems0 `json:"details"`
 
 	// Short descriptive message to the user.
 	//
@@ -354,13 +265,54 @@ func (o *GetResourceInfoByReportDefinitionBadRequestBody) UnmarshalBinary(b []by
 	return nil
 }
 
+/*GetResourceInfoByReportDefinitionBadRequestBodyDetailsItems0 Provides failed validation input field detail
+//
+swagger:model GetResourceInfoByReportDefinitionBadRequestBodyDetailsItems0
+*/
+type GetResourceInfoByReportDefinitionBadRequestBodyDetailsItems0 struct {
+
+	// Field in request that caused an error
+	//
+	Field string `json:"field,omitempty"`
+
+	// Documented reason code
+	//
+	Reason string `json:"reason,omitempty"`
+}
+
+// Validate validates this get resource info by report definition bad request body details items0
+func (o *GetResourceInfoByReportDefinitionBadRequestBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetResourceInfoByReportDefinitionBadRequestBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetResourceInfoByReportDefinitionBadRequestBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res GetResourceInfoByReportDefinitionBadRequestBodyDetailsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*GetResourceInfoByReportDefinitionOKBody reportingV3ReportDefinitionsNameGet200Response
 swagger:model GetResourceInfoByReportDefinitionOKBody
 */
 type GetResourceInfoByReportDefinitionOKBody struct {
 
 	// attributes
-	Attributes []*AttributesItems0 `json:"attributes"`
+	Attributes []*GetResourceInfoByReportDefinitionOKBodyAttributesItems0 `json:"attributes"`
+
+	// default settings
+	DefaultSettings *GetResourceInfoByReportDefinitionOKBodyDefaultSettings `json:"defaultSettings,omitempty"`
 
 	// description
 	Description string `json:"description,omitempty"`
@@ -370,6 +322,14 @@ type GetResourceInfoByReportDefinitionOKBody struct {
 
 	// report defintion name
 	ReportDefintionName string `json:"reportDefintionName,omitempty"`
+
+	// 'The subscription type for which report definition is required. By default the type will be CUSTOM.'
+	// Valid Values:
+	// - 'CLASSIC'
+	// - 'CUSTOM'
+	// - 'STANDARD'
+	//
+	SubscriptionType string `json:"subscriptionType,omitempty"`
 
 	// supported formats
 	// Unique: true
@@ -384,6 +344,10 @@ func (o *GetResourceInfoByReportDefinitionOKBody) Validate(formats strfmt.Regist
 	var res []error
 
 	if err := o.validateAttributes(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateDefaultSettings(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -422,6 +386,24 @@ func (o *GetResourceInfoByReportDefinitionOKBody) validateAttributes(formats str
 	return nil
 }
 
+func (o *GetResourceInfoByReportDefinitionOKBody) validateDefaultSettings(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.DefaultSettings) { // not required
+		return nil
+	}
+
+	if o.DefaultSettings != nil {
+		if err := o.DefaultSettings.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getResourceInfoByReportDefinitionOK" + "." + "defaultSettings")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (o *GetResourceInfoByReportDefinitionOKBody) validateSupportedFormats(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.SupportedFormats) { // not required
@@ -446,6 +428,186 @@ func (o *GetResourceInfoByReportDefinitionOKBody) MarshalBinary() ([]byte, error
 // UnmarshalBinary interface implementation
 func (o *GetResourceInfoByReportDefinitionOKBody) UnmarshalBinary(b []byte) error {
 	var res GetResourceInfoByReportDefinitionOKBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*GetResourceInfoByReportDefinitionOKBodyAttributesItems0 get resource info by report definition o k body attributes items0
+swagger:model GetResourceInfoByReportDefinitionOKBodyAttributesItems0
+*/
+type GetResourceInfoByReportDefinitionOKBodyAttributesItems0 struct {
+
+	// default
+	Default bool `json:"default,omitempty"`
+
+	// description
+	Description string `json:"description,omitempty"`
+
+	// Attribute Filter Type.
+	FilterType string `json:"filterType,omitempty"`
+
+	// id
+	ID string `json:"id,omitempty"`
+
+	// name
+	Name string `json:"name,omitempty"`
+
+	// required
+	Required bool `json:"required,omitempty"`
+
+	// Valid values for the filter.
+	SupportedType string `json:"supportedType,omitempty"`
+}
+
+// Validate validates this get resource info by report definition o k body attributes items0
+func (o *GetResourceInfoByReportDefinitionOKBodyAttributesItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetResourceInfoByReportDefinitionOKBodyAttributesItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetResourceInfoByReportDefinitionOKBodyAttributesItems0) UnmarshalBinary(b []byte) error {
+	var res GetResourceInfoByReportDefinitionOKBodyAttributesItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*GetResourceInfoByReportDefinitionOKBodyDefaultSettings get resource info by report definition o k body default settings
+swagger:model GetResourceInfoByReportDefinitionOKBodyDefaultSettings
+*/
+type GetResourceInfoByReportDefinitionOKBodyDefaultSettings struct {
+
+	// List of filters to apply
+	ReportFilters map[string][]string `json:"reportFilters,omitempty"`
+
+	// Report Frequency Value
+	// Valid Values:
+	//   - DAILY
+	//   - WEEKLY
+	//   - MONTHLY
+	//   - ADHOC
+	//
+	ReportFrequency string `json:"reportFrequency,omitempty"`
+
+	// Report Format
+	// Valid values:
+	//   - application/xml
+	//   - text/csv
+	//
+	ReportMimeType string `json:"reportMimeType,omitempty"`
+
+	// Report Name
+	ReportName string `json:"reportName,omitempty"`
+
+	// report preferences
+	ReportPreferences *GetResourceInfoByReportDefinitionOKBodyDefaultSettingsReportPreferences `json:"reportPreferences,omitempty"`
+
+	// Start Day
+	StartDay int32 `json:"startDay,omitempty"`
+
+	// Start Time
+	StartTime string `json:"startTime,omitempty"`
+
+	// Time Zone
+	Timezone string `json:"timezone,omitempty"`
+}
+
+// Validate validates this get resource info by report definition o k body default settings
+func (o *GetResourceInfoByReportDefinitionOKBodyDefaultSettings) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateReportPreferences(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetResourceInfoByReportDefinitionOKBodyDefaultSettings) validateReportPreferences(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.ReportPreferences) { // not required
+		return nil
+	}
+
+	if o.ReportPreferences != nil {
+		if err := o.ReportPreferences.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getResourceInfoByReportDefinitionOK" + "." + "defaultSettings" + "." + "reportPreferences")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetResourceInfoByReportDefinitionOKBodyDefaultSettings) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetResourceInfoByReportDefinitionOKBodyDefaultSettings) UnmarshalBinary(b []byte) error {
+	var res GetResourceInfoByReportDefinitionOKBodyDefaultSettings
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*GetResourceInfoByReportDefinitionOKBodyDefaultSettingsReportPreferences Report Preferences
+swagger:model GetResourceInfoByReportDefinitionOKBodyDefaultSettingsReportPreferences
+*/
+type GetResourceInfoByReportDefinitionOKBodyDefaultSettingsReportPreferences struct {
+
+	// Specify the field naming convention to be followed in reports (applicable to only csv report formats)
+	//
+	// Valid values:
+	// - SOAPI
+	// - SCMP
+	//
+	FieldNameConvention string `json:"fieldNameConvention,omitempty"`
+
+	// Indicator to determine whether negative sign infront of amount for all refunded transaction
+	SignedAmounts bool `json:"signedAmounts,omitempty"`
+}
+
+// Validate validates this get resource info by report definition o k body default settings report preferences
+func (o *GetResourceInfoByReportDefinitionOKBodyDefaultSettingsReportPreferences) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetResourceInfoByReportDefinitionOKBodyDefaultSettingsReportPreferences) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetResourceInfoByReportDefinitionOKBodyDefaultSettingsReportPreferences) UnmarshalBinary(b []byte) error {
+	var res GetResourceInfoByReportDefinitionOKBodyDefaultSettingsReportPreferences
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

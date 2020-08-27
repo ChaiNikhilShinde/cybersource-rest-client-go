@@ -12,10 +12,9 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
-
-	strfmt "github.com/go-openapi/strfmt"
 )
 
 // GetFileReader is a Reader for the GetFile structure.
@@ -46,7 +45,7 @@ func (o *GetFileReader) ReadResponse(response runtime.ClientResponse, consumer r
 		return nil, result
 
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
 	}
 }
 
@@ -125,44 +124,6 @@ func (o *GetFileNotFound) readResponse(response runtime.ClientResponse, consumer
 	return nil
 }
 
-/*FieldsItems0 Provide validation failed input field details
-swagger:model FieldsItems0
-*/
-type FieldsItems0 struct {
-
-	// Localized Key Name
-	LocalizationKey string `json:"localizationKey,omitempty"`
-
-	// Error description about validation failed field
-	Message string `json:"message,omitempty"`
-
-	// Path of the failed property
-	Path string `json:"path,omitempty"`
-}
-
-// Validate validates this fields items0
-func (o *FieldsItems0) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *FieldsItems0) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *FieldsItems0) UnmarshalBinary(b []byte) error {
-	var res FieldsItems0
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
 /*GetFileBadRequestBody Error Bean
 swagger:model GetFileBadRequestBody
 */
@@ -179,7 +140,7 @@ type GetFileBadRequestBody struct {
 	Detail string `json:"detail,omitempty"`
 
 	// Error fields List
-	Fields []*FieldsItems0 `json:"fields"`
+	Fields []*GetFileBadRequestBodyFieldsItems0 `json:"fields"`
 
 	// Localization Key Name
 	LocalizationKey string `json:"localizationKey,omitempty"`
@@ -265,6 +226,44 @@ func (o *GetFileBadRequestBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *GetFileBadRequestBody) UnmarshalBinary(b []byte) error {
 	var res GetFileBadRequestBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*GetFileBadRequestBodyFieldsItems0 Provide validation failed input field details
+swagger:model GetFileBadRequestBodyFieldsItems0
+*/
+type GetFileBadRequestBodyFieldsItems0 struct {
+
+	// Localized Key Name
+	LocalizationKey string `json:"localizationKey,omitempty"`
+
+	// Error description about validation failed field
+	Message string `json:"message,omitempty"`
+
+	// Path of the failed property
+	Path string `json:"path,omitempty"`
+}
+
+// Validate validates this get file bad request body fields items0
+func (o *GetFileBadRequestBodyFieldsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetFileBadRequestBodyFieldsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetFileBadRequestBodyFieldsItems0) UnmarshalBinary(b []byte) error {
+	var res GetFileBadRequestBodyFieldsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

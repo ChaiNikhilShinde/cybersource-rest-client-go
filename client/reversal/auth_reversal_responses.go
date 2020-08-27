@@ -12,10 +12,9 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
-
-	strfmt "github.com/go-openapi/strfmt"
 )
 
 // AuthReversalReader is a Reader for the AuthReversal structure.
@@ -46,7 +45,7 @@ func (o *AuthReversalReader) ReadResponse(response runtime.ClientResponse, consu
 		return nil, result
 
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
 	}
 }
 
@@ -163,7 +162,6 @@ type AuthReversalBadGatewayBody struct {
 	//  - SYSTEM_ERROR
 	//  - SERVER_TIMEOUT
 	//  - SERVICE_TIMEOUT
-	//  - INVALID_OR_MISSING_CONFIG
 	//
 	Reason string `json:"reason,omitempty"`
 
@@ -175,8 +173,15 @@ type AuthReversalBadGatewayBody struct {
 	Status string `json:"status,omitempty"`
 
 	// Time of request in UTC. Format: `YYYY-MM-DDThh:mm:ssZ`
-	// Example `2016-08-11T22:47:57Z` equals August 11, 2016, at 22:47:57 (10:47:57 p.m.). The `T` separates the date and the
-	// time. The `Z` indicates UTC.
+	// **Example** `2016-08-11T22:47:57Z` equals August 11, 2016, at 22:47:57 (10:47:57 p.m.).
+	// The `T` separates the date and the time. The `Z` indicates UTC.
+	//
+	// Returned by authorization service.
+	//
+	// #### PIN debit
+	// Time when the PIN debit credit, PIN debit purchase or PIN debit reversal was requested.
+	//
+	// Returned by PIN debit credit, PIN debit purchase or PIN debit reversal.
 	//
 	SubmitTimeUtc string `json:"submitTimeUtc,omitempty"`
 }
@@ -210,7 +215,7 @@ swagger:model AuthReversalBadRequestBody
 type AuthReversalBadRequestBody struct {
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*AuthReversalBadRequestBodyDetailsItems0 `json:"details"`
 
 	// The detail message related to the status and reason listed above.
 	Message string `json:"message,omitempty"`
@@ -239,8 +244,15 @@ type AuthReversalBadRequestBody struct {
 	Status string `json:"status,omitempty"`
 
 	// Time of request in UTC. Format: `YYYY-MM-DDThh:mm:ssZ`
-	// Example `2016-08-11T22:47:57Z` equals August 11, 2016, at 22:47:57 (10:47:57 p.m.). The `T` separates the date and the
-	// time. The `Z` indicates UTC.
+	// **Example** `2016-08-11T22:47:57Z` equals August 11, 2016, at 22:47:57 (10:47:57 p.m.).
+	// The `T` separates the date and the time. The `Z` indicates UTC.
+	//
+	// Returned by authorization service.
+	//
+	// #### PIN debit
+	// Time when the PIN debit credit, PIN debit purchase or PIN debit reversal was requested.
+	//
+	// Returned by PIN debit credit, PIN debit purchase or PIN debit reversal.
 	//
 	SubmitTimeUtc string `json:"submitTimeUtc,omitempty"`
 }
@@ -295,6 +307,46 @@ func (o *AuthReversalBadRequestBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AuthReversalBadRequestBody) UnmarshalBinary(b []byte) error {
 	var res AuthReversalBadRequestBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*AuthReversalBadRequestBodyDetailsItems0 auth reversal bad request body details items0
+swagger:model AuthReversalBadRequestBodyDetailsItems0
+*/
+type AuthReversalBadRequestBodyDetailsItems0 struct {
+
+	// This is the flattened JSON object field name/path that is either missing or invalid.
+	Field string `json:"field,omitempty"`
+
+	// Possible reasons for the error.
+	//
+	// Possible values:
+	//  - MISSING_FIELD
+	//  - INVALID_DATA
+	//
+	Reason string `json:"reason,omitempty"`
+}
+
+// Validate validates this auth reversal bad request body details items0
+func (o *AuthReversalBadRequestBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AuthReversalBadRequestBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AuthReversalBadRequestBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res AuthReversalBadRequestBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -475,7 +527,13 @@ type AuthReversalCreatedBody struct {
 	// client reference information
 	ClientReferenceInformation *AuthReversalCreatedBodyClientReferenceInformation `json:"clientReferenceInformation,omitempty"`
 
-	// An unique identification number assigned by CyberSource to identify the submitted request. It is also appended to the endpoint of the resource.
+	// An unique identification number to identify the submitted request. It is also appended to the endpoint of the resource.
+	//
+	// On incremental authorizations, this value with be the same as the identification number returned in the original authorization response.
+	//
+	// #### PIN debit
+	// Returned for all PIN debit services.
+	//
 	// Max Length: 26
 	ID string `json:"id,omitempty"`
 
@@ -488,7 +546,18 @@ type AuthReversalCreatedBody struct {
 	// processor information
 	ProcessorInformation *AuthReversalCreatedBodyProcessorInformation `json:"processorInformation,omitempty"`
 
-	// The reconciliation id for the submitted transaction. This value is not returned for all processors.
+	// Reference number for the transaction. This value is not returned for all processors.
+	//
+	// Returned by authorization service.
+	//
+	// ##### PIN debit
+	// Returned by PIN debit credit, PIN debit purchase, and PIN debit reversal.
+	//
+	// #### Atos
+	// Positive string (6)
+	//
+	// #### All other processors
+	// String (60)
 	//
 	// Max Length: 60
 	ReconciliationID string `json:"reconciliationId,omitempty"`
@@ -504,8 +573,15 @@ type AuthReversalCreatedBody struct {
 	Status string `json:"status,omitempty"`
 
 	// Time of request in UTC. Format: `YYYY-MM-DDThh:mm:ssZ`
-	// Example `2016-08-11T22:47:57Z` equals August 11, 2016, at 22:47:57 (10:47:57 p.m.). The `T` separates the date and the
-	// time. The `Z` indicates UTC.
+	// **Example** `2016-08-11T22:47:57Z` equals August 11, 2016, at 22:47:57 (10:47:57 p.m.).
+	// The `T` separates the date and the time. The `Z` indicates UTC.
+	//
+	// Returned by authorization service.
+	//
+	// #### PIN debit
+	// Time when the PIN debit credit, PIN debit purchase or PIN debit reversal was requested.
+	//
+	// Returned by PIN debit credit, PIN debit purchase or PIN debit reversal.
 	//
 	SubmitTimeUtc string `json:"submitTimeUtc,omitempty"`
 }
@@ -835,10 +911,18 @@ swagger:model AuthReversalCreatedBodyClientReferenceInformation
 */
 type AuthReversalCreatedBodyClientReferenceInformation struct {
 
-	// Client-generated order reference or tracking number. CyberSource recommends that you send a unique value for each
+	// Merchant-generated order reference or tracking number. It is recommended that you send a unique value for each
 	// transaction so that you can perform meaningful searches for the transaction.
 	//
-	// For information about tracking orders, see "Tracking and Reconciling Your Orders" in [Getting Started with CyberSource Advanced for the SCMP API.](https://apps.cybersource.com/library/documentation/dev_guides/Getting_Started_SCMP/html/wwhelp/wwhimpl/js/html/wwhelp.htm)
+	// #### Used by
+	// **Authorization**
+	// Required field.
+	//
+	// #### PIN Debit
+	// Requests for PIN debit reversals need to use the same merchant reference number that was used in the transaction that is being
+	// reversed.
+	//
+	// Required field for all PIN Debit requests (purchase, credit, and reversal).
 	//
 	// #### FDC Nashville Global
 	// Certain circumstances can cause the processor to truncate this value to 15 or 17 characters for Level II and Level III processing, which can cause a discrepancy between the value you submit and the value included in some processor reports.
@@ -854,13 +938,14 @@ type AuthReversalCreatedBodyClientReferenceInformation struct {
 	// If your CyberSource account is enabled for Payment Tokenization, this field is returned only if you are using
 	// profile sharing and if your merchant ID is in the same merchant ID pool as the owner merchant ID.
 	//
-	// For details about how this field is used for Recurring Billing or Payment Tokenization, see the `ecp_debit_owner_merchant_id` field description in the [Electronic Check Services Using the SCMP API Guide.](https://apps.cybersource.com/library/documentation/dev_guides/EChecks_SCMP_API/html/wwhelp/wwhimpl/js/html/wwhelp.htm)
-	//
 	OwnerMerchantID string `json:"ownerMerchantId,omitempty"`
 
 	// Date and time at your physical location.
 	//
 	// Format: `YYYYMMDDhhmmss`, where YYYY = year, MM = month, DD = day, hh = hour, mm = minutes ss = seconds
+	//
+	// #### PIN Debit
+	// Optional field for PIN Debit purchase and credit requests.
 	//
 	// Max Length: 14
 	SubmitLocalDateTime string `json:"submitLocalDateTime,omitempty"`
@@ -937,7 +1022,9 @@ type AuthReversalCreatedBodyIssuerInformation struct {
 	//
 	// This value is generated by the processor and is returned only for a successful transaction.
 	//
-	// This field is supported only on FDC Nashville Global and SIX.
+	// This reply field is supported only for these processors:
+	// - FDC Nashville Global
+	// - SIX
 	//
 	// Max Length: 6
 	ResponseCode string `json:"responseCode,omitempty"`
@@ -1149,25 +1236,23 @@ type AuthReversalCreatedBodyPointOfSaleInformationEmv struct {
 	// EMV data that is transmitted from the chip card to the issuer, and from the issuer to the chip card. The EMV
 	// data is in the tag-length-value format and includes chip card tags, terminal tags, and transaction detail tags.
 	//
-	// For details, see the `emv_request_combined_tags` field description in [Card-Present Processing Using the SCMP API.](https://apps.cybersource.com/library/documentation/dev_guides/Retail_SCMP_API/html/wwhelp/wwhimpl/js/html/wwhelp.htm)
+	// For information about the individual tags, see the “Application Specification” section in the EMV 4.3 Specifications: http://emvco.com
 	//
-	// **Note** The information about EMV applies to credit card processing and PIN debit
-	// processing. All other information in this guide applies only to credit card processing. PIN debit
-	// processing is available only on FDC Nashville Global.
-	//
-	// **Note** For information about the individual tags, see the “Application Specification” section in the EMV 4.3 Specifications: http://emvco.com
+	// **Note** Card present information about EMV applies only to credit card processing and PIN debit processing.
+	// All other card present information applies only to credit card processing. PIN debit processing is available only
+	// on FDC Nashville Global.
 	//
 	// **Important** The following tags contain sensitive information and **must not** be included in this field:
 	//
-	//  - **56**: Track 1 equivalent data
-	//  - **57**: Track 2 equivalent data
-	//  - **5A**: Application PAN
-	//  - **5F20**: Cardholder name
-	//  - **5F24**: Application expiration date (This sensitivity has been relaxed for cmcic, amexdirect, fdiglobal, opdfde, and six)
-	//  - **99**: Transaction PIN
-	//  - **9F0B**: Cardholder name (extended)
-	//  - **9F1F**: Track 1 discretionary data
-	//  - **9F20**: Track 2 discretionary data
+	//  - `56`: Track 1 equivalent data
+	//  - `57`: Track 2 equivalent data
+	//  - `5A`: Application PAN
+	//  - `5F20`: Cardholder name
+	//  - `5F24`: Application expiration date (This sensitivity has been relaxed for Credit Mutuel-CIC, American Express Direct, FDC Nashville Global, First Data Merchant Solutions, and SIX)
+	//  - `99`: Transaction PIN
+	//  - `9F0B`: Cardholder name (extended)
+	//  - `9F1F`: Track 1 discretionary data
+	//  - `9F20`: Track 2 discretionary data
 	//
 	// For captures, this field is required for contact EMV transactions. Otherwise, it is optional.
 	//
@@ -1178,9 +1263,40 @@ type AuthReversalCreatedBodyPointOfSaleInformationEmv struct {
 	// you must include the following tags in this field. For all other types of EMV transactions, the following tags
 	// are optional.
 	//
-	//  - **95**: Terminal verification results
-	//  - **9F10**: Issuer application data
-	//  - **9F26**: Application cryptogram
+	//  - `95`: Terminal verification results
+	//  - `9F10`: Issuer application data
+	//  - `9F26`: Application cryptogram
+	//
+	//
+	// #### CyberSource through VisaNet
+	// - In Japan: 199 bytes
+	// - In other countries: String (252)
+	//
+	// #### GPX
+	// This field only supports transactions from the following card types:
+	// - Visa
+	// - Mastercard
+	// - AMEX
+	// - Discover
+	// - Diners
+	// - JCB
+	// - Union Pay International
+	//
+	// #### JCN Gateway
+	// The following tags must be included:
+	// - `4F`: Application identifier
+	// - `84`: Dedicated file name
+	//
+	// Data length: 199 bytes
+	//
+	// #### All other processors:
+	// String (999)
+	//
+	// #### Used by
+	// Authorization: Optional
+	// Authorization Reversal: Optional
+	// Credit: Optional
+	// PIN Debit processing (purchase, credit and reversal): Optional
 	//
 	// Max Length: 1998
 	Tags string `json:"tags,omitempty"`
@@ -1280,7 +1396,7 @@ type AuthReversalCreatedBodyProcessorInformation struct {
 	// Max Length: 1
 	MasterCardServiceReplyCode string `json:"masterCardServiceReplyCode,omitempty"`
 
-	// Processor-defined response category code. The associated detail error code is in the `responseCode`
+	// Processor-defined response category code. The associated detail error code is in the `processorInformation.responseCode` or `issuerInformation.responseCode`
 	// field of the service you requested.
 	//
 	// This field is supported only for:
@@ -1289,7 +1405,7 @@ type AuthReversalCreatedBodyProcessorInformation struct {
 	//  - Domestic transactions in Japan
 	//  - Comercio Latino—processor transaction ID required for troubleshooting
 	//
-	// **Maximum length for processors**:
+	// #### Maximum length for processors
 	//
 	//  - Comercio Latino: 32
 	//  - All other processors: 3
@@ -1302,6 +1418,12 @@ type AuthReversalCreatedBodyProcessorInformation struct {
 	//
 	// **Important** Do not use this field to evaluate the result of the authorization.
 	//
+	// #### PIN debit
+	// Response value that is returned by the processor or bank.
+	// **Important** Do not use this field to evaluate the results of the transaction request.
+	//
+	// Returned by PIN debit credit, PIN debit purchase, and PIN debit reversal.
+	//
 	// #### AIBMS
 	// If this value is `08`, you can accept the transaction if the customer provides you with identification.
 	//
@@ -1312,15 +1434,13 @@ type AuthReversalCreatedBodyProcessorInformation struct {
 	// - `bb` is the optional two-digit error message from the bank.
 	//
 	// #### Comercio Latino
-	// This value is the status code and the error or
-	// response code received from the processor
-	// separated by a colon.
-	// Format: [status code]:E[error code] or
-	// [status code]:R[response code]
+	// This value is the status code and the error or response code received from the processor separated by a colon.
+	// Format: [status code]:E[error code] or [status code]:R[response code]
 	// Example `2:R06`
 	//
 	// #### JCN Gateway
-	// Processor-defined detail error code. The associated response category code is in the `responseCategoryCode` field.
+	// Processor-defined detail error code. The associated response category code is in the `processorInformation.responseCategoryCode` field.
+	// String (3)
 	//
 	// Max Length: 10
 	ResponseCode string `json:"responseCode,omitempty"`
@@ -1483,28 +1603,49 @@ swagger:model AuthReversalCreatedBodyReversalAmountDetails
 */
 type AuthReversalCreatedBodyReversalAmountDetails struct {
 
-	// Currency used for the order. Use the three-character I[ISO Standard Currency Codes.](http://apps.cybersource.com/library/documentation/sbc/quickref/currencies.pdf)
+	// Currency used for the order. Use the three-character [ISO Standard Currency Codes.](http://apps.cybersource.com/library/documentation/sbc/quickref/currencies.pdf)
 	//
-	// For details about currency as used in partial authorizations, see "Features for Debit Cards and Prepaid Cards" in the [Credit Card Services Using the SCMP API Guide](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/wwhelp/wwhimpl/js/html/wwhelp.htm)
+	// #### Used by
+	// **Authorization**
+	// Required field.
 	//
+	// **Authorization Reversal**
 	// For an authorization reversal (`reversalInformation`) or a capture (`processingOptions.capture` is set to `true`), you must use the same currency that you used in your payment authorization request.
+	//
+	// #### PIN Debit
+	// Currency for the amount you requested for the PIN debit purchase. This value is returned for partial authorizations. The issuing bank can approve a partial amount if the balance on the debit card is less than the requested transaction amount. For the possible values, see the [ISO Standard Currency Codes](https://developer.cybersource.com/library/documentation/sbc/quickref/currencies.pdf).
+	// Returned by PIN debit purchase.
+	//
+	// For PIN debit reversal requests, you must use the same currency that was used for the PIN debit purchase or PIN debit credit that you are reversing.
+	// For the possible values, see the [ISO Standard Currency Codes](https://developer.cybersource.com/library/documentation/sbc/quickref/currencies.pdf).
+	//
+	// Required field for PIN Debit purchase and PIN Debit credit requests.
+	// Optional field for PIN Debit reversal requests.
+	//
+	// #### GPX
+	// This field is optional for reversing an authorization or credit.
 	//
 	// #### DCC for First Data
 	// Your local currency. For details, see the `currency` field description in [Dynamic Currency Conversion For First Data Using the SCMP API](http://apps.cybersource.com/library/documentation/dev_guides/DCC_FirstData_SCMP/DCC_FirstData_SCMP_API.pdf).
+	//
+	// #### Tax Calculation
+	// Required for international tax and value added tax only.
+	// Optional for U.S. and Canadian taxes.
+	// Your local currency.
 	//
 	// Max Length: 3
 	Currency string `json:"currency,omitempty"`
 
 	// Amount of the original transaction.
 	//
-	// For details, see `original_transaction_amount` field description in [Credit Card Services Using the SCMP API.](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/wwhelp/wwhimpl/js/html/wwhelp.htm)
+	// Returned by authorization reversal and void.
 	//
 	// Max Length: 15
 	OriginalTransactionAmount string `json:"originalTransactionAmount,omitempty"`
 
 	// Total reversed amount.
 	//
-	// For details, see `auth_reversal_amount` field description in [Credit Card Services Using the SCMP API.](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/wwhelp/wwhimpl/js/html/wwhelp.htm)
+	// Returned by authorization reversal.
 	//
 	// Max Length: 15
 	ReversedAmount string `json:"reversedAmount,omitempty"`
@@ -1594,10 +1735,30 @@ swagger:model AuthReversalParamsBodyClientReferenceInformation
 */
 type AuthReversalParamsBodyClientReferenceInformation struct {
 
-	// Client-generated order reference or tracking number. CyberSource recommends that you send a unique value for each
+	// The name of the Connection Method client (such as Virtual Terminal or SOAP Toolkit API) that the merchant uses to send a transaction request to CyberSource.
+	//
+	ApplicationName string `json:"applicationName,omitempty"`
+
+	// The entity that is responsible for running the transaction and submitting the processing request to CyberSource. This could be a person, a system, or a connection method.
+	//
+	ApplicationUser string `json:"applicationUser,omitempty"`
+
+	// Version of the CyberSource application or integration used for a transaction.
+	//
+	ApplicationVersion string `json:"applicationVersion,omitempty"`
+
+	// Merchant-generated order reference or tracking number. It is recommended that you send a unique value for each
 	// transaction so that you can perform meaningful searches for the transaction.
 	//
-	// For information about tracking orders, see "Tracking and Reconciling Your Orders" in [Getting Started with CyberSource Advanced for the SCMP API.](https://apps.cybersource.com/library/documentation/dev_guides/Getting_Started_SCMP/html/wwhelp/wwhimpl/js/html/wwhelp.htm)
+	// #### Used by
+	// **Authorization**
+	// Required field.
+	//
+	// #### PIN Debit
+	// Requests for PIN debit reversals need to use the same merchant reference number that was used in the transaction that is being
+	// reversed.
+	//
+	// Required field for all PIN Debit requests (purchase, credit, and reversal).
 	//
 	// #### FDC Nashville Global
 	// Certain circumstances can cause the processor to truncate this value to 15 or 17 characters for Level II and Level III processing, which can cause a discrepancy between the value you submit and the value included in some processor reports.
@@ -1698,10 +1859,24 @@ type AuthReversalParamsBodyClientReferenceInformationPartner struct {
 	//
 	// Send this value in all requests that are sent through the partner solution. CyberSource assigns the ID to the partner.
 	//
-	// **Note** When you see a partner ID of 999 in reports, the partner ID that was submitted is incorrect.
+	// **Note** When you see a solutionId of 999 in reports, the solutionId that was submitted is incorrect.
 	//
 	// Max Length: 8
 	SolutionID string `json:"solutionId,omitempty"`
+
+	// Value that identifies the application vendor and application version for a third party gateway.
+	// CyberSource provides you with this value during testing and validation.
+	// This field is supported only on CyberSource through VisaNet.
+	//
+	// #### Used by
+	// **Authorization, Authorization Reversal, Capture, Credit, Incremental Authorization, and Void**
+	// Optional field.
+	//
+	// #### PIN debit
+	// Required field for PIN debit credit, PIN debit purchase, or PIN debit reversal request.
+	//
+	// Max Length: 12
+	ThirdPartyCertificationNumber string `json:"thirdPartyCertificationNumber,omitempty"`
 }
 
 // Validate validates this auth reversal params body client reference information partner
@@ -1713,6 +1888,10 @@ func (o *AuthReversalParamsBodyClientReferenceInformationPartner) Validate(forma
 	}
 
 	if err := o.validateSolutionID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateThirdPartyCertificationNumber(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1742,6 +1921,19 @@ func (o *AuthReversalParamsBodyClientReferenceInformationPartner) validateSoluti
 	}
 
 	if err := validate.MaxLength("authReversalRequest"+"."+"clientReferenceInformation"+"."+"partner"+"."+"solutionId", "body", string(o.SolutionID), 8); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *AuthReversalParamsBodyClientReferenceInformationPartner) validateThirdPartyCertificationNumber(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.ThirdPartyCertificationNumber) { // not required
+		return nil
+	}
+
+	if err := validate.MaxLength("authReversalRequest"+"."+"clientReferenceInformation"+"."+"partner"+"."+"thirdPartyCertificationNumber", "body", string(o.ThirdPartyCertificationNumber), 12); err != nil {
 		return err
 	}
 
@@ -1918,42 +2110,44 @@ swagger:model AuthReversalParamsBodyOrderInformationLineItemsItems0
 */
 type AuthReversalParamsBodyOrderInformationLineItemsItems0 struct {
 
-	// Number of units for this order.
+	// Number of units for this order. Must be a non-negative integer.
 	//
-	// The default is `1`. For an authorization or capture transaction (`processingOptions.capture` is set to `true` or `false`), this field is required when _orderInformation.lineItems[].productCode_ is not set to **default** or one of the other values that are related to shipping and/or handling.
+	// The default is `1`. For an authorization or capture transaction (`processingOptions.capture` is set to `true` or `false`),
+	// this field is required when `orderInformation.lineItems[].productCode` is not `default` or one of the other values
+	// related to shipping and/or handling.
 	//
-	// When orderInformation.lineItems[].productCode is "gift_card",
-	// this is the total count of individual prepaid gift cards purchased.
+	// #### Tax Calculation
+	// Optional field for U.S., Canadian, international tax, and value added taxes.
 	//
-	// Maximum: 9.999999999e+09
+	// Maximum: 9.99999999e+08
 	// Minimum: 1
-	Quantity float64 `json:"quantity,omitempty"`
+	Quantity int64 `json:"quantity,omitempty"`
 
-	// Per-item price of the product. This value cannot be negative. You can include a decimal point (.), but you
-	// cannot include any other special characters. CyberSource truncates the amount to the correct number of decimal
-	// places.
+	// Per-item price of the product. This value for this field cannot be negative.
 	//
-	// For processor-specific information, see the `amount` field description in
-	// [Credit Card Services Using the SCMP API.](http://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html)
+	// You must include either this field or the request-level field `orderInformation.amountDetails.totalAmount` in your request.
 	//
-	// **Important** Some processors have specific requirements and limitations, such as maximum
-	// amounts and maximum field lengths. See these guides for details:
-	// - [Merchant Descriptors Using the SCMP API Guide]
-	// (https://apps.cybersource.com/library/documentation/dev_guides/Merchant_Descriptors_SCMP_API/html/wwhelp/wwhimpl/js/html/wwhelp.htm)
-	// - "Capture Information for Specific Processors" section in the [Credit Card Services Using the SCMP API Guide](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/wwhelp/wwhimpl/js/html/wwhelp.htm)
+	// You can include a decimal point (.), but you cannot include any other special characters.
+	// The value is truncated to the correct number of decimal places.
 	//
 	// #### DCC with a Third-Party Provider
 	// Set this field to the converted amount that was returned by the DCC provider. You must include either
-	// the 1st line item in the order and this field, or the request-level field `orderInformation.amountDetails.totalAmount` in your request. For details, see "Dynamic Currency Conversion with a Third Party
-	// Provider" in the [Credit Card Services Using the SCMP API Guide.](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/wwhelp/wwhimpl/js/html/wwhelp.htm)
+	// the 1st line item in the order and this field, or the request-level field `orderInformation.amountDetails.totalAmount` in your request.
 	//
 	// #### FDMS South
 	// If you accept IDR or CLP currencies, see the entry for FDMS South in the [Merchant Descriptors Using the SCMP API Guide.]
-	// (https://apps.cybersource.com/library/documentation/dev_guides/Merchant_Descriptors_SCMP_API/html/wwhelp/wwhimpl/js/html/wwhelp.htm)
+	// (https://apps.cybersource.com/library/documentation/dev_guides/Merchant_Descriptors_SCMP_API/html/)
+	//
+	// #### Tax Calculation
+	// Required field for U.S., Canadian, international and value added taxes.
 	//
 	// #### Zero Amount Authorizations
 	// If your processor supports zero amount authorizations, you can set this field to 0 for the
-	// authorization to check if the card is lost or stolen. See "Zero Amount Authorizations" in the [Credit Card Services Using the SCMP API Guide.](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/wwhelp/wwhimpl/js/html/wwhelp.htm)
+	// authorization to check if the card is lost or stolen.
+	//
+	// #### Maximum Field Lengths
+	// For GPN and JCN Gateway: Decimal (10)
+	// All other processors: Decimal (15)
 	//
 	// Max Length: 15
 	UnitPrice string `json:"unitPrice,omitempty"`
@@ -1983,11 +2177,11 @@ func (o *AuthReversalParamsBodyOrderInformationLineItemsItems0) validateQuantity
 		return nil
 	}
 
-	if err := validate.Minimum("quantity", "body", float64(o.Quantity), 1, false); err != nil {
+	if err := validate.MinimumInt("quantity", "body", int64(o.Quantity), 1, false); err != nil {
 		return err
 	}
 
-	if err := validate.Maximum("quantity", "body", float64(o.Quantity), 9.999999999e+09, false); err != nil {
+	if err := validate.MaximumInt("quantity", "body", int64(o.Quantity), 9.99999999e+08, false); err != nil {
 		return err
 	}
 
@@ -2092,25 +2286,23 @@ type AuthReversalParamsBodyPointOfSaleInformationEmv struct {
 	// EMV data that is transmitted from the chip card to the issuer, and from the issuer to the chip card. The EMV
 	// data is in the tag-length-value format and includes chip card tags, terminal tags, and transaction detail tags.
 	//
-	// For details, see the `emv_request_combined_tags` field description in [Card-Present Processing Using the SCMP API.](https://apps.cybersource.com/library/documentation/dev_guides/Retail_SCMP_API/html/wwhelp/wwhimpl/js/html/wwhelp.htm)
+	// For information about the individual tags, see the “Application Specification” section in the EMV 4.3 Specifications: http://emvco.com
 	//
-	// **Note** The information about EMV applies to credit card processing and PIN debit
-	// processing. All other information in this guide applies only to credit card processing. PIN debit
-	// processing is available only on FDC Nashville Global.
-	//
-	// **Note** For information about the individual tags, see the “Application Specification” section in the EMV 4.3 Specifications: http://emvco.com
+	// **Note** Card present information about EMV applies only to credit card processing and PIN debit processing.
+	// All other card present information applies only to credit card processing. PIN debit processing is available only
+	// on FDC Nashville Global.
 	//
 	// **Important** The following tags contain sensitive information and **must not** be included in this field:
 	//
-	//  - **56**: Track 1 equivalent data
-	//  - **57**: Track 2 equivalent data
-	//  - **5A**: Application PAN
-	//  - **5F20**: Cardholder name
-	//  - **5F24**: Application expiration date (This sensitivity has been relaxed for cmcic, amexdirect, fdiglobal, opdfde, and six)
-	//  - **99**: Transaction PIN
-	//  - **9F0B**: Cardholder name (extended)
-	//  - **9F1F**: Track 1 discretionary data
-	//  - **9F20**: Track 2 discretionary data
+	//  - `56`: Track 1 equivalent data
+	//  - `57`: Track 2 equivalent data
+	//  - `5A`: Application PAN
+	//  - `5F20`: Cardholder name
+	//  - `5F24`: Application expiration date (This sensitivity has been relaxed for Credit Mutuel-CIC, American Express Direct, FDC Nashville Global, First Data Merchant Solutions, and SIX)
+	//  - `99`: Transaction PIN
+	//  - `9F0B`: Cardholder name (extended)
+	//  - `9F1F`: Track 1 discretionary data
+	//  - `9F20`: Track 2 discretionary data
 	//
 	// For captures, this field is required for contact EMV transactions. Otherwise, it is optional.
 	//
@@ -2121,9 +2313,40 @@ type AuthReversalParamsBodyPointOfSaleInformationEmv struct {
 	// you must include the following tags in this field. For all other types of EMV transactions, the following tags
 	// are optional.
 	//
-	//  - **95**: Terminal verification results
-	//  - **9F10**: Issuer application data
-	//  - **9F26**: Application cryptogram
+	//  - `95`: Terminal verification results
+	//  - `9F10`: Issuer application data
+	//  - `9F26`: Application cryptogram
+	//
+	//
+	// #### CyberSource through VisaNet
+	// - In Japan: 199 bytes
+	// - In other countries: String (252)
+	//
+	// #### GPX
+	// This field only supports transactions from the following card types:
+	// - Visa
+	// - Mastercard
+	// - AMEX
+	// - Discover
+	// - Diners
+	// - JCB
+	// - Union Pay International
+	//
+	// #### JCN Gateway
+	// The following tags must be included:
+	// - `4F`: Application identifier
+	// - `84`: Dedicated file name
+	//
+	// Data length: 199 bytes
+	//
+	// #### All other processors:
+	// String (999)
+	//
+	// #### Used by
+	// Authorization: Optional
+	// Authorization Reversal: Optional
+	// Credit: Optional
+	// PIN Debit processing (purchase, credit and reversal): Optional
 	//
 	// Max Length: 1998
 	Tags string `json:"tags,omitempty"`
@@ -2190,17 +2413,17 @@ type AuthReversalParamsBodyProcessingInformation struct {
 	// - Partial authorizations
 	// - Split shipments
 	//
-	// For details, see `link_to_request` field description in [Credit Card Services Using the SCMP API.](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/wwhelp/wwhimpl/js/html/wwhelp.htm)
+	// For details, see `link_to_request` field description in [Credit Card Services Using the SCMP API.](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/)
 	//
 	// Max Length: 26
 	LinkID string `json:"linkId,omitempty"`
 
 	// Type of digital payment solution for the transaction. Possible Values:
 	//
-	//  - `visacheckout`: Visa Checkout. This value is required for Visa Checkout transactions. For details, see `payment_solution` field description in [Visa Checkout Using the SCMP API.](https://apps.cybersource.com/library/documentation/dev_guides/VCO_SCMP_API/html/wwhelp/wwhimpl/js/html/wwhelp.htm)
+	//  - `visacheckout`: Visa Checkout. This value is required for Visa Checkout transactions. For details, see `payment_solution` field description in [Visa Checkout Using the SCMP API.](https://apps.cybersource.com/library/documentation/dev_guides/VCO_SCMP_API/html/)
 	//  - `001`: Apple Pay.
 	//  - `004`: Cybersource In-App Solution.
-	//  - `005`: Masterpass. This value is required for Masterpass transactions on OmniPay Direct. For details, see "Masterpass" in the [Credit Card Services Using the SCMP API Guide.](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/wwhelp/wwhimpl/js/html/wwhelp.htm)
+	//  - `005`: Masterpass. This value is required for Masterpass transactions on OmniPay Direct. For details, see "Masterpass" in the [Credit Card Services Using the SCMP API Guide.](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/)
 	//  - `006`: Android Pay.
 	//  - `007`: Chase Pay.
 	//  - `008`: Samsung Pay.
@@ -2218,15 +2441,13 @@ type AuthReversalParamsBodyProcessingInformation struct {
 
 	// Attribute that lets you define custom grouping for your processor reports. This field is supported only for **Worldpay VAP**.
 	//
-	// For details, see `report_group` field description in [Credit Card Services Using the SCMP API.](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/wwhelp/wwhimpl/js/html/wwhelp.htm)
+	// For details, see `report_group` field description in [Credit Card Services Using the SCMP API.](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/)
 	//
 	// Max Length: 25
 	ReportGroup string `json:"reportGroup,omitempty"`
 
 	// Identifier for the **Visa Checkout** order. Visa Checkout provides a unique order ID for every transaction in
 	// the Visa Checkout **callID** field.
-	//
-	// For details, see the `vc_order_id` field description in [Visa Checkout Using the SCMP API.](https://apps.cybersource.com/library/documentation/dev_guides/VCO_SCMP_API/html/wwhelp/wwhimpl/js/html/wwhelp.htm)
 	//
 	// Max Length: 48
 	VisaCheckoutID string `json:"visaCheckoutId,omitempty"`
@@ -2378,7 +2599,7 @@ type AuthReversalParamsBodyProcessingInformationIssuer struct {
 	//
 	// This field is supported only for Visa transactions on **CyberSource through VisaNet**.
 	//
-	// For details, see `issuer_additional_data` field description in the [Credit Card Services Using the SCMP API Guide.](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/wwhelp/wwhimpl/js/html/wwhelp.htm)
+	// For details, see `issuer_additional_data` field description in the [Credit Card Services Using the SCMP API Guide.](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/)
 	//
 	// Max Length: 255
 	DiscretionaryData string `json:"discretionaryData,omitempty"`
@@ -2441,9 +2662,9 @@ type AuthReversalParamsBodyReversalInformation struct {
 	//
 	//  - `34`: Suspected fraud
 	//
-	// CyberSource ignores this field for processors that do not support this value.
+	// This field is ignored for processors that do not support this value.
 	//
-	// For details, see `auth_reversal_reason` field description in [Credit Card Services Using the SCMP API.](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/wwhelp/wwhimpl/js/html/wwhelp.htm)
+	// Returned by authorization reversal.
 	//
 	Reason string `json:"reason,omitempty"`
 }
@@ -2503,40 +2724,74 @@ swagger:model AuthReversalParamsBodyReversalInformationAmountDetails
 */
 type AuthReversalParamsBodyReversalInformationAmountDetails struct {
 
-	// Currency used for the order. Use the three-character I[ISO Standard Currency Codes.](http://apps.cybersource.com/library/documentation/sbc/quickref/currencies.pdf)
+	// Currency used for the order. Use the three-character [ISO Standard Currency Codes.](http://apps.cybersource.com/library/documentation/sbc/quickref/currencies.pdf)
 	//
-	// For details about currency as used in partial authorizations, see "Features for Debit Cards and Prepaid Cards" in the [Credit Card Services Using the SCMP API Guide](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/wwhelp/wwhimpl/js/html/wwhelp.htm)
+	// #### Used by
+	// **Authorization**
+	// Required field.
 	//
+	// **Authorization Reversal**
 	// For an authorization reversal (`reversalInformation`) or a capture (`processingOptions.capture` is set to `true`), you must use the same currency that you used in your payment authorization request.
+	//
+	// #### PIN Debit
+	// Currency for the amount you requested for the PIN debit purchase. This value is returned for partial authorizations. The issuing bank can approve a partial amount if the balance on the debit card is less than the requested transaction amount. For the possible values, see the [ISO Standard Currency Codes](https://developer.cybersource.com/library/documentation/sbc/quickref/currencies.pdf).
+	// Returned by PIN debit purchase.
+	//
+	// For PIN debit reversal requests, you must use the same currency that was used for the PIN debit purchase or PIN debit credit that you are reversing.
+	// For the possible values, see the [ISO Standard Currency Codes](https://developer.cybersource.com/library/documentation/sbc/quickref/currencies.pdf).
+	//
+	// Required field for PIN Debit purchase and PIN Debit credit requests.
+	// Optional field for PIN Debit reversal requests.
+	//
+	// #### GPX
+	// This field is optional for reversing an authorization or credit.
 	//
 	// #### DCC for First Data
 	// Your local currency. For details, see the `currency` field description in [Dynamic Currency Conversion For First Data Using the SCMP API](http://apps.cybersource.com/library/documentation/dev_guides/DCC_FirstData_SCMP/DCC_FirstData_SCMP_API.pdf).
 	//
+	// #### Tax Calculation
+	// Required for international tax and value added tax only.
+	// Optional for U.S. and Canadian taxes.
+	// Your local currency.
+	//
 	// Max Length: 3
 	Currency string `json:"currency,omitempty"`
 
-	// Grand total for the order. This value cannot be negative. You can include a decimal point (.), but no other special characters. CyberSource truncates the amount to the correct number of decimal places.
+	// Grand total for the order. This value cannot be negative. You can include a decimal point (.), but no other special characters.
+	// CyberSource truncates the amount to the correct number of decimal places.
 	//
 	// **Note** For CTV, FDCCompass, Paymentech processors, the maximum length for this field is 12.
 	//
 	// **Important** Some processors have specific requirements and limitations, such as maximum amounts and maximum field lengths. For details, see:
-	// - "Authorization Information for Specific Processors" in the [Credit Card Services Using the SCMP API Guide](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/wwhelp/wwhimpl/js/html/wwhelp.htm).
-	// - "Capture Information for Specific Processors" in the [Credit Card Services Using the SCMP API Guide](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/wwhelp/wwhimpl/js/html/wwhelp.htm).
-	// - "Credit Information for Specific Processors" in the [Credit Card Services Using the SCMP API Guide](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/wwhelp/wwhimpl/js/html/wwhelp.htm).
+	// - "Authorization Information for Specific Processors" in the [Credit Card Services Using the SCMP API Guide](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/).
+	// - "Capture Information for Specific Processors" in the [Credit Card Services Using the SCMP API Guide](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/).
+	// - "Credit Information for Specific Processors" in the [Credit Card Services Using the SCMP API Guide](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/).
 	//
-	// If your processor supports zero amount authorizations, you can set this field to 0 for the authorization to check if the card is lost or stolen. For details, see "Zero Amount Authorizations," "Credit Information for Specific Processors" in [Credit Card Services Using the SCMP API.](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/wwhelp/wwhimpl/js/html/wwhelp.htm)
+	// If your processor supports zero amount authorizations, you can set this field to 0 for the authorization to check if the card is lost or stolen. For details, see "Zero Amount Authorizations," "Credit Information for Specific Processors" in [Credit Card Services Using the SCMP API.](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/)
+	//
+	// #### Card Present
+	// Required to include either this field or `orderInformation.lineItems[].unitPrice` for the order.
+	//
+	// #### Invoicing
+	// Required for creating a new invoice.
+	//
+	// #### PIN Debit
+	// Amount you requested for the PIN debit purchase. This value is returned for partial authorizations. The issuing bank can approve a partial amount if the balance on the debit card is less than the requested transaction amount.
+	//
+	// Required field for PIN Debit purchase and PIN Debit credit requests.
+	// Optional field for PIN Debit reversal requests.
+	//
+	// #### GPX
+	// This field is optional for reversing an authorization or credit; however, for all other processors, these fields are required.
 	//
 	// #### DCC with a Third-Party Provider
 	// Set this field to the converted amount that was returned by the DCC provider. You must include either this field or the 1st line item in the order and the specific line-order amount in your request. For details, see `grand_total_amount` field description in [Dynamic Currency Conversion For First Data Using the SCMP API](http://apps.cybersource.com/library/documentation/dev_guides/DCC_FirstData_SCMP/DCC_FirstData_SCMP_API.pdf).
 	//
 	// #### FDMS South
-	// If you accept IDR or CLP currencies, see the entry for FDMS South in "Authorization Information for Specific Processors" of the [Credit Card Services Using the SCMP API.](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/wwhelp/wwhimpl/js/html/wwhelp.htm)
+	// If you accept IDR or CLP currencies, see the entry for FDMS South in "Authorization Information for Specific Processors" of the [Credit Card Services Using the SCMP API.](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/)
 	//
 	// #### DCC for First Data
 	// Not used.
-	//
-	// #### Invoicing
-	// Grand total for the order, this is required for creating a new invoice.
 	//
 	// Max Length: 19
 	TotalAmount string `json:"totalAmount,omitempty"`
@@ -2597,46 +2852,6 @@ func (o *AuthReversalParamsBodyReversalInformationAmountDetails) MarshalBinary()
 // UnmarshalBinary interface implementation
 func (o *AuthReversalParamsBodyReversalInformationAmountDetails) UnmarshalBinary(b []byte) error {
 	var res AuthReversalParamsBodyReversalInformationAmountDetails
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*DetailsItems0 details items0
-swagger:model DetailsItems0
-*/
-type DetailsItems0 struct {
-
-	// This is the flattened JSON object field name/path that is either missing or invalid.
-	Field string `json:"field,omitempty"`
-
-	// Possible reasons for the error.
-	//
-	// Possible values:
-	//  - MISSING_FIELD
-	//  - INVALID_DATA
-	//
-	Reason string `json:"reason,omitempty"`
-}
-
-// Validate validates this details items0
-func (o *DetailsItems0) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *DetailsItems0) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *DetailsItems0) UnmarshalBinary(b []byte) error {
-	var res DetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

@@ -13,14 +13,13 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	cr "github.com/go-openapi/runtime/client"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 )
 
 // NewGetAllSubscriptionsParams creates a new GetAllSubscriptionsParams object
 // with the default values initialized.
 func NewGetAllSubscriptionsParams() *GetAllSubscriptionsParams {
-
+	var ()
 	return &GetAllSubscriptionsParams{
 
 		timeout: cr.DefaultTimeout,
@@ -30,7 +29,7 @@ func NewGetAllSubscriptionsParams() *GetAllSubscriptionsParams {
 // NewGetAllSubscriptionsParamsWithTimeout creates a new GetAllSubscriptionsParams object
 // with the default values initialized, and the ability to set a timeout on a request
 func NewGetAllSubscriptionsParamsWithTimeout(timeout time.Duration) *GetAllSubscriptionsParams {
-
+	var ()
 	return &GetAllSubscriptionsParams{
 
 		timeout: timeout,
@@ -40,7 +39,7 @@ func NewGetAllSubscriptionsParamsWithTimeout(timeout time.Duration) *GetAllSubsc
 // NewGetAllSubscriptionsParamsWithContext creates a new GetAllSubscriptionsParams object
 // with the default values initialized, and the ability to set a context for a request
 func NewGetAllSubscriptionsParamsWithContext(ctx context.Context) *GetAllSubscriptionsParams {
-
+	var ()
 	return &GetAllSubscriptionsParams{
 
 		Context: ctx,
@@ -50,7 +49,7 @@ func NewGetAllSubscriptionsParamsWithContext(ctx context.Context) *GetAllSubscri
 // NewGetAllSubscriptionsParamsWithHTTPClient creates a new GetAllSubscriptionsParams object
 // with the default values initialized, and the ability to set a custom HTTPClient for a request
 func NewGetAllSubscriptionsParamsWithHTTPClient(client *http.Client) *GetAllSubscriptionsParams {
-
+	var ()
 	return &GetAllSubscriptionsParams{
 		HTTPClient: client,
 	}
@@ -60,6 +59,13 @@ func NewGetAllSubscriptionsParamsWithHTTPClient(client *http.Client) *GetAllSubs
 for the get all subscriptions operation typically these are written to a http.Request
 */
 type GetAllSubscriptionsParams struct {
+
+	/*OrganizationID
+	  Valid Cybersource Organization Id
+
+	*/
+	OrganizationID *string
+
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
@@ -98,6 +104,17 @@ func (o *GetAllSubscriptionsParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
+// WithOrganizationID adds the organizationID to the get all subscriptions params
+func (o *GetAllSubscriptionsParams) WithOrganizationID(organizationID *string) *GetAllSubscriptionsParams {
+	o.SetOrganizationID(organizationID)
+	return o
+}
+
+// SetOrganizationID adds the organizationId to the get all subscriptions params
+func (o *GetAllSubscriptionsParams) SetOrganizationID(organizationID *string) {
+	o.OrganizationID = organizationID
+}
+
 // WriteToRequest writes these params to a swagger request
 func (o *GetAllSubscriptionsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
 
@@ -105,6 +122,22 @@ func (o *GetAllSubscriptionsParams) WriteToRequest(r runtime.ClientRequest, reg 
 		return err
 	}
 	var res []error
+
+	if o.OrganizationID != nil {
+
+		// query param organizationId
+		var qrOrganizationID string
+		if o.OrganizationID != nil {
+			qrOrganizationID = *o.OrganizationID
+		}
+		qOrganizationID := qrOrganizationID
+		if qOrganizationID != "" {
+			if err := r.SetQueryParam("organizationId", qOrganizationID); err != nil {
+				return err
+			}
+		}
+
+	}
 
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)

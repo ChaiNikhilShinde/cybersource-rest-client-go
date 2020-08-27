@@ -9,12 +9,11 @@ import (
 	"fmt"
 
 	"github.com/go-openapi/runtime"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 )
 
 // New creates a new search transactions API client.
-func New(transport runtime.ClientTransport, formats strfmt.Registry) *Client {
+func New(transport runtime.ClientTransport, formats strfmt.Registry) ClientService {
 	return &Client{transport: transport, formats: formats}
 }
 
@@ -26,10 +25,19 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
-/*
-CreateSearch creates a search request
+// ClientService is the interface for Client methods
+type ClientService interface {
+	CreateSearch(params *CreateSearchParams) (*CreateSearchCreated, error)
 
-Create a search request.
+	GetSearch(params *GetSearchParams) (*GetSearchOK, error)
+
+	SetTransport(transport runtime.ClientTransport)
+}
+
+/*
+  CreateSearch creates a search request
+
+  Create a search request.
 
 */
 func (a *Client) CreateSearch(params *CreateSearchParams) (*CreateSearchCreated, error) {
@@ -64,9 +72,9 @@ func (a *Client) CreateSearch(params *CreateSearchParams) (*CreateSearchCreated,
 }
 
 /*
-GetSearch gets search results
+  GetSearch gets search results
 
-Include the Search ID in the GET request to retrieve the search results.
+  Include the Search ID in the GET request to retrieve the search results.
 */
 func (a *Client) GetSearch(params *GetSearchParams) (*GetSearchOK, error) {
 	// TODO: Validate the params before sending
@@ -78,7 +86,7 @@ func (a *Client) GetSearch(params *GetSearchParams) (*GetSearchOK, error) {
 		ID:                 "getSearch",
 		Method:             "GET",
 		PathPattern:        "/tss/v2/searches/{searchId}",
-		ProducesMediaTypes: []string{"application/json;charset=utf-8"},
+		ProducesMediaTypes: []string{"*/*"},
 		ConsumesMediaTypes: []string{"application/json;charset=utf-8"},
 		Schemes:            []string{"https"},
 		Params:             params,

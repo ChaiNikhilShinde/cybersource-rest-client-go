@@ -12,10 +12,9 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
-
-	strfmt "github.com/go-openapi/strfmt"
 )
 
 // GetTransactionReader is a Reader for the GetTransaction structure.
@@ -46,7 +45,7 @@ func (o *GetTransactionReader) ReadResponse(response runtime.ClientResponse, con
 		return nil, result
 
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
 	}
 }
 
@@ -154,7 +153,13 @@ type GetTransactionOKBody struct {
 	// fraud marking information
 	FraudMarkingInformation *GetTransactionOKBodyFraudMarkingInformation `json:"fraudMarkingInformation,omitempty"`
 
-	// An unique identification number assigned by CyberSource to identify the submitted request. It is also appended to the endpoint of the resource.
+	// An unique identification number to identify the submitted request. It is also appended to the endpoint of the resource.
+	//
+	// On incremental authorizations, this value with be the same as the identification number returned in the original authorization response.
+	//
+	// #### PIN debit
+	// Returned for all PIN debit services.
+	//
 	// Max Length: 26
 	ID string `json:"id,omitempty"`
 
@@ -163,7 +168,7 @@ type GetTransactionOKBody struct {
 
 	// The object containing the custom data that the merchant defines.
 	//
-	MerchantDefinedInformation []*MerchantDefinedInformationItems0 `json:"merchantDefinedInformation"`
+	MerchantDefinedInformation []*GetTransactionOKBodyMerchantDefinedInformationItems0 `json:"merchantDefinedInformation"`
 
 	// Your CyberSource merchant ID.
 	MerchantID string `json:"merchantId,omitempty"`
@@ -186,7 +191,18 @@ type GetTransactionOKBody struct {
 	// processor information
 	ProcessorInformation *GetTransactionOKBodyProcessorInformation `json:"processorInformation,omitempty"`
 
-	// The reconciliation id for the submitted transaction. This value is not returned for all processors.
+	// Reference number for the transaction. This value is not returned for all processors.
+	//
+	// Returned by authorization service.
+	//
+	// ##### PIN debit
+	// Returned by PIN debit credit, PIN debit purchase, and PIN debit reversal.
+	//
+	// #### Atos
+	// Positive string (6)
+	//
+	// #### All other processors
+	// String (60)
 	//
 	// Max Length: 60
 	ReconciliationID string `json:"reconciliationId,omitempty"`
@@ -194,7 +210,7 @@ type GetTransactionOKBody struct {
 	// risk information
 	RiskInformation *GetTransactionOKBodyRiskInformation `json:"riskInformation,omitempty"`
 
-	// Payment Request Id
+	// Contains the transaction identifier for the first transaction in the series of transactions. For example, you might send an authorization request for a payment, followed by a capture request for that payment, and then a refund request for that captured payment. Each of those requests, if successful, creates a resource that is assigned an identifier, which is returned in the response. The rootId identifies the first ID in the series, which in this case would be the ID of the original authorization.
 	// Max Length: 26
 	RootID string `json:"rootId,omitempty"`
 
@@ -205,8 +221,15 @@ type GetTransactionOKBody struct {
 	Status string `json:"status,omitempty"`
 
 	// Time of request in UTC. Format: `YYYY-MM-DDThh:mm:ssZ`
-	// Example `2016-08-11T22:47:57Z` equals August 11, 2016, at 22:47:57 (10:47:57 p.m.). The `T` separates the date and the
-	// time. The `Z` indicates UTC.
+	// **Example** `2016-08-11T22:47:57Z` equals August 11, 2016, at 22:47:57 (10:47:57 p.m.).
+	// The `T` separates the date and the time. The `Z` indicates UTC.
+	//
+	// Returned by authorization service.
+	//
+	// #### PIN debit
+	// Time when the PIN debit credit, PIN debit purchase or PIN debit reversal was requested.
+	//
+	// Returned by PIN debit credit, PIN debit purchase or PIN debit reversal.
 	//
 	SubmitTimeUTC string `json:"submitTimeUTC,omitempty"`
 }
@@ -708,13 +731,9 @@ type GetTransactionOKBodyApplicationInformation struct {
 	// - `0`: The request was declined.
 	// - `1`: The request was successful.
 	//
-	// For details, see `auth_rcode` field description in [Credit Card Services Using the SCMP API.](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/wwhelp/wwhimpl/js/html/wwhelp.htm)
-	//
 	RCode string `json:"rCode,omitempty"`
 
 	// One-word description of the result of the application.
-	//
-	// For details, see `auth_rflag` field description in [Credit Card Services Using the SCMP API.](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/wwhelp/wwhimpl/js/html/wwhelp.htm)
 	//
 	RFlag string `json:"rFlag,omitempty"`
 
@@ -790,7 +809,7 @@ swagger:model GetTransactionOKBodyApplicationInformationApplicationsItems0
 */
 type GetTransactionOKBodyApplicationInformationApplicationsItems0 struct {
 
-	// The CyberSource payment application processed for the transaction.
+	// The name of the CyberSource transaction type (such as CC settlement or CC authorization) that the merchant wants to process in a transaction request. More than one transaction type can included in a transaction request. Each transaction type separately returns their own status, reasonCode, rCode, and rFlag messages.
 	//
 	Name string `json:"name,omitempty"`
 
@@ -819,7 +838,7 @@ type GetTransactionOKBodyApplicationInformationApplicationsItems0 struct {
 	ReconciliationID string `json:"reconciliationId,omitempty"`
 
 	// The description for this field is not available.
-	ReturnCode string `json:"returnCode,omitempty"`
+	ReturnCode int64 `json:"returnCode,omitempty"`
 
 	// The description for this field is not available.
 	Status string `json:"status,omitempty"`
@@ -855,7 +874,7 @@ type GetTransactionOKBodyBuyerInformation struct {
 
 	// The merchant's password that CyberSource hashes and stores as a hashed password.
 	//
-	// For details about this field, see the `customer_password` field description in [Decision Manager Developer Guide Using the SCMP API.](https://www.cybersource.com/developers/documentation/fraud_management/)
+	// For details about this field, see the `customer_password` field description in _Decision Manager Using the SCMP API Developer Guide_ on the [CyberSource Business Center.](https://ebc2.cybersource.com/ebc2/) Click **Decision Manager** > **Documentation** > **Guides** > _Decision Manager Using the SCMP API Developer Guide_ (PDF link).
 	//
 	// Max Length: 100
 	HashedPassword string `json:"hashedPassword,omitempty"`
@@ -950,19 +969,30 @@ swagger:model GetTransactionOKBodyClientReferenceInformation
 */
 type GetTransactionOKBodyClientReferenceInformation struct {
 
-	// The application name of client which is used to submit the request.
+	// The name of the Connection Method client (such as Virtual Terminal or SOAP Toolkit API) that the merchant uses to send a transaction request to CyberSource.
+	//
 	ApplicationName string `json:"applicationName,omitempty"`
 
-	// The description for this field is not available.
+	// The entity that is responsible for running the transaction and submitting the processing request to CyberSource. This could be a person, a system, or a connection method.
+	//
 	ApplicationUser string `json:"applicationUser,omitempty"`
 
-	// The description for this field is not available.
+	// Version of the CyberSource application or integration used for a transaction.
+	//
 	ApplicationVersion string `json:"applicationVersion,omitempty"`
 
-	// Client-generated order reference or tracking number. CyberSource recommends that you send a unique value for each
+	// Merchant-generated order reference or tracking number. It is recommended that you send a unique value for each
 	// transaction so that you can perform meaningful searches for the transaction.
 	//
-	// For information about tracking orders, see "Tracking and Reconciling Your Orders" in [Getting Started with CyberSource Advanced for the SCMP API.](https://apps.cybersource.com/library/documentation/dev_guides/Getting_Started_SCMP/html/wwhelp/wwhimpl/js/html/wwhelp.htm)
+	// #### Used by
+	// **Authorization**
+	// Required field.
+	//
+	// #### PIN Debit
+	// Requests for PIN debit reversals need to use the same merchant reference number that was used in the transaction that is being
+	// reversed.
+	//
+	// Required field for all PIN Debit requests (purchase, credit, and reversal).
 	//
 	// #### FDC Nashville Global
 	// Certain circumstances can cause the processor to truncate this value to 15 or 17 characters for Level II and Level III processing, which can cause a discrepancy between the value you submit and the value included in some processor reports.
@@ -971,6 +1001,7 @@ type GetTransactionOKBodyClientReferenceInformation struct {
 	Code string `json:"code,omitempty"`
 
 	// Brief description of the order or any comment you wish to add to the order.
+	//
 	// Max Length: 255
 	Comments string `json:"comments,omitempty"`
 }
@@ -1048,7 +1079,7 @@ type GetTransactionOKBodyConsumerAuthenticationInformation struct {
 
 	// Raw electronic commerce indicator (ECI).
 	//
-	// For details, see `eci_raw` request field description in [Credit Card Services Using the SCMP API.](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/wwhelp/wwhimpl/js/html/wwhelp.htm)
+	// For details, see `eci_raw` request field description in [Credit Card Services Using the SCMP API.](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/)
 	//
 	// Max Length: 2
 	EciRaw string `json:"eciRaw,omitempty"`
@@ -1058,7 +1089,7 @@ type GetTransactionOKBodyConsumerAuthenticationInformation struct {
 
 	// Transaction identifier.
 	//
-	// For details, see `xid` request field description in [Credit Card Services Using the SCMP API.](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/wwhelp/wwhimpl/js/html/wwhelp.htm)
+	// For details, see `xid` request field description in [Credit Card Services Using the SCMP API.](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/)
 	//
 	// Max Length: 40
 	Xid string `json:"xid,omitempty"`
@@ -1159,6 +1190,10 @@ type GetTransactionOKBodyDeviceInformation struct {
 	HostName string `json:"hostName,omitempty"`
 
 	// IP address of the customer.
+	//
+	// #### Used by
+	// **Authorization, Capture, and Credit**
+	// Optional field.
 	//
 	// Max Length: 48
 	IPAddress string `json:"ipAddress,omitempty"`
@@ -1350,8 +1385,6 @@ type GetTransactionOKBodyFraudMarkingInformation struct {
 	// - non_fraud_chargeback: You have received a non-fraudulent chargeback for the transaction.
 	// - suspected: You believe that you will probably receive a chargeback for the transaction.
 	// - creditback: You issued a refund to the customer to avoid a chargeback for the transaction.
-	//
-	// For details, see the `marking_reason` field description in [Decision Manager Using the SCMP API Developer Guide.](https://www.cybersource.com/developers/documentation/fraud_management/)
 	//
 	Reason string `json:"reason,omitempty"`
 }
@@ -1572,6 +1605,116 @@ func (o *GetTransactionOKBodyLinksSelf) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
+/*GetTransactionOKBodyMerchantDefinedInformationItems0 get transaction o k body merchant defined information items0
+swagger:model GetTransactionOKBodyMerchantDefinedInformationItems0
+*/
+type GetTransactionOKBodyMerchantDefinedInformationItems0 struct {
+
+	// The number you assign for as the key for your merchant-defined data field. Valid values are 0 to 100.
+	//
+	// For example, to set or access the key for the 2nd merchant-defined data field in the array, you would reference `merchantDefinedInformation[1].key`.
+	//
+	// #### CyberSource through VisaNet
+	// For installment payments with Mastercard in Brazil, use `merchantDefinedInformation[0].key` and
+	// `merchantDefinedInformation[1].key` for data that you want to provide to the issuer to identify the
+	// transaction.
+	//
+	// For details, see the `merchant_defined_data1` request-level field description in the [Credit Card Services Using the SCMP API Guide.](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/)
+	//
+	// Max Length: 50
+	Key string `json:"key,omitempty"`
+
+	// The value you assign for your merchant-defined data field.
+	//
+	// For details, see `merchant_defined_data1` field description in the [Credit Card Services Using the SCMP API Guide.](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/)
+	//
+	// **Warning** Merchant-defined data fields are not intended to and must not be used to capture personally identifying information. Accordingly, merchants are prohibited from capturing, obtaining, and/or transmitting any personally identifying information in or via the merchant-defined data fields. Personally identifying information includes, but is not
+	// limited to, address, credit card number, social security number, driver's license number, state-issued identification number, passport number, and card verification numbers (CVV,
+	// CVC2, CVV2, CID, CVN). In the event CyberSource discovers that a merchant is capturing and/or transmitting personally identifying information via the merchant-defined data fields, whether or not intentionally, CyberSource will immediately suspend the merchant's account, which will result in a rejection of any and all transaction requests submitted by the merchant after the point of suspension.
+	//
+	// #### CyberSource through VisaNet
+	// For installment payments with Mastercard in Brazil, use `merchantDefinedInformation[0].value` and
+	// `merchantDefinedInformation[1].value` for data that you want to provide to the issuer to identify the
+	// transaction. For details, see "Installment Payments on CyberSource through VisaNet" in [Credit Card Services Using the SCMP API.](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/)
+	//
+	// For details, see "Installment Payments on CyberSource through VisaNet" in [Credit Card Services Using the SCMP API.](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/)
+	//
+	// For installment payments with Mastercard in Brazil:
+	// - The value for merchantDefinedInformation[0].value corresponds to the following data in the TC 33 capture file5:
+	//   - Record: CP07 TCR5
+	//   - Position: 25-44
+	//   - Field: Reference Field 2
+	// - The value for merchantDefinedInformation[1].value corresponds to the following data in the TC 33 capture file5:
+	//   - Record: CP07 TCR5
+	//   - Position: 45-64
+	//   - Field: Reference Field 3
+	//
+	// Max Length: 255
+	Value string `json:"value,omitempty"`
+}
+
+// Validate validates this get transaction o k body merchant defined information items0
+func (o *GetTransactionOKBodyMerchantDefinedInformationItems0) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateKey(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateValue(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetTransactionOKBodyMerchantDefinedInformationItems0) validateKey(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Key) { // not required
+		return nil
+	}
+
+	if err := validate.MaxLength("key", "body", string(o.Key), 50); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *GetTransactionOKBodyMerchantDefinedInformationItems0) validateValue(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Value) { // not required
+		return nil
+	}
+
+	if err := validate.MaxLength("value", "body", string(o.Value), 255); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetTransactionOKBodyMerchantDefinedInformationItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetTransactionOKBodyMerchantDefinedInformationItems0) UnmarshalBinary(b []byte) error {
+	var res GetTransactionOKBodyMerchantDefinedInformationItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*GetTransactionOKBodyMerchantInformation get transaction o k body merchant information
 swagger:model GetTransactionOKBodyMerchantInformation
 */
@@ -1636,11 +1779,27 @@ swagger:model GetTransactionOKBodyMerchantInformationMerchantDescriptor
 */
 type GetTransactionOKBodyMerchantInformationMerchantDescriptor struct {
 
-	// Merchant's name.
-	//
-	// For more details about the merchant-related fields, see the `merchant_descriptor` field description in [Credit Card Services Using the SCMP API.](http://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html)
+	// Your merchant name.
 	//
 	// **Note** For Paymentech processor using Cybersource Payouts, the maximum data length is 22.
+	//
+	// #### PIN debit
+	// Your business name. This name is displayed on the cardholder’s statement. When you
+	// include more than one consecutive space, extra spaces are removed.
+	//
+	// When you do not include this value in your PIN debit request, the merchant name from your account is used.
+	// **Important** This value must consist of English characters.
+	//
+	// Optional field for PIN debit credit or PIN debit purchase requests.
+	//
+	// #### Airline processing
+	// Your merchant name. This name is displayed on the cardholder’s statement. When you include more than one consecutive space, extra spaces are removed.
+	//
+	// **Note** Some airline fee programs may require the original ticket number (ticket identifier) or the ancillary service description in positions 13 through 23 of this field.
+	//
+	// **Important** This value must consist of English characters.
+	//
+	// Required for captures and credits.
 	//
 	Name string `json:"name,omitempty"`
 }
@@ -1679,6 +1838,9 @@ type GetTransactionOKBodyOrderInformation struct {
 	// bill to
 	BillTo *GetTransactionOKBodyOrderInformationBillTo `json:"billTo,omitempty"`
 
+	// invoice details
+	InvoiceDetails *GetTransactionOKBodyOrderInformationInvoiceDetails `json:"invoiceDetails,omitempty"`
+
 	// Transaction Line Item data.
 	LineItems []*GetTransactionOKBodyOrderInformationLineItemsItems0 `json:"lineItems"`
 
@@ -1698,6 +1860,10 @@ func (o *GetTransactionOKBodyOrderInformation) Validate(formats strfmt.Registry)
 	}
 
 	if err := o.validateBillTo(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateInvoiceDetails(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1747,6 +1913,24 @@ func (o *GetTransactionOKBodyOrderInformation) validateBillTo(formats strfmt.Reg
 		if err := o.BillTo.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("getTransactionOK" + "." + "orderInformation" + "." + "billTo")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *GetTransactionOKBodyOrderInformation) validateInvoiceDetails(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.InvoiceDetails) { // not required
+		return nil
+	}
+
+	if o.InvoiceDetails != nil {
+		if err := o.InvoiceDetails.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getTransactionOK" + "." + "orderInformation" + "." + "invoiceDetails")
 			}
 			return err
 		}
@@ -1841,17 +2025,48 @@ type GetTransactionOKBodyOrderInformationAmountDetails struct {
 
 	// Amount that was authorized.
 	//
+	// Returned by authorization service.
+	//
+	// #### PIN debit
+	// Amount of the purchase.
+	//
+	// Returned by PIN debit purchase.
+	//
+	// #### FDMS South
+	// If you accept IDR or CLP currencies, see the entry for FDMS South in Merchant Descriptors Using the SCMP API.
+	//
 	// Max Length: 15
 	AuthorizedAmount string `json:"authorizedAmount,omitempty"`
 
-	// Currency used for the order. Use the three-character I[ISO Standard Currency Codes.](http://apps.cybersource.com/library/documentation/sbc/quickref/currencies.pdf)
+	// Currency used for the order. Use the three-character [ISO Standard Currency Codes.](http://apps.cybersource.com/library/documentation/sbc/quickref/currencies.pdf)
 	//
-	// For details about currency as used in partial authorizations, see "Features for Debit Cards and Prepaid Cards" in the [Credit Card Services Using the SCMP API Guide](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/wwhelp/wwhimpl/js/html/wwhelp.htm)
+	// #### Used by
+	// **Authorization**
+	// Required field.
 	//
+	// **Authorization Reversal**
 	// For an authorization reversal (`reversalInformation`) or a capture (`processingOptions.capture` is set to `true`), you must use the same currency that you used in your payment authorization request.
+	//
+	// #### PIN Debit
+	// Currency for the amount you requested for the PIN debit purchase. This value is returned for partial authorizations. The issuing bank can approve a partial amount if the balance on the debit card is less than the requested transaction amount. For the possible values, see the [ISO Standard Currency Codes](https://developer.cybersource.com/library/documentation/sbc/quickref/currencies.pdf).
+	// Returned by PIN debit purchase.
+	//
+	// For PIN debit reversal requests, you must use the same currency that was used for the PIN debit purchase or PIN debit credit that you are reversing.
+	// For the possible values, see the [ISO Standard Currency Codes](https://developer.cybersource.com/library/documentation/sbc/quickref/currencies.pdf).
+	//
+	// Required field for PIN Debit purchase and PIN Debit credit requests.
+	// Optional field for PIN Debit reversal requests.
+	//
+	// #### GPX
+	// This field is optional for reversing an authorization or credit.
 	//
 	// #### DCC for First Data
 	// Your local currency. For details, see the `currency` field description in [Dynamic Currency Conversion For First Data Using the SCMP API](http://apps.cybersource.com/library/documentation/dev_guides/DCC_FirstData_SCMP/DCC_FirstData_SCMP_API.pdf).
+	//
+	// #### Tax Calculation
+	// Required for international tax and value added tax only.
+	// Optional for U.S. and Canadian taxes.
+	// Your local currency.
 	//
 	// Max Length: 3
 	Currency string `json:"currency,omitempty"`
@@ -1868,34 +2083,44 @@ type GetTransactionOKBodyOrderInformationAmountDetails struct {
 
 	// Total tax amount for all the items in the order.
 	//
-	// For processor-specific information, see the total_tax_amount field in
-	// [Level II and Level III Processing Using the SCMP API.](http://apps.cybersource.com/library/documentation/dev_guides/Level_2_3_SCMP_API/html)
-	//
 	// Max Length: 12
 	TaxAmount string `json:"taxAmount,omitempty"`
 
-	// Grand total for the order. This value cannot be negative. You can include a decimal point (.), but no other special characters. CyberSource truncates the amount to the correct number of decimal places.
+	// Grand total for the order. This value cannot be negative. You can include a decimal point (.), but no other special characters.
+	// CyberSource truncates the amount to the correct number of decimal places.
 	//
 	// **Note** For CTV, FDCCompass, Paymentech processors, the maximum length for this field is 12.
 	//
 	// **Important** Some processors have specific requirements and limitations, such as maximum amounts and maximum field lengths. For details, see:
-	// - "Authorization Information for Specific Processors" in the [Credit Card Services Using the SCMP API Guide](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/wwhelp/wwhimpl/js/html/wwhelp.htm).
-	// - "Capture Information for Specific Processors" in the [Credit Card Services Using the SCMP API Guide](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/wwhelp/wwhimpl/js/html/wwhelp.htm).
-	// - "Credit Information for Specific Processors" in the [Credit Card Services Using the SCMP API Guide](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/wwhelp/wwhimpl/js/html/wwhelp.htm).
+	// - "Authorization Information for Specific Processors" in the [Credit Card Services Using the SCMP API Guide](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/).
+	// - "Capture Information for Specific Processors" in the [Credit Card Services Using the SCMP API Guide](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/).
+	// - "Credit Information for Specific Processors" in the [Credit Card Services Using the SCMP API Guide](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/).
 	//
-	// If your processor supports zero amount authorizations, you can set this field to 0 for the authorization to check if the card is lost or stolen. For details, see "Zero Amount Authorizations," "Credit Information for Specific Processors" in [Credit Card Services Using the SCMP API.](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/wwhelp/wwhimpl/js/html/wwhelp.htm)
+	// If your processor supports zero amount authorizations, you can set this field to 0 for the authorization to check if the card is lost or stolen. For details, see "Zero Amount Authorizations," "Credit Information for Specific Processors" in [Credit Card Services Using the SCMP API.](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/)
+	//
+	// #### Card Present
+	// Required to include either this field or `orderInformation.lineItems[].unitPrice` for the order.
+	//
+	// #### Invoicing
+	// Required for creating a new invoice.
+	//
+	// #### PIN Debit
+	// Amount you requested for the PIN debit purchase. This value is returned for partial authorizations. The issuing bank can approve a partial amount if the balance on the debit card is less than the requested transaction amount.
+	//
+	// Required field for PIN Debit purchase and PIN Debit credit requests.
+	// Optional field for PIN Debit reversal requests.
+	//
+	// #### GPX
+	// This field is optional for reversing an authorization or credit; however, for all other processors, these fields are required.
 	//
 	// #### DCC with a Third-Party Provider
 	// Set this field to the converted amount that was returned by the DCC provider. You must include either this field or the 1st line item in the order and the specific line-order amount in your request. For details, see `grand_total_amount` field description in [Dynamic Currency Conversion For First Data Using the SCMP API](http://apps.cybersource.com/library/documentation/dev_guides/DCC_FirstData_SCMP/DCC_FirstData_SCMP_API.pdf).
 	//
 	// #### FDMS South
-	// If you accept IDR or CLP currencies, see the entry for FDMS South in "Authorization Information for Specific Processors" of the [Credit Card Services Using the SCMP API.](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/wwhelp/wwhimpl/js/html/wwhelp.htm)
+	// If you accept IDR or CLP currencies, see the entry for FDMS South in "Authorization Information for Specific Processors" of the [Credit Card Services Using the SCMP API.](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/)
 	//
 	// #### DCC for First Data
 	// Not used.
-	//
-	// #### Invoicing
-	// Grand total for the order, this is required for creating a new invoice.
 	//
 	// Max Length: 19
 	TotalAmount string `json:"totalAmount,omitempty"`
@@ -2042,74 +2267,150 @@ type GetTransactionOKBodyOrderInformationBillTo struct {
 	// This field must not contain colons (:).
 	//
 	// #### CyberSource through VisaNet
-	// **Important** When you populate billing street address 1 and billing street address 2, CyberSource through VisaNet concatenates the two values. If the concatenated value exceeds 40 characters, CyberSource through VisaNet truncates the value at 40 characters before sending it to Visa and the issuing bank. Truncating this value affects AVS results and therefore might also affect risk decisions and chargebacks.
-	// Credit card networks cannot process transactions that contain non-ASCII characters. CyberSource through VisaNet accepts and stores non-ASCII characters correctly and displays them correctly in reports. However, the limitations of the credit card networks prevent CyberSource through VisaNet from transmitting non-ASCII characters to the credit card networks. Therefore, CyberSource through VisaNet replaces non-ASCII characters with meaningless ASCII characters for transmission to the credit card networks.
+	// **Important** When you populate orderInformation.billTo.address1 and orderInformation.billTo.address2,
+	// CyberSource through VisaNet concatenates the two values. If the concatenated value exceeds 40 characters,
+	// CyberSource through VisaNet truncates the value at 40 characters before sending it to Visa and the issuing bank.
+	// Truncating this value affects AVS results and therefore might also affect risk decisions and chargebacks.
+	// Credit card networks cannot process transactions that contain non-ASCII characters. CyberSource through VisaNet
+	// accepts and stores non-ASCII characters correctly and displays them correctly in reports. However, the limitations
+	// of the credit card networks prevent CyberSource through VisaNet from transmitting non-ASCII characters to the
+	// credit card networks. Therefore, CyberSource through VisaNet replaces non-ASCII characters with meaningless
+	// ASCII characters for transmission to the credit card networks.
 	//
-	// #### For Payouts: This field may be sent only for FDC Compass.
+	// #### FDMS Nashville
+	// When the street name is numeric, it must be sent in numeric format. For example, if the address is _One First Street_,
+	// it must be sent as _1 1st Street_.
+	//
+	// Required if keyed; not used if swiped.
+	//
+	// String (20)
+	//
+	// #### TSYS Acquiring Solutions
+	// Required when `processingInformation.billPaymentOptions.billPayment=true` and `pointOfSaleInformation.entryMode=keyed`.
+	//
+	// #### All other processors:
+	// Optional.
+	// String (60)
+	//
+	// #### For Payouts
+	// This field may be sent only for FDC Compass.
 	//
 	// **Important** It is your responsibility to determine whether a field is required for the transaction you are requesting.
-	//
-	// For processor-specific information, see the `bill_address1` request-level field description in
-	// [Credit Card Services Using the SCMP API.](http://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html)
 	//
 	// Max Length: 60
 	Address1 string `json:"address1,omitempty"`
 
-	// Additional address information.
+	// Used for additional address information. For example: _Attention: Accounts Payable_
+	// Optional field.
 	//
 	// For Payouts: This field may be sent only for FDC Compass.
 	//
 	// #### Atos
 	// This field must not contain colons (:).
 	//
+	// #### CyberSource through VisaNet
+	// **Important** When you populate `orderInformation.billTo.address1` and `orderInformation.billTo.address2`,
+	// CyberSource through VisaNet concatenates the two values. If the concatenated value exceeds 40 characters,
+	// CyberSource through VisaNet truncates the value at 40 characters before sending it to Visa and the issuing bank.
+	// Truncating this value affects AVS results and therefore might also affect risk decisions and chargebacks.
+	// Credit card networks cannot process transactions that contain non-ASCII characters. CyberSource through VisaNet
+	// accepts and stores non-ASCII characters correctly and displays them correctly in reports. However, the limitations
+	// of the credit card networks prevent CyberSource through VisaNet from transmitting non-ASCII characters to the
+	// credit card networks. Therefore, CyberSource through VisaNet replaces non-ASCII characters with meaningless
+	// ASCII characters for transmission to the credit card networks.
+	//
 	// #### Chase Paymentech Solutions, FDC Compass, and TSYS Acquiring Solutions
 	// This value is used for AVS.
 	//
-	// #### CyberSource through VisaNet
-	// **Important** When you populate billing street address 1 and billing street address 2, CyberSource through VisaNet concatenates the two values. If the concatenated value exceeds 40 characters, CyberSource through VisaNet truncates the value at 40 characters before sending it to Visa and the issuing bank. Truncating this value affects AVS results and therefore might also affect risk decisions and chargebacks.
-	// Credit card networks cannot process transactions that contain non-ASCII characters. CyberSource through VisaNet accepts and stores non-ASCII characters correctly and displays them correctly in reports. However, the limitations of the credit card networks prevent CyberSource through VisaNet from transmitting non-ASCII characters to the credit card networks. Therefore, CyberSource through VisaNet replaces non-ASCII characters with meaningless ASCII characters for transmission to the credit card networks.
+	// #### FDMS Nashville
+	// `orderInformation.billTo.address1` and `orderInformation.billTo.address2` together cannot exceed 20 characters.
+	// String (20)
 	//
-	// For processor-specific information, see the `bill_address2` field description in
-	// [Credit Card Services Using the SCMP API.](http://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html)
+	// #### All Other Processors
+	// String (60)
 	//
 	// Max Length: 60
 	Address2 string `json:"address2,omitempty"`
 
-	// State or province of the billing address. Use the State, Province, and Territory Codes for the United States
-	// and Canada.
+	// State or province of the billing address. Use the [State, Province, and Territory Codes for the United States and Canada](https://developer.cybersource.com/library/documentation/sbc/quickref/states_and_provinces.pdf).
 	//
 	// For Payouts: This field may be sent only for FDC Compass.
 	//
 	// ##### CyberSource through VisaNet
-	// Credit card networks cannot process transactions that contain non-ASCII characters. CyberSource through VisaNet accepts and stores non-ASCII characters correctly and displays them correctly in reports. However, the limitations of the credit card networks prevent CyberSource through VisaNet from transmitting non-ASCII characters to the credit card networks. Therefore, CyberSource through VisaNet replaces non-ASCII characters with meaningless ASCII characters for transmission to the credit card networks.
+	// Credit card networks cannot process transactions that contain non-ASCII characters. CyberSource through VisaNet
+	// accepts and stores non-ASCII characters correctly and displays them correctly in reports. However, the limitations
+	// of the credit card networks prevent CyberSource through VisaNet from transmitting non-ASCII characters to the
+	// credit card networks. Therefore, CyberSource through VisaNet replaces non-ASCII characters with meaningless
+	// ASCII characters for transmission to the credit card networks.
 	//
 	// **Important** It is your responsibility to determine whether a field is required for the transaction you are requesting.
 	//
-	// For processor-specific information, see the `bill_state` field description in
-	// [Credit Card Services Using the SCMP API.](http://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html)
+	// #### Chase Paymentech Solutions
+	// Optional field.
+	//
+	// ####  Credit Mutuel-CIC
+	// Optional field.
+	//
+	// #### OmniPay Direct
+	// Optional field.
+	//
+	// #### SIX
+	// Optional field.
+	//
+	// #### TSYS Acquiring Solutions
+	// Required when `processingInformation.billPaymentOptions.billPayment=true` and `pointOfSaleInformation.entryMode=keyed`.
+	//
+	// #### Worldpay VAP
+	// Optional field.
+	//
+	// #### All other processors
+	// Not used.
 	//
 	// Max Length: 20
 	AdministrativeArea string `json:"administrativeArea,omitempty"`
 
 	// Name of the customer’s company.
 	//
-	// #### CyberSource through VisaNet
+	// **CyberSource through VisaNet**
 	// Credit card networks cannot process transactions that contain non-ASCII characters. CyberSource through VisaNet accepts and stores non-ASCII characters correctly and displays them correctly in reports. However, the limitations of the credit card networks prevent CyberSource through VisaNet from transmitting non-ASCII characters to the credit card networks. Therefore, CyberSource through VisaNet replaces non-ASCII characters with meaningless ASCII characters for transmission to the credit card networks.
-	// For processor-specific information, see the company_name field in
+	//
+	// For processor-specific information, see the `company_name` field in
 	// [Credit Card Services Using the SCMP API.](http://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html)
 	//
 	// Max Length: 60
 	Company string `json:"company,omitempty"`
 
-	// Payment card billing country. Use the two-character ISO Standard Country Codes.
+	// Payment card billing country. Use the two-character [ISO Standard Country Codes](http://apps.cybersource.com/library/documentation/sbc/quickref/countries_alpha_list.pdf).
 	//
 	// #### CyberSource through VisaNet
-	// Credit card networks cannot process transactions that contain non-ASCII characters. CyberSource through VisaNet accepts and stores non-ASCII characters correctly and displays them correctly in reports. However, the limitations of the credit card networks prevent CyberSource through VisaNet from transmitting non-ASCII characters to the credit card networks. Therefore, CyberSource through VisaNet replaces non-ASCII characters with meaningless ASCII characters for transmission to the credit card networks.
+	// Credit card networks cannot process transactions that contain non-ASCII characters. CyberSource through VisaNet
+	// accepts and stores non-ASCII characters correctly and displays them correctly in reports. However, the limitations
+	// of the credit card networks prevent CyberSource through VisaNet from transmitting non-ASCII characters to the
+	// credit card networks. Therefore, CyberSource through VisaNet replaces non-ASCII characters with meaningless ASCII
+	// characters for transmission to the credit card networks.
 	//
 	// **Important** It is your responsibility to determine whether a field is required for the transaction you are requesting.
 	//
-	// For processor-specific information, see the `bill_country` field description in
-	// [Credit Card Services Using the SCMP API.](http://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html)
+	// #### Chase Paymentech Solutions
+	// Optional field.
+	//
+	// ####  Credit Mutuel-CIC
+	// Optional field.
+	//
+	// #### OmniPay Direct
+	// Optional field.
+	//
+	// #### SIX
+	// Optional field.
+	//
+	// #### TSYS Acquiring Solutions
+	// Required when `processingInformation.billPaymentOptions.billPayment=true` and `pointOfSaleInformation.entryMode=keyed`.
+	//
+	// #### Worldpay VAP
+	// Optional field.
+	//
+	// #### All other processors
+	// Not used.
 	//
 	// Max Length: 2
 	Country string `json:"country,omitempty"`
@@ -2127,10 +2428,33 @@ type GetTransactionOKBodyOrderInformationBillTo struct {
 	// #### Invoicing
 	// Email address for the customer for sending the invoice. If the invoice is in SENT status and email is updated, the old email customer payment link won't work and you must resend the invoice with the new payment link.
 	//
+	// #### Chase Paymentech Solutions
+	// Optional field.
+	//
+	// ####  Credit Mutuel-CIC
+	// Optional field.
+	//
+	// #### OmniPay Direct
+	// Optional field.
+	//
+	// #### SIX
+	// Optional field.
+	//
+	// #### TSYS Acquiring Solutions
+	// Required when `processingInformation.billPaymentOptions.billPayment=true` and `pointOfSaleInformation.entryMode=keyed`.
+	//
+	// #### Worldpay VAP
+	// Optional field.
+	//
+	// #### All other processors
+	// Not used.
+	//
 	// Max Length: 255
 	Email string `json:"email,omitempty"`
 
 	// Customer’s first name. This name must be the same as the name on the card.
+	//
+	// **Important** It is your responsibility to determine whether a field is required for the transaction you are requesting.
 	//
 	// #### CyberSource Latin American Processing
 	// **Important** For an authorization request, CyberSource Latin American Processing concatenates `orderInformation.billTo.firstName` and `orderInformation.billTo.lastName`. If the concatenated value exceeds 30 characters, CyberSource Latin American Processing declines the authorization request.\
@@ -2142,15 +2466,39 @@ type GetTransactionOKBodyOrderInformationBillTo struct {
 	// #### For Payouts:
 	// This field may be sent only for FDC Compass.
 	//
-	// **Important** It is your responsibility to determine whether a field is required for the transaction you are requesting.
+	// #### Chase Paymentech Solutions
+	// Optional field.
 	//
-	// For processor-specific information, see the `customer_firstname` request-level field description in
-	// [Credit Card Services Using the SCMP API.](http://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html)
+	// ####  Credit Mutuel-CIC
+	// Optional field.
+	//
+	// #### OmniPay Direct
+	// Optional field.
+	//
+	// #### SIX
+	// Optional field.
+	//
+	// #### TSYS Acquiring Solutions
+	// Required when `processingInformation.billPaymentOptions.billPayment=true` and `pointOfSaleInformation.entryMode=keyed`.
+	//
+	// #### Worldpay VAP
+	// Optional field.
+	//
+	// #### All other processors
+	// Not used.
 	//
 	// Max Length: 60
 	FirstName string `json:"firstName,omitempty"`
 
 	// Customer’s last name. This name must be the same as the name on the card.
+	//
+	// **Important** It is your responsibility to determine whether a field is required for the transaction you are requesting.
+	//
+	// #### Chase Paymentech Solutions
+	// Optional field.
+	//
+	// ####  Credit Mutuel-CIC
+	// Optional field.
 	//
 	// #### CyberSource Latin American Processing
 	// **Important** For an authorization request, CyberSource Latin American Processing concatenates `orderInformation.billTo.firstName` and `orderInformation.billTo.lastName`. If the concatenated value exceeds 30 characters, CyberSource Latin American Processing declines the authorization request.\
@@ -2159,13 +2507,26 @@ type GetTransactionOKBodyOrderInformationBillTo struct {
 	// #### CyberSource through VisaNet
 	// Credit card networks cannot process transactions that contain non-ASCII characters. CyberSource through VisaNet accepts and stores non-ASCII characters correctly and displays them correctly in reports. However, the limitations of the credit card networks prevent CyberSource through VisaNet from transmitting non-ASCII characters to the credit card networks. Therefore, CyberSource through VisaNet replaces non-ASCII characters with meaningless ASCII characters for transmission to the credit card networks.
 	//
-	// **Important** It is your responsibility to determine whether a field is required for the transaction you are requesting.
-	//
 	// #### For Payouts:
 	// This field may be sent only for FDC Compass.
 	//
-	// For processor-specific information, see the `customer_lastname` request-level field description in
-	// [Credit Card Services Using the SCMP API.](http://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html)
+	// #### OmniPay Direct
+	// Optional field.
+	//
+	// #### RBS WorldPay Atlanta
+	// Optional field.
+	//
+	// #### SIX
+	// Optional field.
+	//
+	// #### TSYS Acquiring Solutions
+	// Required when `processingInformation.billPaymentOptions.billPayment=true` and `pointOfSaleInformation.entryMode=keyed`.
+	//
+	// #### Worldpay VAP
+	// Optional field.
+	//
+	// #### All other processors
+	// Not used.
 	//
 	// Max Length: 60
 	LastName string `json:"lastName,omitempty"`
@@ -2181,8 +2542,26 @@ type GetTransactionOKBodyOrderInformationBillTo struct {
 	// #### For Payouts:
 	// This field may be sent only for FDC Compass.
 	//
-	// For processor-specific information, see the `bill_city` field description in
-	// [Credit Card Services Using the SCMP API.](http://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html)
+	// #### Chase Paymentech Solutions
+	// Optional field.
+	//
+	// ####  Credit Mutuel-CIC
+	// Optional field.
+	//
+	// #### OmniPay Direct
+	// Optional field.
+	//
+	// #### SIX
+	// Optional field.
+	//
+	// #### TSYS Acquiring Solutions
+	// Required when `processingInformation.billPaymentOptions.billPayment=true` and `pointOfSaleInformation.entryMode=keyed`.
+	//
+	// #### Worldpay VAP
+	// Optional field.
+	//
+	// #### All other processors
+	// Not used.
 	//
 	// Max Length: 50
 	Locality string `json:"locality,omitempty"`
@@ -2199,16 +2578,34 @@ type GetTransactionOKBodyOrderInformationBillTo struct {
 
 	// Customer’s phone number.
 	//
-	// #### For Payouts:
-	// This field may be sent only for FDC Compass.
+	// It is recommended that you include the country code when the order is from outside the U.S.
 	//
-	// CyberSource recommends that you include the country code when the order is from outside the U.S.
+	// #### Chase Paymentech Solutions
+	// Optional field.
 	//
-	// For processor-specific information, see the customer_phone field in
-	// [Credit Card Services Using the SCMP API.](http://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html)
+	// ####  Credit Mutuel-CIC
+	// Optional field.
 	//
 	// #### CyberSource through VisaNet
 	// Credit card networks cannot process transactions that contain non-ASCII characters. CyberSource through VisaNet accepts and stores non-ASCII characters correctly and displays them correctly in reports. However, the limitations of the credit card networks prevent CyberSource through VisaNet from transmitting non-ASCII characters to the credit card networks. Therefore, CyberSource through VisaNet replaces non-ASCII characters with meaningless ASCII characters for transmission to the credit card networks.
+	//
+	// #### For Payouts:
+	// This field may be sent only for FDC Compass.
+	//
+	// #### OmniPay Direct
+	// Optional field.
+	//
+	// #### SIX
+	// Optional field.
+	//
+	// #### TSYS Acquiring Solutions
+	// Optional field.
+	//
+	// #### Worldpay VAP
+	// Optional field.
+	//
+	// #### All other processors
+	// Not used.
 	//
 	// Max Length: 15
 	PhoneNumber string `json:"phoneNumber,omitempty"`
@@ -2237,10 +2634,25 @@ type GetTransactionOKBodyOrderInformationBillTo struct {
 	// This field must not contain colons (:).
 	//
 	// #### CyberSource through VisaNet
-	// Credit card networks cannot process transactions that contain non-ASCII characters. CyberSource through VisaNet accepts and stores non-ASCII characters correctly and displays them correctly in reports. However, the limitations of the credit card networks prevent CyberSource through VisaNet from transmitting non-ASCII characters to the credit card networks. Therefore, CyberSource through VisaNet replaces non-ASCII characters with meaningless ASCII characters for transmission to the credit card networks.
+	// Credit card networks cannot process transactions that contain non-ASCII characters. CyberSource through VisaNet
+	// accepts and stores non-ASCII characters correctly and displays them correctly in reports. However, the limitations
+	// of the credit card networks prevent CyberSource through VisaNet from transmitting non-ASCII characters to the
+	// credit card networks. Therefore, CyberSource through VisaNet replaces non-ASCII characters with meaningless ASCII
+	// characters for transmission to the credit card networks.
 	//
-	// For processor-specific information, see the `bill_zip` request-level field description in
-	// [Credit Card Services Using the SCMP API.](http://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html)
+	// #### FDMS Nashville
+	// Required if `pointOfSaleInformation.entryMode=keyed` and the address is in the U.S. or Canada.
+	// Optional if `pointOfSaleInformation.entryMode=keyed` and the address is **not** in the U.S. or Canada.
+	// Not used if swiped.
+	//
+	// #### RBS WorldPay Atlanta:
+	// For best card-present keyed rates, send the postal code if `pointOfSaleInformation.entryMode=keyed`.
+	//
+	// #### TSYS Acquiring Solutions
+	// Required when `processingInformation.billPaymentOptions.billPayment=true` and `pointOfSaleInformation.entryMode=keyed`.
+	//
+	// #### All other processors:
+	// Optional field.
 	//
 	// Max Length: 10
 	PostalCode string `json:"postalCode,omitempty"`
@@ -2517,6 +2929,73 @@ func (o *GetTransactionOKBodyOrderInformationBillTo) UnmarshalBinary(b []byte) e
 	return nil
 }
 
+/*GetTransactionOKBodyOrderInformationInvoiceDetails get transaction o k body order information invoice details
+swagger:model GetTransactionOKBodyOrderInformationInvoiceDetails
+*/
+type GetTransactionOKBodyOrderInformationInvoiceDetails struct {
+
+	// Transaction identifier that is generated. You have the option of printing the sales slip number on the receipt.
+	// This field is supported only on Cybersource through Visanet and JCN gateway.
+	//
+	// Optional field.
+	//
+	// #### Card Present processing message
+	// If you included this field in the request, the returned value is the value that you sent in the request.
+	// If you did not include this field in the request, the system generated this value for you.
+	//
+	// The difference between this reply field and the `processorInformation.systemTraceAuditNumber` field is that the
+	// system generates the system trace audit number (STAN), and you must print the receipt number on the receipt;
+	// whereas you can generate the sales slip number, and you can choose to print the sales slip number on the receipt.
+	//
+	// Maximum: 99999
+	SalesSlipNumber int64 `json:"salesSlipNumber,omitempty"`
+}
+
+// Validate validates this get transaction o k body order information invoice details
+func (o *GetTransactionOKBodyOrderInformationInvoiceDetails) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateSalesSlipNumber(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetTransactionOKBodyOrderInformationInvoiceDetails) validateSalesSlipNumber(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.SalesSlipNumber) { // not required
+		return nil
+	}
+
+	if err := validate.MaximumInt("getTransactionOK"+"."+"orderInformation"+"."+"invoiceDetails"+"."+"salesSlipNumber", "body", int64(o.SalesSlipNumber), 99999, false); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetTransactionOKBodyOrderInformationInvoiceDetails) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetTransactionOKBodyOrderInformationInvoiceDetails) UnmarshalBinary(b []byte) error {
+	var res GetTransactionOKBodyOrderInformationInvoiceDetails
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*GetTransactionOKBodyOrderInformationLineItemsItems0 get transaction o k body order information line items items0
 swagger:model GetTransactionOKBodyOrderInformationLineItemsItems0
 */
@@ -2540,8 +3019,8 @@ type GetTransactionOKBodyOrderInformationLineItemsItems0 struct {
 	// Max Length: 255
 	ProductName string `json:"productName,omitempty"`
 
-	// Identification code for the product. For PAYMENT and CAPTURE API, this field is required when above
-	// _productCode_ is not **default** or one of the values related to shipping and/or handling.
+	// Identification code for the product. For Payment and Capture APIs, this field is required when above
+	// `productCode` is not **default** or one of the values related to shipping and/or handling.
 	//
 	// Max Length: 255
 	ProductSku string `json:"productSku,omitempty"`
@@ -2565,7 +3044,7 @@ type GetTransactionOKBodyOrderInformationLineItemsItems0 struct {
 	//
 	// This field is frequently used for Level II and Level III transactions.
 	//
-	// For details, see `tax_amount` field description in [Level II and Level III Processing Using the SCMP API.](https://apps.cybersource.com/library/documentation/dev_guides/Level_2_3_SCMP_API/html/wwhelp/wwhimpl/js/html/wwhelp.htm)
+	// For details, see `tax_amount` field description in [Level II and Level III Processing Using the SCMP API.](https://apps.cybersource.com/library/documentation/dev_guides/Level_2_3_SCMP_API/html/)
 	//
 	// Max Length: 15
 	TaxAmount string `json:"taxAmount,omitempty"`
@@ -2721,25 +3200,60 @@ swagger:model GetTransactionOKBodyOrderInformationShipTo
 type GetTransactionOKBodyOrderInformationShipTo struct {
 
 	// First line of the shipping address.
+	//
+	// Required field for authorization if any shipping address information is included in the request; otherwise, optional.
+	//
+	// #### Tax Calculation
+	// Optional field for U.S. and Canadian taxes. Not applicable to international and value added taxes.
+	// Billing address objects will be used to determine the cardholder’s location when shipTo objects are not present.
+	//
 	// Max Length: 60
 	Address1 string `json:"address1,omitempty"`
 
 	// Second line of the shipping address.
+	//
+	// Optional field.
+	//
+	// #### Tax Calculation
+	// Optional field for U.S. and Canadian taxes. Not applicable to international and value added taxes.
+	// Billing address objects will be used to determine the cardholder’s location when shipTo objects are not present.
+	//
 	// Max Length: 60
 	Address2 string `json:"address2,omitempty"`
 
-	// State or province of the billing address. Use the State, Province, and Territory Codes for the United States
-	// and Canada.
+	// State or province of the billing address. Use the [State, Province, and Territory Codes for the United States and Canada](https://developer.cybersource.com/library/documentation/sbc/quickref/states_and_provinces.pdf).
 	//
 	// For Payouts: This field may be sent only for FDC Compass.
 	//
 	// ##### CyberSource through VisaNet
-	// Credit card networks cannot process transactions that contain non-ASCII characters. CyberSource through VisaNet accepts and stores non-ASCII characters correctly and displays them correctly in reports. However, the limitations of the credit card networks prevent CyberSource through VisaNet from transmitting non-ASCII characters to the credit card networks. Therefore, CyberSource through VisaNet replaces non-ASCII characters with meaningless ASCII characters for transmission to the credit card networks.
+	// Credit card networks cannot process transactions that contain non-ASCII characters. CyberSource through VisaNet
+	// accepts and stores non-ASCII characters correctly and displays them correctly in reports. However, the limitations
+	// of the credit card networks prevent CyberSource through VisaNet from transmitting non-ASCII characters to the
+	// credit card networks. Therefore, CyberSource through VisaNet replaces non-ASCII characters with meaningless
+	// ASCII characters for transmission to the credit card networks.
 	//
 	// **Important** It is your responsibility to determine whether a field is required for the transaction you are requesting.
 	//
-	// For processor-specific information, see the `bill_state` field description in
-	// [Credit Card Services Using the SCMP API.](http://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html)
+	// #### Chase Paymentech Solutions
+	// Optional field.
+	//
+	// ####  Credit Mutuel-CIC
+	// Optional field.
+	//
+	// #### OmniPay Direct
+	// Optional field.
+	//
+	// #### SIX
+	// Optional field.
+	//
+	// #### TSYS Acquiring Solutions
+	// Required when `processingInformation.billPaymentOptions.billPayment=true` and `pointOfSaleInformation.entryMode=keyed`.
+	//
+	// #### Worldpay VAP
+	// Optional field.
+	//
+	// #### All other processors
+	// Not used.
 	//
 	// Max Length: 20
 	AdministrativeArea string `json:"administrativeArea,omitempty"`
@@ -2752,31 +3266,52 @@ type GetTransactionOKBodyOrderInformationShipTo struct {
 	// Max Length: 60
 	Company string `json:"company,omitempty"`
 
-	// Country of the shipping address. Use the two-character ISO Standard Country Codes.
+	// Country of the shipping address. Use the two-character [ISO Standard Country Codes.](http://apps.cybersource.com/library/documentation/sbc/quickref/countries_alpha_list.pdf)
+	//
+	// Required field for authorization if any shipping address information is included in the request; otherwise, optional.
+	//
+	// #### Tax Calculation
+	// Optional field for U.S., Canadian, international tax, and value added taxes.
+	// Billing address objects will be used to determine the cardholder’s location when shipTo objects are not present.
+	//
 	// Max Length: 2
 	Country string `json:"country,omitempty"`
 
 	// First name of the recipient.
 	//
-	// **Processor specific maximum length**
+	// #### Litle
+	// Maximum length: 25
 	//
-	// - Litle: 25
-	// - All other processors: 60
+	// #### All other processors
+	// Maximum length: 60
+	//
+	// Optional field.
 	//
 	// Max Length: 60
 	FirstName string `json:"firstName,omitempty"`
 
 	// Last name of the recipient.
 	//
-	// **Processor-specific maximum length**
+	// #### Litle
+	// Maximum length: 25
 	//
-	// - Litle: 25
-	// - All other processors: 60
+	// #### All other processors
+	// Maximum length: 60
+	//
+	// Optional field.
 	//
 	// Max Length: 60
 	LastName string `json:"lastName,omitempty"`
 
 	// City of the shipping address.
+	//
+	// Required field for authorization if any shipping address information is included in the request and shipping to the U.S. or
+	// Canada; otherwise, optional.
+	//
+	// #### Tax Calculation
+	// Optional field for U.S. and Canadian taxes. Not applicable to international and value added taxes.
+	// Billing address objects will be used to determine the cardholder’s location when shipTo objects are not present.
+	//
 	// Max Length: 50
 	Locality string `json:"locality,omitempty"`
 
@@ -2785,6 +3320,9 @@ type GetTransactionOKBodyOrderInformationShipTo struct {
 	PhoneNumber string `json:"phoneNumber,omitempty"`
 
 	// Postal code for the shipping address. The postal code must consist of 5 to 9 digits.
+	//
+	// Required field for authorization if any shipping address information is included in the request and
+	// shipping to the U.S. or Canada; otherwise, optional.
 	//
 	// When the billing country is the U.S., the 9-digit postal code must follow this format:
 	// [5 digits][dash][4 digits]
@@ -2796,9 +3334,12 @@ type GetTransactionOKBodyOrderInformationShipTo struct {
 	//
 	// Example A1B 2C3
 	//
-	// **American Express Direct**\
-	// Before sending the postal code to the processor, CyberSource removes all nonalphanumeric characters and, if the
-	// remaining value is longer than nine characters, truncates the value starting from the right side.
+	// #### American Express Direct
+	// Before sending the postal code to the processor, all nonalphanumeric characters are removed and, if the
+	// remaining value is longer than nine characters, the value is truncated starting from the right side.
+	// #### Tax Calculation
+	// Optional field for U.S. and Canadian taxes. Not applicable to international and value added taxes.
+	// Billing address objects will be used to determine the cardholder’s location when shipTo objects are not present.
 	//
 	// Max Length: 10
 	PostalCode string `json:"postalCode,omitempty"`
@@ -3266,17 +3807,36 @@ type GetTransactionOKBodyPaymentInformationAccountFeatures struct {
 
 	// Remaining balance on the account.
 	//
+	// Returned by authorization service.
+	//
+	// #### PIN debit
+	// Remaining balance on the prepaid card.
+	//
+	// Returned by PIN debit purchase.
+	//
 	// Max Length: 12
 	BalanceAmount string `json:"balanceAmount,omitempty"`
 
 	// Currency of the remaining balance on the account. For the possible values, see the [ISO Standard Currency Codes.](http://apps.cybersource.com/library/documentation/sbc/quickref/currencies.pdf)
 	//
-	// For details, see `auth_account_balance_currency` field description in the [Credit Card Services Using the SCMP API Guide.](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/wwhelp/wwhimpl/js/html/wwhelp.htm)
+	// Returned by authorization service.
+	//
+	// #### PIN debit
+	// Currency of the remaining balance on the prepaid card.
+	//
+	// Returned by PIN debit purchase.
 	//
 	// Max Length: 5
 	Currency string `json:"currency,omitempty"`
 
 	// Remaining balance on the account.
+	//
+	// Returned by authorization service.
+	//
+	// #### PIN debit
+	// Remaining balance on the prepaid card.
+	//
+	// Returned by PIN debit purchase.
 	//
 	// Max Length: 12
 	PreviousBalanceAmount string `json:"previousBalanceAmount,omitempty"`
@@ -3398,7 +3958,7 @@ type GetTransactionOKBodyPaymentInformationBank struct {
 
 	// Bank routing number. This is also called the transit number.
 	//
-	// For details, see `ecp_rdfi` field description in the [Electronic Check Services Using the SCMP API Guide.](https://apps.cybersource.com/library/documentation/dev_guides/EChecks_SCMP_API/html/wwhelp/wwhimpl/js/html/wwhelp.htm)
+	// For details, see `ecp_rdfi` field description in the [Electronic Check Services Using the SCMP API Guide.](https://apps.cybersource.com/library/documentation/dev_guides/EChecks_SCMP_API/html/)
 	//
 	RoutingNumber string `json:"routingNumber,omitempty"`
 
@@ -3510,7 +4070,7 @@ type GetTransactionOKBodyPaymentInformationBankAccount struct {
 	//
 	// To obtain the bank identifier, contact your processor.
 	//
-	// For details, see `account_encoder_id` request-level field description in [Credit Card Services Using the SCMP API.](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/wwhelp/wwhimpl/js/html/wwhelp.htm)
+	// For details, see `account_encoder_id` request-level field description in [Credit Card Services Using the SCMP API.](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/)
 	//
 	// Max Length: 3
 	EncoderID string `json:"encoderId,omitempty"`
@@ -3625,7 +4185,7 @@ type GetTransactionOKBodyPaymentInformationBankMandate struct {
 
 	// The mandate ID. Required only for the United Kingdom.
 	//
-	// For details, see the `mandate_id` request field description in [Ingenico ePayments Developer Guide For Direct Debits.](https://apps.cybersource.com/library/documentation/dev_guides/Ingenico_ePayments_Dev/html/wwhelp/wwhimpl/js/html/wwhelp.htm)
+	// For details, see the `mandate_id` request field description in [Ingenico ePayments Developer Guide For Direct Debits.](https://apps.cybersource.com/library/documentation/dev_guides/Ingenico_ePayments_Dev/html/)
 	//
 	ID string `json:"id,omitempty"`
 
@@ -3636,14 +4196,14 @@ type GetTransactionOKBodyPaymentInformationBankMandate struct {
 	// - `002`: Subsequent direct debits associated with this mandate.
 	// - `003`: Last direct debit associated with this mandate.
 	//
-	// For details, see the `direct_debit_recurring_type` request field description in [Ingenico ePayments Developer Guide For Direct Debits.](https://apps.cybersource.com/library/documentation/dev_guides/Ingenico_ePayments_Dev/html/wwhelp/wwhimpl/js/html/wwhelp.htm)
+	// For details, see the `direct_debit_recurring_type` request field description in [Ingenico ePayments Developer Guide For Direct Debits.](https://apps.cybersource.com/library/documentation/dev_guides/Ingenico_ePayments_Dev/html/)
 	//
 	RecurringType string `json:"recurringType,omitempty"`
 
 	// Unique value generated by CyberSource that identifies the transaction. Use this value to identify transactions in the Collections Report, which provides settlement
 	// information.
 	//
-	// For details, see the `direct_debit_reconciliation_reference_number` reply field description in [Ingenico ePayments Developer Guide For Direct Debits.](https://apps.cybersource.com/library/documentation/dev_guides/Ingenico_ePayments_Dev/html/wwhelp/wwhimpl/js/html/wwhelp.htm)
+	// For details, see the `direct_debit_reconciliation_reference_number` reply field description in [Ingenico ePayments Developer Guide For Direct Debits.](https://apps.cybersource.com/library/documentation/dev_guides/Ingenico_ePayments_Dev/html/)
 	//
 	ReferenceNumber string `json:"referenceNumber,omitempty"`
 }
@@ -3685,23 +4245,34 @@ type GetTransactionOKBodyPaymentInformationCard struct {
 	//
 	// Format: `MM`.
 	//
-	// Valid values: `01` through `12`.
+	// Valid values: `01` through `12`. Leading 0 is required.
 	//
 	// #### Barclays and Streamline
-	// For Maestro (UK Domestic) and Maestro (International) cards on Barclays and Streamline, this must be a valid value (`01` through `12`) but is not required to be a valid expiration date. In other words, an expiration date that is in the past does not cause CyberSource to reject your request. However, an invalid expiration date might cause the issuer to reject your request.
+	// For Maestro (UK Domestic) and Maestro (International) cards on Barclays and Streamline, this must be a valid value
+	// (`01` through `12`) but is not required to be a valid expiration date. In other words, an expiration date that is
+	// in the past does not cause CyberSource to reject your request. However, an invalid expiration date might cause
+	// the issuer to reject your request.
 	//
 	// #### Encoded Account Numbers
 	// For encoded account numbers (_type_=039), if there is no expiration date on the card, use `12`.
 	//
-	// **Important** It is your responsibility to determine whether a field is required for the transaction you are requesting.
+	// #### FDMS Nashville
+	// Required field.
 	//
-	// For processor-specific information, see the `customer_cc_expmo` field description in
-	// [Credit Card Services Using the SCMP API.](http://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html)
+	// #### GPX
+	// Required if `pointOfSaleInformation.entryMode=keyed`. However, this field is optional if your account is configured
+	// for relaxed requirements for address data and expiration date. **Important** It is your responsibility to determine
+	// whether a field is required for the transaction you are requesting.
+	//
+	// #### All other processors
+	// Required if `pointOfSaleInformation.entryMode=keyed`. However, this field is optional if your account is configured
+	// for relaxed requirements for address data and expiration date. **Important** It is your responsibility to determine
+	// whether a field is required for the transaction you are requesting.
 	//
 	// Max Length: 2
 	ExpirationMonth string `json:"expirationMonth,omitempty"`
 
-	// Four-digit year in which the credit card expires.
+	// Four-digit year in which the payment card expires.
 	//
 	// Format: `YYYY`.
 	//
@@ -3711,13 +4282,21 @@ type GetTransactionOKBodyPaymentInformationCard struct {
 	// #### Encoded Account Numbers
 	// For encoded account numbers (**_type_**`=039`), if there is no expiration date on the card, use `2021`.
 	//
+	// #### FDMS Nashville
+	// Required field.
+	//
 	// #### FDC Nashville Global and FDMS South
 	// You can send in 2 digits or 4 digits. If you send in 2 digits, they must be the last 2 digits of the year.
 	//
-	// **Important** It is your responsibility to determine whether a field is required for the transaction you are requesting.
+	// #### GPX
+	// Required if `pointOfSaleInformation.entryMode=keyed`. However, this field is optional if your account is configured
+	// for relaxed requirements for address data and expiration date. **Important** It is your responsibility to determine
+	// whether a field is required for the transaction you are requesting.
 	//
-	// For processor-specific information, see the `customer_cc_expyr` field description in
-	// [Credit Card Services Using the SCMP API.](http://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html)
+	// #### All other processors
+	// Required if `pointOfSaleInformation.entryMode=keyed`. However, this field is optional if your account is configured
+	// for relaxed requirements for address data and expiration date. **Important** It is your responsibility to determine
+	// whether a field is required for the transaction you are requesting.
 	//
 	// Max Length: 4
 	ExpirationYear string `json:"expirationYear,omitempty"`
@@ -3748,33 +4327,86 @@ type GetTransactionOKBodyPaymentInformationCard struct {
 	// Max Length: 4
 	StartYear string `json:"startYear,omitempty"`
 
-	// Last four digits of the cardholder’s account number. This field is returned only for tokenized transactions.
-	// You can use this value on the receipt that you give to the cardholder.
+	// Last four digits of the cardholder’s account number. This field is included in the reply message when the client software
+	// that is installed on the POS terminal uses the token management service (TMS) to retrieve tokenized payment details.
 	//
-	// **Note** This field is returned only for CyberSource through VisaNet and FDC Nashville Global.
+	// You must contact customer support to have your account enabled to receive these fields in the credit reply message.
 	//
-	// #### CyberSource through VisaNet
-	// The value for this field corresponds to the following data in the TC 33 capture file:
-	// - Record: CP01 TCRB
-	// - Position: 85
-	// - Field: American Express last 4 PAN return indicator.
+	// #### PIN debit
+	// This field is returned only for tokenized transactions. You can use this value on the receipt that you give to the cardholder.
+	//
+	// Returned by PIN debit credit and PIN debit purchase.
+	//
+	// This field is supported only by the following processors:
+	// - American Express Direct
+	// - Credit Mutuel-CIC
+	// - FDC Nashville Global
+	// - OmniPay Direct
+	// - SIX
 	//
 	Suffix string `json:"suffix,omitempty"`
 
 	// Three-digit value that indicates the card type.
 	//
-	// Type of card to authorize.
-	// - 001 Visa
-	// - 002 Mastercard
-	// - 003 Amex
-	// - 004 Discover
-	// - 005: Diners Club
-	// - 007: JCB
-	// - 024: Maestro (UK Domestic)
-	// - 039 Encoded account number
-	// - 042: Maestro (International)
+	// **IMPORTANT** It is strongly recommended that you include the card type field in request messages even if it is
+	// optional for your processor and card type. Omitting the card type can cause the transaction to be processed with the wrong card type.
 	//
-	// For the complete list of possible values, see `card_type` field description in the [Credit Card Services Using the SCMP API Guide.](http://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html)
+	// Possible values:
+	// - `001`: Visa. For card-present transactions on all processors except SIX, the Visa Electron card type is processed the same way that the Visa debit card is processed. Use card type value `001` for Visa Electron.
+	// - `002`: Mastercard, Eurocard[^1], which is a European regional brand of Mastercard.
+	// - `003`: American Express
+	// - `004`: Discover
+	// - `005`: Diners Club
+	// - `006`: Carte Blanche[^1]
+	// - `007`: JCB[^1]
+	// - `014`: Enroute[^1]
+	// - `021`: JAL[^1]
+	// - `024`: Maestro (UK Domestic)[^1]
+	// - `031`: Delta[^1]: Use this value only for Ingenico ePayments. For other processors, use `001` for all Visa card types.
+	// - `033`: Visa Electron[^1]. Use this value only for Ingenico ePayments and SIX. For other processors, use `001` for all Visa card types.
+	// - `034`: Dankort[^1]
+	// - `036`: Cartes Bancaires[^1]
+	// - `037`: Carta Si[^1]
+	// - `039`: Encoded account number[^1]
+	// - `040`: UATP[^1]
+	// - `042`: Maestro (International)[^1]
+	// - `050`: Hipercard[^2,3]
+	// - `051`: Aura
+	// - `054`: Elo[^3]
+	// - `062`: China UnionPay
+	//
+	// [^1]: For this card type, you must include the `paymentInformation.card.type` or `paymentInformation.tokenizedCard.type` field in your request for an authorization or a stand-alone credit.
+	// [^2]: For this card type on Cielo 3.0, you must include the `paymentInformation.card.type` or `paymentInformation.tokenizedCard.type` field in a request for an authorization or a stand-alone credit. This card type is not supported on Cielo 1.5.
+	// [^3]: For this card type on Getnet and Rede, you must include the `paymentInformation.card.type` or `paymentInformation.tokenizedCard.type` field in a request for an authorization or a stand-alone credit.
+	//
+	// #### Used by
+	// **Authorization**
+	// Required for Carte Blanche and JCB.
+	// Optional for all other card types.
+	//
+	// #### Card Present reply
+	// This field is included in the reply message when the client software that is installed on the POS terminal uses
+	// the token management service (TMS) to retrieve tokenized payment details. You must contact customer support to
+	// have your account enabled to receive these fields in the credit reply message.
+	//
+	// Returned by the Credit service.
+	//
+	// This reply field is only supported by the following processors:
+	// - American Express Direct
+	// - Credit Mutuel-CIC
+	// - FDC Nashville Global
+	// - OmniPay Direct
+	// - SIX
+	//
+	// #### GPX
+	// This field only supports transactions from the following card types:
+	// - Visa
+	// - Mastercard
+	// - AMEX
+	// - Discover
+	// - Diners
+	// - JCB
+	// - Union Pay International
 	//
 	Type string `json:"type,omitempty"`
 
@@ -3972,21 +4604,38 @@ swagger:model GetTransactionOKBodyPaymentInformationCustomer
 */
 type GetTransactionOKBodyPaymentInformationCustomer struct {
 
-	// Unique identifier for the customer's card and billing information.
-	//
-	// When you use Payment Tokenization or Recurring Billing and you include this value in
-	// your request, many of the fields that are normally required for an authorization or credit
+	// Unique identifier for the legacy Secure Storage token used in the transaction.
+	// When you include this value in your request, many of the fields that are normally required for an authorization or credit
 	// become optional.
 	//
-	// **NOTE** When you use Payment Tokenization or Recurring Billing, the value for the Customer ID is actually the Cybersource payment token for a customer. This token stores information such as the consumer’s card number so it can be applied towards bill payments, recurring payments, or one-time payments. By using this token in a payment API request, the merchant doesn't need to pass in data such as the card number or expiration date in the request itself.
-	//
-	// For details, see the `subscription_id` field description in [Credit Card Services Using the SCMP API.](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/wwhelp/wwhimpl/js/html/wwhelp.htm)
-	//
+	// Min Length: 16
 	CustomerID string `json:"customerId,omitempty"`
 }
 
 // Validate validates this get transaction o k body payment information customer
 func (o *GetTransactionOKBodyPaymentInformationCustomer) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateCustomerID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetTransactionOKBodyPaymentInformationCustomer) validateCustomerID(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.CustomerID) { // not required
+		return nil
+	}
+
+	if err := validate.MinLength("getTransactionOK"+"."+"paymentInformation"+"."+"customer"+"."+"customerId", "body", string(o.CustomerID), 16); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -4051,55 +4700,22 @@ swagger:model GetTransactionOKBodyPaymentInformationPaymentType
 */
 type GetTransactionOKBodyPaymentInformationPaymentType struct {
 
-	// A Payment Type Authentication Method is the means used to verify that the presenter of the Payment Type credential is an authorized user of the Payment Instrument.
-	// Examples: 3DSecure – Verified by Visa, 3DSecure – MasteCard Secure Code
-	//
-	AuthenticationMethod string `json:"authenticationMethod,omitempty"`
-
-	// funding source
-	FundingSource *GetTransactionOKBodyPaymentInformationPaymentTypeFundingSource `json:"fundingSource,omitempty"`
-
-	// A Payment Type is enabled through a Method. Examples: Visa, Master Card, ApplePay, iDeal
+	// Indicates the payment method used in this payment transaction.
 	Method string `json:"method,omitempty"`
 
 	// A Payment Type is an agreed means for a payee to receive legal tender from a payer. The way one pays for a commercial financial transaction. Examples: Card, Bank Transfer, Digital, Direct Debit.
+	// Possible values:
+	// - `CARD` (use this for a PIN debit transaction)
+	// - `CHECK` (use this for all eCheck payment transactions - ECP Debit, ECP Follow-on Credit, ECP StandAlone Credit)
 	//
 	Name string `json:"name,omitempty"`
 
-	// SubType Name is detail information about Payment Type. Examples: For Card, if Credit or Debit or PrePaid. For Bank Transfer, if Online Bank Transfer or Wire Transfers.
-	//
-	SubTypeName string `json:"subTypeName,omitempty"`
+	// Indicates the payment type used in this payment transaction. Example: credit card, check
+	Type string `json:"type,omitempty"`
 }
 
 // Validate validates this get transaction o k body payment information payment type
 func (o *GetTransactionOKBodyPaymentInformationPaymentType) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateFundingSource(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *GetTransactionOKBodyPaymentInformationPaymentType) validateFundingSource(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.FundingSource) { // not required
-		return nil
-	}
-
-	if o.FundingSource != nil {
-		if err := o.FundingSource.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("getTransactionOK" + "." + "paymentInformation" + "." + "paymentType" + "." + "fundingSource")
-			}
-			return err
-		}
-	}
-
 	return nil
 }
 
@@ -4121,71 +4737,34 @@ func (o *GetTransactionOKBodyPaymentInformationPaymentType) UnmarshalBinary(b []
 	return nil
 }
 
-/*GetTransactionOKBodyPaymentInformationPaymentTypeFundingSource get transaction o k body payment information payment type funding source
-swagger:model GetTransactionOKBodyPaymentInformationPaymentTypeFundingSource
-*/
-type GetTransactionOKBodyPaymentInformationPaymentTypeFundingSource struct {
-
-	// It is affiliation of funding source such as Visa, Master Card, ACH.
-	//
-	Affiliations string `json:"affiliations,omitempty"`
-
-	// It is the credential of the funding source. Examples: Credit Card PAN, Checking Account Number
-	//
-	Credential string `json:"credential,omitempty"`
-
-	// A Payment Type Funding Source is the Financial Account which holds the financial assets used to fund a transaction initiated with a given Payment Type. Examples: Bank of America Debit, Wells Consumer Checking
-	//
-	Name string `json:"name,omitempty"`
-
-	// It is type of funding source. Examples: US Checking Account, Credit Account, Stored Value Account
-	//
-	Type string `json:"type,omitempty"`
-
-	// It is underwrite for the given funding source. Examples: Bank of America, Wells Fargo, PayPal
-	//
-	Underwriter string `json:"underwriter,omitempty"`
-}
-
-// Validate validates this get transaction o k body payment information payment type funding source
-func (o *GetTransactionOKBodyPaymentInformationPaymentTypeFundingSource) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *GetTransactionOKBodyPaymentInformationPaymentTypeFundingSource) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *GetTransactionOKBodyPaymentInformationPaymentTypeFundingSource) UnmarshalBinary(b []byte) error {
-	var res GetTransactionOKBodyPaymentInformationPaymentTypeFundingSource
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
 /*GetTransactionOKBodyPointOfSaleInformation get transaction o k body point of sale information
 swagger:model GetTransactionOKBodyPointOfSaleInformation
 */
 type GetTransactionOKBodyPointOfSaleInformation struct {
 
-	// Method of entering credit card information into the POS terminal. Possible values:
+	// emv
+	Emv *GetTransactionOKBodyPointOfSaleInformationEmv `json:"emv,omitempty"`
+
+	// Method of entering payment card information into the POS terminal. Possible values:
 	//
 	//  - `contact`: Read from direct contact with chip card.
 	//  - `contactless`: Read from a contactless interface using chip data.
-	//  - `keyed`: Manually keyed into POS terminal.
-	//  - `msd`: Read from a contactless interface using magnetic stripe data (MSD).
+	//  - `keyed`: Manually keyed into POS terminal. This value is not supported on OmniPay Direct.
+	//  - `msd`: Read from a contactless interface using magnetic stripe data (MSD). This value is not supported on OmniPay Direct.
 	//  - `swiped`: Read from credit card magnetic stripe.
 	//
-	// The contact, contactless, and msd values are supported only for EMV transactions.
+	// The `contact`, `contactless`, and `msd` values are supported only for EMV transactions.
 	//
-	// For details, see the `pos_entry_mode` field description in [Card-Present Processing Using the SCMP API.](https://apps.cybersource.com/library/documentation/dev_guides/Retail_SCMP_API/html/wwhelp/wwhimpl/js/html/wwhelp.htm)
+	// #### Used by
+	// **Authorization**
+	// Required field.
+	//
+	// #### Card Present
+	// Card present information about EMV applies only to credit card processing and PIN debit processing. All other
+	// card present information applies only to credit card processing.
+	//
+	// #### PIN debit
+	// Required for a PIN debit purchase and a PIN debit credit request.
 	//
 	// Max Length: 11
 	EntryMode string `json:"entryMode,omitempty"`
@@ -4196,21 +4775,96 @@ type GetTransactionOKBodyPointOfSaleInformation struct {
 	//  - `2`: Terminal has a magnetic stripe reader and manual entry capability.
 	//  - `3`: Terminal has manual entry capability only.
 	//  - `4`: Terminal can read chip cards.
-	//  - `5`: Terminal can read contactless chip cards.
+	//  - `5`: Terminal can read contactless chip cards; cannot use contact to read chip cards.
 	//
-	// The values of 4 and 5 are supported only for EMV transactions.
-	// * Applicable only for CTV for Payouts.
+	// For an EMV transaction, the value of this field must be `4` or `5`.
 	//
-	// For processor-specific details, see the `terminal_capability` field description in [Card-Present Processing Using the SCMP API.](https://apps.cybersource.com/library/documentation/dev_guides/Retail_SCMP_API/html/wwhelp/wwhimpl/js/html/wwhelp.htm)
+	// #### PIN debit
+	// Required for PIN debit purchase and PIN debit credit request.
+	//
+	// #### Used by
+	// **Authorization**
+	// Required for the following processors:
+	// - American Express Direct
+	// - Chase Paymentech Solutions
+	// - Credit Mutuel-CIC
+	// - FDC Nashville Global
+	// - FDMS Nashville
+	// - OmniPay Direct
+	// - SIX
+	// - Worldpay VAP
+	//
+	// Optional for the following processors:
+	// - CyberSource through VisaNet
+	// - GPN
+	// - GPX
+	// - JCN Gateway
+	// - RBS WorldPay Atlanta
+	// - TSYS Acquiring Solutions
 	//
 	// Maximum: 5
 	// Minimum: 1
 	TerminalCapability int64 `json:"terminalCapability,omitempty"`
+
+	// Identifier for the terminal at your retail location. You can define this value yourself, but consult the processor for requirements.
+	//
+	// #### CyberSource through VisaNet
+	// A list of all possible values is stored in your CyberSource account. If terminal ID validation is enabled for
+	// your CyberSource account, the value you send for this field is validated against the list each time you include
+	// the field in a request. To enable or disable terminal ID validation, contact CyberSource Customer Support.
+	//
+	// When you do not include this field in a request, CyberSource uses the default value that is defined in your CyberSource account.
+	//
+	// #### FDC Nashville Global
+	// To have your account configured to support this field, contact CyberSource Customer Support. This value must be a value that FDC Nashville Global issued to you.
+	//
+	// #### For Payouts
+	// This field is applicable for CyberSource through VisaNet.
+	//
+	// #### GPX
+	// Identifier for the terminal at your retail location. A list of all possible values is stored in your account.
+	// If terminal ID validation is enabled for your account, the value you send for this field is validated against
+	// the list each time you include the field in a request. To enable or disable terminal ID validation, contact
+	// customer support.
+	//
+	// When you do not include this field in a request, the default value that is defined in your account is used.
+	//
+	// Optional for authorizations.
+	//
+	// #### Used by
+	// **Authorization**
+	// Optional for the following processors. When you do not include this field in a request, the default value that is
+	// defined in your account is used.
+	//   - American Express Direct
+	//   - Credit Mutuel-CIC
+	//   - FDC Nashville Global
+	//   - SIX
+	// - Chase Paymentech Solutions: Optional field. If you include this field in your request, you must also include `pointOfSaleInformation.catLevel`.
+	// - FDMS Nashville: The default value that is defined in your account is used.
+	// - GPX
+	// - OmniPay Direct: Optional field.
+	//
+	// For the following processors, this field is not used.
+	// - GPN
+	// - JCN Gateway
+	// - RBS WorldPay Atlanta
+	// - TSYS Acquiring Solutions
+	// - Worldpay VAP
+	//
+	// #### Card Present reply
+	// Terminal identifier assigned by the acquirer. This value must be printed on the receipt.
+	//
+	// Max Length: 8
+	TerminalID string `json:"terminalId,omitempty"`
 }
 
 // Validate validates this get transaction o k body point of sale information
 func (o *GetTransactionOKBodyPointOfSaleInformation) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := o.validateEmv(formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := o.validateEntryMode(formats); err != nil {
 		res = append(res, err)
@@ -4220,9 +4874,31 @@ func (o *GetTransactionOKBodyPointOfSaleInformation) Validate(formats strfmt.Reg
 		res = append(res, err)
 	}
 
+	if err := o.validateTerminalID(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (o *GetTransactionOKBodyPointOfSaleInformation) validateEmv(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Emv) { // not required
+		return nil
+	}
+
+	if o.Emv != nil {
+		if err := o.Emv.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getTransactionOK" + "." + "pointOfSaleInformation" + "." + "emv")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -4256,6 +4932,19 @@ func (o *GetTransactionOKBodyPointOfSaleInformation) validateTerminalCapability(
 	return nil
 }
 
+func (o *GetTransactionOKBodyPointOfSaleInformation) validateTerminalID(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.TerminalID) { // not required
+		return nil
+	}
+
+	if err := validate.MaxLength("getTransactionOK"+"."+"pointOfSaleInformation"+"."+"terminalId", "body", string(o.TerminalID), 8); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *GetTransactionOKBodyPointOfSaleInformation) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -4267,6 +4956,125 @@ func (o *GetTransactionOKBodyPointOfSaleInformation) MarshalBinary() ([]byte, er
 // UnmarshalBinary interface implementation
 func (o *GetTransactionOKBodyPointOfSaleInformation) UnmarshalBinary(b []byte) error {
 	var res GetTransactionOKBodyPointOfSaleInformation
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*GetTransactionOKBodyPointOfSaleInformationEmv get transaction o k body point of sale information emv
+swagger:model GetTransactionOKBodyPointOfSaleInformationEmv
+*/
+type GetTransactionOKBodyPointOfSaleInformationEmv struct {
+
+	// EMV data that is transmitted from the chip card to the issuer, and from the issuer to the chip card. The EMV
+	// data is in the tag-length-value format and includes chip card tags, terminal tags, and transaction detail tags.
+	//
+	// For information about the individual tags, see the “Application Specification” section in the EMV 4.3 Specifications: http://emvco.com
+	//
+	// **Note** Card present information about EMV applies only to credit card processing and PIN debit processing.
+	// All other card present information applies only to credit card processing. PIN debit processing is available only
+	// on FDC Nashville Global.
+	//
+	// **Important** The following tags contain sensitive information and **must not** be included in this field:
+	//
+	//  - `56`: Track 1 equivalent data
+	//  - `57`: Track 2 equivalent data
+	//  - `5A`: Application PAN
+	//  - `5F20`: Cardholder name
+	//  - `5F24`: Application expiration date (This sensitivity has been relaxed for Credit Mutuel-CIC, American Express Direct, FDC Nashville Global, First Data Merchant Solutions, and SIX)
+	//  - `99`: Transaction PIN
+	//  - `9F0B`: Cardholder name (extended)
+	//  - `9F1F`: Track 1 discretionary data
+	//  - `9F20`: Track 2 discretionary data
+	//
+	// For captures, this field is required for contact EMV transactions. Otherwise, it is optional.
+	//
+	// For credits, this field is required for contact EMV stand-alone credits and contactless EMV stand-alone credits.
+	// Otherwise, it is optional.
+	//
+	// **Important** For contact EMV captures, contact EMV stand-alone credits, and contactless EMV stand-alone credits,
+	// you must include the following tags in this field. For all other types of EMV transactions, the following tags
+	// are optional.
+	//
+	//  - `95`: Terminal verification results
+	//  - `9F10`: Issuer application data
+	//  - `9F26`: Application cryptogram
+	//
+	//
+	// #### CyberSource through VisaNet
+	// - In Japan: 199 bytes
+	// - In other countries: String (252)
+	//
+	// #### GPX
+	// This field only supports transactions from the following card types:
+	// - Visa
+	// - Mastercard
+	// - AMEX
+	// - Discover
+	// - Diners
+	// - JCB
+	// - Union Pay International
+	//
+	// #### JCN Gateway
+	// The following tags must be included:
+	// - `4F`: Application identifier
+	// - `84`: Dedicated file name
+	//
+	// Data length: 199 bytes
+	//
+	// #### All other processors:
+	// String (999)
+	//
+	// #### Used by
+	// Authorization: Optional
+	// Authorization Reversal: Optional
+	// Credit: Optional
+	// PIN Debit processing (purchase, credit and reversal): Optional
+	//
+	// Max Length: 1998
+	Tags string `json:"tags,omitempty"`
+}
+
+// Validate validates this get transaction o k body point of sale information emv
+func (o *GetTransactionOKBodyPointOfSaleInformationEmv) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateTags(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetTransactionOKBodyPointOfSaleInformationEmv) validateTags(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Tags) { // not required
+		return nil
+	}
+
+	if err := validate.MaxLength("getTransactionOK"+"."+"pointOfSaleInformation"+"."+"emv"+"."+"tags", "body", string(o.Tags), 1998); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetTransactionOKBodyPointOfSaleInformationEmv) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetTransactionOKBodyPointOfSaleInformationEmv) UnmarshalBinary(b []byte) error {
+	var res GetTransactionOKBodyPointOfSaleInformationEmv
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -4295,19 +5103,40 @@ type GetTransactionOKBodyProcessingInformation struct {
 	//
 	BusinessApplicationID string `json:"businessApplicationId,omitempty"`
 
-	// Type of transaction. Some payment card companies use this information when determining discount rates. When you
-	// omit this field for **Ingenico ePayments**, the processor uses the default transaction type they have on file
-	// for you instead of the default value listed here.
+	// Type of transaction. Some payment card companies use this information when determining discount rates.
+	//
+	// #### Used by
+	// **Authorization**
+	// Required payer authentication transactions; otherwise, optional.
+	// **Credit**
+	// Required for standalone credits on Chase Paymentech solutions; otherwise, optional.
+	// Only `internet`, `moto`, `recurring`, and `recurring_internet` are valid values.
+	//
+	// #### Ingenico ePayments
+	// When you omit this field for Ingenico ePayments, the processor uses the default transaction type they have on file for you
+	// instead of the default value (listed in Appendix I, "Commerce Indicators," on page 441.)
+	//
+	// #### Payer Authentication Transactions
+	// For the possible values and requirements, see "Payer Authentication," page 195.
+	//
+	// #### Other Types of Transactions
+	// See Appendix I, "Commerce Indicators," on page 441.
+	//
+	// #### Card Present
+	// You must set this field to `retail`. This field is required for a card-present transaction.
 	//
 	// Max Length: 20
 	CommerceIndicator string `json:"commerceIndicator,omitempty"`
 
+	// japan payment options
+	JapanPaymentOptions *GetTransactionOKBodyProcessingInformationJapanPaymentOptions `json:"japanPaymentOptions,omitempty"`
+
 	// Type of digital payment solution for the transaction. Possible Values:
 	//
-	//  - `visacheckout`: Visa Checkout. This value is required for Visa Checkout transactions. For details, see `payment_solution` field description in [Visa Checkout Using the SCMP API.](https://apps.cybersource.com/library/documentation/dev_guides/VCO_SCMP_API/html/wwhelp/wwhimpl/js/html/wwhelp.htm)
+	//  - `visacheckout`: Visa Checkout. This value is required for Visa Checkout transactions. For details, see `payment_solution` field description in [Visa Checkout Using the SCMP API.](https://apps.cybersource.com/library/documentation/dev_guides/VCO_SCMP_API/html/)
 	//  - `001`: Apple Pay.
 	//  - `004`: Cybersource In-App Solution.
-	//  - `005`: Masterpass. This value is required for Masterpass transactions on OmniPay Direct. For details, see "Masterpass" in the [Credit Card Services Using the SCMP API Guide.](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/wwhelp/wwhimpl/js/html/wwhelp.htm)
+	//  - `005`: Masterpass. This value is required for Masterpass transactions on OmniPay Direct. For details, see "Masterpass" in the [Credit Card Services Using the SCMP API Guide.](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/)
 	//  - `006`: Android Pay.
 	//  - `007`: Chase Pay.
 	//  - `008`: Samsung Pay.
@@ -4330,6 +5159,10 @@ func (o *GetTransactionOKBodyProcessingInformation) Validate(formats strfmt.Regi
 	}
 
 	if err := o.validateCommerceIndicator(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateJapanPaymentOptions(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -4392,6 +5225,24 @@ func (o *GetTransactionOKBodyProcessingInformation) validateCommerceIndicator(fo
 	return nil
 }
 
+func (o *GetTransactionOKBodyProcessingInformation) validateJapanPaymentOptions(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.JapanPaymentOptions) { // not required
+		return nil
+	}
+
+	if o.JapanPaymentOptions != nil {
+		if err := o.JapanPaymentOptions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getTransactionOK" + "." + "processingInformation" + "." + "japanPaymentOptions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (o *GetTransactionOKBodyProcessingInformation) validatePaymentSolution(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.PaymentSolution) { // not required
@@ -4435,17 +5286,13 @@ type GetTransactionOKBodyProcessingInformationAuthorizationOptions struct {
 	//  - `VERBAL`: forced capture. Include it in the payment request for a forced capture. Include it in the capture request for a verbal payment.
 	//
 	// #### Asia, Middle East, and Africa Gateway; Cielo; Comercio Latino; and CyberSource Latin American Processing
-	// Set this field to `AUTOCAPTURE` and include it in a bundled request to indicate that you are requesting an automatic capture. If your account is configured to enable automatic captures, set this field to `STANDARDCAPTURE` and include it in a standard authorization or bundled request to indicate that you are overriding an automatic capture. For more information, see the `auth_type` field description in [Credit Card Services Using the SCMP API Guide.](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/wwhelp/wwhimpl/js/html/wwhelp.htm)
+	// Set this field to `AUTOCAPTURE` and include it in a bundled request to indicate that you are requesting an automatic capture. If your account is configured to enable automatic captures, set this field to `STANDARDCAPTURE` and include it in a standard authorization or bundled request to indicate that you are overriding an automatic capture. For more information, see the `auth_type` field description in [Credit Card Services Using the SCMP API Guide.](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/)
 	//
 	// #### Forced Capture
 	// Set this field to `VERBAL` and include it in the authorization request to indicate that you are performing a forced capture; therefore, you receive the authorization code outside the CyberSource system.
 	//
-	// For more information, see "Forced Captures" in [Credit Card Services Using the SCMP API Guide](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/wwhelp/wwhimpl/js/html/wwhelp.htm).
-	//
 	// #### Verbal Authorization
 	// Set this field to `VERBAL` and include it in the capture request to indicate that the request is for a verbal authorization. For more information, see "Verbal Authorizations" in [Credit Card Services Using the SCMP API](http://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html).
-	//
-	// For processor-specific information, see the `auth_type` field in [Credit Card Services Using the SCMP API.](http://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html)
 	//
 	// Max Length: 15
 	AuthType string `json:"authType,omitempty"`
@@ -4511,8 +5358,6 @@ type GetTransactionOKBodyProcessingInformationBankTransferOptions struct {
 	// - `TEL`: telephone-initiated entry
 	// - `WEB`: internet-initiated entry
 	//
-	// For details, see `ecp_sec_code` field description in the [Electronic Check Services Using the SCMP API Guide.](https://apps.cybersource.com/library/documentation/dev_guides/EChecks_SCMP_API/html/wwhelp/wwhimpl/js/html/wwhelp.htm)
-	//
 	SecCode string `json:"secCode,omitempty"`
 }
 
@@ -4539,6 +5384,142 @@ func (o *GetTransactionOKBodyProcessingInformationBankTransferOptions) Unmarshal
 	return nil
 }
 
+/*GetTransactionOKBodyProcessingInformationJapanPaymentOptions get transaction o k body processing information japan payment options
+swagger:model GetTransactionOKBodyProcessingInformationJapanPaymentOptions
+*/
+type GetTransactionOKBodyProcessingInformationJapanPaymentOptions struct {
+
+	// Business name in Japanese characters. This field is supported only on JCN Gateway and for the Sumitomo Mitsui Card Co. acquirer on CyberSource through VisaNet.
+	//
+	// Max Length: 25
+	BusinessName string `json:"businessName,omitempty"`
+
+	// Business name in Katakana characters. This field is supported only on JCN Gateway and for the Sumitomo Mitsui Card Co. acquirer on CyberSource through VisaNet.
+	//
+	// Max Length: 25
+	BusinessNameKatakana string `json:"businessNameKatakana,omitempty"`
+
+	// This value is a 2-digit code indicating the payment method.
+	// Use Payment Method Code value that applies to the tranasction.
+	// - 10 (One-time payment)
+	// - 21, 22, 23, 24  (Bonus(one-time)payment)
+	// - 61 (Installment payment)
+	// - 31, 32, 33, 34  (Integrated (Bonus + Installment)payment)
+	// - 80 (Revolving payment)
+	//
+	// Max Length: 2
+	PaymentMethod string `json:"paymentMethod,omitempty"`
+
+	// Unique Japan Credit Card Association (JCCA) terminal identifier.
+	//
+	// The difference between this field and the `pointOfSaleInformation.terminalID` field is that you can define
+	// `pointOfSaleInformation.terminalID`, but `processingInformation.japanPaymentOptions.terminalId` is
+	// defined by the JCCA and is used only in Japan.
+	//
+	// This field is supported only on CyberSource through VisaNet and JCN Gateway.
+	//
+	// Optional field.
+	//
+	// Max Length: 13
+	TerminalID string `json:"terminalId,omitempty"`
+}
+
+// Validate validates this get transaction o k body processing information japan payment options
+func (o *GetTransactionOKBodyProcessingInformationJapanPaymentOptions) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateBusinessName(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateBusinessNameKatakana(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validatePaymentMethod(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateTerminalID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetTransactionOKBodyProcessingInformationJapanPaymentOptions) validateBusinessName(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.BusinessName) { // not required
+		return nil
+	}
+
+	if err := validate.MaxLength("getTransactionOK"+"."+"processingInformation"+"."+"japanPaymentOptions"+"."+"businessName", "body", string(o.BusinessName), 25); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *GetTransactionOKBodyProcessingInformationJapanPaymentOptions) validateBusinessNameKatakana(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.BusinessNameKatakana) { // not required
+		return nil
+	}
+
+	if err := validate.MaxLength("getTransactionOK"+"."+"processingInformation"+"."+"japanPaymentOptions"+"."+"businessNameKatakana", "body", string(o.BusinessNameKatakana), 25); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *GetTransactionOKBodyProcessingInformationJapanPaymentOptions) validatePaymentMethod(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.PaymentMethod) { // not required
+		return nil
+	}
+
+	if err := validate.MaxLength("getTransactionOK"+"."+"processingInformation"+"."+"japanPaymentOptions"+"."+"paymentMethod", "body", string(o.PaymentMethod), 2); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *GetTransactionOKBodyProcessingInformationJapanPaymentOptions) validateTerminalID(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.TerminalID) { // not required
+		return nil
+	}
+
+	if err := validate.MaxLength("getTransactionOK"+"."+"processingInformation"+"."+"japanPaymentOptions"+"."+"terminalId", "body", string(o.TerminalID), 13); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetTransactionOKBodyProcessingInformationJapanPaymentOptions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetTransactionOKBodyProcessingInformationJapanPaymentOptions) UnmarshalBinary(b []byte) error {
+	var res GetTransactionOKBodyProcessingInformationJapanPaymentOptions
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*GetTransactionOKBodyProcessorInformation get transaction o k body processor information
 swagger:model GetTransactionOKBodyProcessorInformation
 */
@@ -4548,6 +5529,21 @@ type GetTransactionOKBodyProcessorInformation struct {
 	AchVerification *GetTransactionOKBodyProcessorInformationAchVerification `json:"achVerification,omitempty"`
 
 	// Authorization code. Returned only when the processor returns this value.
+	//
+	// The length of this value depends on your processor.
+	//
+	// Returned by authorization service.
+	//
+	// #### PIN debit
+	// Authorization code that is returned by the processor.
+	//
+	// Returned by PIN debit credit.
+	//
+	// #### Elavon Encrypted Account Number Program
+	// The returned value is OFFLINE.
+	//
+	// #### TSYS Acquiring Solutions
+	// The returned value for a successful zero amount authorization is 000000.
 	//
 	ApprovalCode string `json:"approvalCode,omitempty"`
 
@@ -4574,6 +5570,12 @@ type GetTransactionOKBodyProcessorInformation struct {
 	//
 	// **Important** Do not use this field to evaluate the result of the authorization.
 	//
+	// #### PIN debit
+	// Response value that is returned by the processor or bank.
+	// **Important** Do not use this field to evaluate the results of the transaction request.
+	//
+	// Returned by PIN debit credit, PIN debit purchase, and PIN debit reversal.
+	//
 	// #### AIBMS
 	// If this value is `08`, you can accept the transaction if the customer provides you with identification.
 	//
@@ -4584,15 +5586,13 @@ type GetTransactionOKBodyProcessorInformation struct {
 	// - `bb` is the optional two-digit error message from the bank.
 	//
 	// #### Comercio Latino
-	// This value is the status code and the error or
-	// response code received from the processor
-	// separated by a colon.
-	// Format: [status code]:E[error code] or
-	// [status code]:R[response code]
+	// This value is the status code and the error or response code received from the processor separated by a colon.
+	// Format: [status code]:E[error code] or [status code]:R[response code]
 	// Example `2:R06`
 	//
 	// #### JCN Gateway
-	// Processor-defined detail error code. The associated response category code is in the `responseCategoryCode` field.
+	// Processor-defined detail error code. The associated response category code is in the `processorInformation.responseCategoryCode` field.
+	// String (3)
 	//
 	// Max Length: 10
 	ResponseCode string `json:"responseCode,omitempty"`
@@ -4607,6 +5607,7 @@ type GetTransactionOKBodyProcessorInformation struct {
 	ResponseID string `json:"responseId,omitempty"`
 
 	// This field is returned only for **American Express Direct** and **CyberSource through VisaNet**.
+	// Returned by authorization and incremental authorization services.
 	//
 	// #### American Express Direct
 	//
@@ -4617,13 +5618,21 @@ type GetTransactionOKBodyProcessorInformation struct {
 	//
 	// System trace number that must be printed on the customer’s receipt.
 	//
-	// For details, see `receipt_number` field description in [Credit Card Services Using the SCMP API.](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/wwhelp/wwhimpl/js/html/wwhelp.htm)
-	//
 	// Max Length: 6
 	SystemTraceAuditNumber string `json:"systemTraceAuditNumber,omitempty"`
 
 	// Network transaction identifier (TID). You can use this value to identify a specific transaction when you are
 	// discussing the transaction with your processor. Not all processors provide this value.
+	//
+	// Returned by the authorization service.
+	//
+	// #### PIN debit
+	// Transaction identifier generated by the processor.
+	//
+	// Returned by PIN debit credit.
+	//
+	// #### GPX
+	// Processor transaction ID.
 	//
 	// #### Cielo
 	// For Cielo, this value is the non-sequential unit (NSU) and is supported for all transactions. The value is generated by Cielo or the issuing bank.
@@ -4632,7 +5641,22 @@ type GetTransactionOKBodyProcessorInformation struct {
 	// For Comercio Latino, this value is the proof of sale or non-sequential unit (NSU) number generated by the acquirers Cielo and Rede, or the issuing bank.
 	//
 	// #### CyberSource through VisaNet and GPN
-	// For details about this value for CyberSource through VisaNet and GPN, see "Network Transaction Identifiers" in [Credit Card Services Using the SCMP API.](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/wwhelp/wwhimpl/js/html/wwhelp.htm)
+	// For details about this value for CyberSource through VisaNet and GPN, see "Network Transaction Identifiers" in [Credit Card Services Using the SCMP API.](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/)
+	//
+	// #### Moneris
+	// This value identifies the transaction on a host system. It contains the following information:
+	// - Terminal used to process the transaction
+	// - Shift during which the transaction took place
+	// - Batch number
+	// - Transaction number within the batch
+	// You must store this value. If you give the customer a receipt, display this value on the receipt.
+	//
+	// **Example** For the value
+	// 66012345001069003:
+	// - Terminal ID = 66012345
+	// - Shift number = 001
+	// - Batch number = 069
+	// - Transaction number = 003
 	//
 	// Max Length: 50
 	TransactionID string `json:"transactionId,omitempty"`
@@ -4850,13 +5874,13 @@ swagger:model GetTransactionOKBodyProcessorInformationAchVerification
 type GetTransactionOKBodyProcessorInformationAchVerification struct {
 
 	// Results from the ACH verification service.
-	// For details about this service and the possible values for the results, see "ACH Verification" and "Verification Codes" in the [Electronic Check Services Using the SCMP API](https://apps.cybersource.com/library/documentation/dev_guides/EChecks_SCMP_API/html/wwhelp/wwhimpl/js/html/wwhelp.htm).
+	// For details about this service and the possible values for the results, see "ACH Verification" and "Verification Codes" in the [Electronic Check Services Using the SCMP API](https://apps.cybersource.com/library/documentation/dev_guides/EChecks_SCMP_API/html/).
 	//
 	// Max Length: 2
 	ResultCode string `json:"resultCode,omitempty"`
 
 	// Raw results from the ACH verification service.
-	// For details about this service and the possible values for the raw results, see "ACH Verification" and "Verification Codes" in the [Electronic Check Services Using the SCMP API](https://apps.cybersource.com/library/documentation/dev_guides/EChecks_SCMP_API/html/wwhelp/wwhimpl/js/html/wwhelp.htm).
+	// For details about this service and the possible values for the raw results, see "ACH Verification" and "Verification Codes" in the [Electronic Check Services Using the SCMP API](https://apps.cybersource.com/library/documentation/dev_guides/EChecks_SCMP_API/html/).
 	//
 	// Max Length: 10
 	ResultCodeRaw string `json:"resultCodeRaw,omitempty"`
@@ -4931,11 +5955,15 @@ type GetTransactionOKBodyProcessorInformationAvs struct {
 
 	// AVS result code.
 	//
+	// Returned by authorization service.
+	//
 	// Max Length: 1
 	Code string `json:"code,omitempty"`
 
 	// AVS result code sent directly from the processor. Returned only when the processor returns this value.
-	// Important Do not use this field to evaluate the result of AVS. Use for debugging purposes only.
+	// **Important** Do not use this field to evaluate the result of AVS. Use for debugging purposes only.
+	//
+	// Returned by authorization service.
 	//
 	// Max Length: 10
 	CodeRaw string `json:"codeRaw,omitempty"`
@@ -5010,7 +6038,7 @@ type GetTransactionOKBodyProcessorInformationCardVerification struct {
 
 	// CVN result code.
 	//
-	// For details, see the `auth_cv_result` reply field description in the [Credit Card Services Using the SCMP API Guide.](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/wwhelp/wwhimpl/js/html/wwhelp.htm)
+	// For details, see the `auth_cv_result` reply field description in the [Credit Card Services Using the SCMP API Guide.](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/)
 	//
 	// Max Length: 1
 	ResultCode string `json:"resultCode,omitempty"`
@@ -5068,7 +6096,7 @@ type GetTransactionOKBodyProcessorInformationElectronicVerificationResults struc
 
 	// Mapped Electronic Verification response code for the customer’s email address.
 	//
-	// For details, see `auth_ev_email` field description in the [Credit Card Services Using the SCMP API Guide.](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/wwhelp/wwhimpl/js/html/wwhelp.htm)
+	// For details, see `auth_ev_email` field description in the [Credit Card Services Using the SCMP API Guide.](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/)
 	//
 	// Max Length: 1
 	Email string `json:"email,omitempty"`
@@ -5089,7 +6117,7 @@ type GetTransactionOKBodyProcessorInformationElectronicVerificationResults struc
 
 	// Mapped Electronic Verification response code for the customer’s phone number.
 	//
-	// For details, see `auth_ev_phone_number` field description in the [Credit Card Services Using the SCMP API Guide.](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/wwhelp/wwhimpl/js/html/wwhelp.htm)
+	// For details, see `auth_ev_phone_number` field description in the [Credit Card Services Using the SCMP API Guide.](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/)
 	//
 	// Max Length: 1
 	PhoneNumber string `json:"phoneNumber,omitempty"`
@@ -5100,7 +6128,7 @@ type GetTransactionOKBodyProcessorInformationElectronicVerificationResults struc
 
 	// Mapped Electronic Verification response code for the customer’s postal code.
 	//
-	// For details, see `auth_ev_postal_code` field description in the [Credit Card Services Using the SCMP API Guide.](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/wwhelp/wwhimpl/js/html/wwhelp.htm)
+	// For details, see `auth_ev_postal_code` field description in the [Credit Card Services Using the SCMP API Guide.](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/)
 	//
 	// Max Length: 1
 	PostalCode string `json:"postalCode,omitempty"`
@@ -5111,7 +6139,7 @@ type GetTransactionOKBodyProcessorInformationElectronicVerificationResults struc
 
 	// Mapped Electronic Verification response code for the customer’s street address.
 	//
-	// For details, see `auth_ev_street` field description in the [Credit Card Services Using the SCMP API Guide.](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/wwhelp/wwhimpl/js/html/wwhelp.htm)
+	// For details, see `auth_ev_street` field description in the [Credit Card Services Using the SCMP API Guide.](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/)
 	//
 	// Max Length: 1
 	Street string `json:"street,omitempty"`
@@ -5879,116 +6907,6 @@ func (o *GetTransactionOKBodySenderInformation) MarshalBinary() ([]byte, error) 
 // UnmarshalBinary interface implementation
 func (o *GetTransactionOKBodySenderInformation) UnmarshalBinary(b []byte) error {
 	var res GetTransactionOKBodySenderInformation
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*MerchantDefinedInformationItems0 merchant defined information items0
-swagger:model MerchantDefinedInformationItems0
-*/
-type MerchantDefinedInformationItems0 struct {
-
-	// The number you assign for as the key for your merchant-defined data field. Valid values are 0 to 100.
-	//
-	// For example, to set or access the key for the 2nd merchant-defined data field in the array, you would reference `merchantDefinedInformation[1].key`.
-	//
-	// #### CyberSource through VisaNet
-	// For installment payments with Mastercard in Brazil, use `merchantDefinedInformation[0].key` and
-	// `merchantDefinedInformation[1].key` for data that you want to provide to the issuer to identify the
-	// transaction.
-	//
-	// For details, see the `merchant_defined_data1` request-level field description in the [Credit Card Services Using the SCMP API Guide.](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/wwhelp/wwhimpl/js/html/wwhelp.htm)
-	//
-	// Max Length: 50
-	Key string `json:"key,omitempty"`
-
-	// The value you assign for your merchant-defined data field.
-	//
-	// For details, see `merchant_defined_data1` field description in the [Credit Card Services Using the SCMP API Guide.](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/wwhelp/wwhimpl/js/html/wwhelp.htm)
-	//
-	// **Warning** Merchant-defined data fields are not intended to and must not be used to capture personally identifying information. Accordingly, merchants are prohibited from capturing, obtaining, and/or transmitting any personally identifying information in or via the merchant-defined data fields. Personally identifying information includes, but is not
-	// limited to, address, credit card number, social security number, driver's license number, state-issued identification number, passport number, and card verification numbers (CVV,
-	// CVC2, CVV2, CID, CVN). In the event CyberSource discovers that a merchant is capturing and/or transmitting personally identifying information via the merchant-defined data fields, whether or not intentionally, CyberSource will immediately suspend the merchant's account, which will result in a rejection of any and all transaction requests submitted by the merchant after the point of suspension.
-	//
-	// #### CyberSource through VisaNet
-	// For installment payments with Mastercard in Brazil, use `merchantDefinedInformation[0].value` and
-	// `merchantDefinedInformation[1].value` for data that you want to provide to the issuer to identify the
-	// transaction. For details, see "Installment Payments on CyberSource through VisaNet" in [Credit Card Services Using the SCMP API.](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/wwhelp/wwhimpl/js/html/wwhelp.htm)
-	//
-	// For details, see "Installment Payments on CyberSource through VisaNet" in [Credit Card Services Using the SCMP API.](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/wwhelp/wwhimpl/js/html/wwhelp.htm)
-	//
-	// For installment payments with Mastercard in Brazil:
-	// - The value for merchantDefinedInformation[0].value corresponds to the following data in the TC 33 capture file5:
-	//   - Record: CP07 TCR5
-	//   - Position: 25-44
-	//   - Field: Reference Field 2
-	// - The value for merchantDefinedInformation[1].value corresponds to the following data in the TC 33 capture file5:
-	//   - Record: CP07 TCR5
-	//   - Position: 45-64
-	//   - Field: Reference Field 3
-	//
-	// Max Length: 255
-	Value string `json:"value,omitempty"`
-}
-
-// Validate validates this merchant defined information items0
-func (o *MerchantDefinedInformationItems0) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateKey(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateValue(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *MerchantDefinedInformationItems0) validateKey(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Key) { // not required
-		return nil
-	}
-
-	if err := validate.MaxLength("key", "body", string(o.Key), 50); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (o *MerchantDefinedInformationItems0) validateValue(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Value) { // not required
-		return nil
-	}
-
-	if err := validate.MaxLength("value", "body", string(o.Value), 255); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *MerchantDefinedInformationItems0) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *MerchantDefinedInformationItems0) UnmarshalBinary(b []byte) error {
-	var res MerchantDefinedInformationItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

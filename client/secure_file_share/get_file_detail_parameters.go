@@ -13,8 +13,7 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	cr "github.com/go-openapi/runtime/client"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 )
 
 // NewGetFileDetailParams creates a new GetFileDetailParams object
@@ -71,6 +70,13 @@ type GetFileDetailParams struct {
 
 	*/
 	EndDate strfmt.Date
+	/*Name
+	  **Tailored to searches for specific files with in given Date range**
+	example : MyTransactionDetailreport.xml
+
+
+	*/
+	Name *string
 	/*OrganizationID
 	  Valid Cybersource Organization Id
 
@@ -136,6 +142,17 @@ func (o *GetFileDetailParams) SetEndDate(endDate strfmt.Date) {
 	o.EndDate = endDate
 }
 
+// WithName adds the name to the get file detail params
+func (o *GetFileDetailParams) WithName(name *string) *GetFileDetailParams {
+	o.SetName(name)
+	return o
+}
+
+// SetName adds the name to the get file detail params
+func (o *GetFileDetailParams) SetName(name *string) {
+	o.Name = name
+}
+
 // WithOrganizationID adds the organizationID to the get file detail params
 func (o *GetFileDetailParams) WithOrganizationID(organizationID *string) *GetFileDetailParams {
 	o.SetOrganizationID(organizationID)
@@ -173,6 +190,22 @@ func (o *GetFileDetailParams) WriteToRequest(r runtime.ClientRequest, reg strfmt
 		if err := r.SetQueryParam("endDate", qEndDate); err != nil {
 			return err
 		}
+	}
+
+	if o.Name != nil {
+
+		// query param name
+		var qrName string
+		if o.Name != nil {
+			qrName = *o.Name
+		}
+		qName := qrName
+		if qName != "" {
+			if err := r.SetQueryParam("name", qName); err != nil {
+				return err
+			}
+		}
+
 	}
 
 	if o.OrganizationID != nil {

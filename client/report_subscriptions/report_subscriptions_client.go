@@ -9,12 +9,11 @@ import (
 	"fmt"
 
 	"github.com/go-openapi/runtime"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 )
 
 // New creates a new report subscriptions API client.
-func New(transport runtime.ClientTransport, formats strfmt.Registry) *Client {
+func New(transport runtime.ClientTransport, formats strfmt.Registry) ClientService {
 	return &Client{transport: transport, formats: formats}
 }
 
@@ -26,10 +25,63 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
-/*
-CreateSubscription creates report subscription for a report name by organization
+// ClientService is the interface for Client methods
+type ClientService interface {
+	CreateStandardOrClassicSubscription(params *CreateStandardOrClassicSubscriptionParams) (*CreateStandardOrClassicSubscriptionOK, *CreateStandardOrClassicSubscriptionCreated, error)
 
-Create a report subscription for your organization. The report name must be unique.
+	CreateSubscription(params *CreateSubscriptionParams) (*CreateSubscriptionOK, error)
+
+	DeleteSubscription(params *DeleteSubscriptionParams) (*DeleteSubscriptionOK, error)
+
+	GetAllSubscriptions(params *GetAllSubscriptionsParams) (*GetAllSubscriptionsOK, error)
+
+	GetSubscription(params *GetSubscriptionParams) (*GetSubscriptionOK, error)
+
+	SetTransport(transport runtime.ClientTransport)
+}
+
+/*
+  CreateStandardOrClassicSubscription creates a standard or classic subscription
+
+  Create or update an already existing classic or standard subscription.
+
+*/
+func (a *Client) CreateStandardOrClassicSubscription(params *CreateStandardOrClassicSubscriptionParams) (*CreateStandardOrClassicSubscriptionOK, *CreateStandardOrClassicSubscriptionCreated, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewCreateStandardOrClassicSubscriptionParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "createStandardOrClassicSubscription",
+		Method:             "PUT",
+		PathPattern:        "/reporting/v3/predefined-report-subscriptions",
+		ProducesMediaTypes: []string{"application/hal+json"},
+		ConsumesMediaTypes: []string{"application/json;charset=utf-8"},
+		Schemes:            []string{"https"},
+		Params:             params,
+		Reader:             &CreateStandardOrClassicSubscriptionReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, nil, err
+	}
+	switch value := result.(type) {
+	case *CreateStandardOrClassicSubscriptionOK:
+		return value, nil, nil
+	case *CreateStandardOrClassicSubscriptionCreated:
+		return nil, value, nil
+	}
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for report_subscriptions: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
+}
+
+/*
+  CreateSubscription creates report subscription for a report name by organization
+
+  Create a report subscription for your organization. The report name must be unique.
 
 */
 func (a *Client) CreateSubscription(params *CreateSubscriptionParams) (*CreateSubscriptionOK, error) {
@@ -64,9 +116,9 @@ func (a *Client) CreateSubscription(params *CreateSubscriptionParams) (*CreateSu
 }
 
 /*
-DeleteSubscription deletes subscription of a report name by organization
+  DeleteSubscription deletes subscription of a report name by organization
 
-Delete a report subscription for your
+  Delete a report subscription for your
 organization. You must know the unique name of the report
 you want to delete.
 
@@ -103,9 +155,9 @@ func (a *Client) DeleteSubscription(params *DeleteSubscriptionParams) (*DeleteSu
 }
 
 /*
-GetAllSubscriptions gets all subscriptions
+  GetAllSubscriptions gets all subscriptions
 
-View a summary of all report subscriptions.
+  View a summary of all report subscriptions.
 
 */
 func (a *Client) GetAllSubscriptions(params *GetAllSubscriptionsParams) (*GetAllSubscriptionsOK, error) {
@@ -140,9 +192,9 @@ func (a *Client) GetAllSubscriptions(params *GetAllSubscriptionsParams) (*GetAll
 }
 
 /*
-GetSubscription gets subscription for report name
+  GetSubscription gets subscription for report name
 
-View the details of a report subscription, such as
+  View the details of a report subscription, such as
 the report format or report frequency, using the report’s
 unique name.
 

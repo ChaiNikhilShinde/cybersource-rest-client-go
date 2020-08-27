@@ -9,8 +9,7 @@ import (
 	"fmt"
 
 	"github.com/go-openapi/runtime"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 )
 
 // GetXSDV2Reader is a Reader for the GetXSDV2 structure.
@@ -47,7 +46,7 @@ func (o *GetXSDV2Reader) ReadResponse(response runtime.ClientResponse, consumer 
 		return nil, result
 
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
 	}
 }
 
@@ -64,7 +63,7 @@ type GetXSDV2OK struct {
 }
 
 func (o *GetXSDV2OK) Error() string {
-	return fmt.Sprintf("[GET /xsds/{reportDefinitionNameVersion}][%d] getXSDV2OK ", 200)
+	return fmt.Sprintf("[GET /reporting/v3/xsds/{reportDefinitionNameVersion}][%d] getXSDV2OK ", 200)
 }
 
 func (o *GetXSDV2OK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -85,7 +84,7 @@ type GetXSDV2BadRequest struct {
 }
 
 func (o *GetXSDV2BadRequest) Error() string {
-	return fmt.Sprintf("[GET /xsds/{reportDefinitionNameVersion}][%d] getXSDV2BadRequest ", 400)
+	return fmt.Sprintf("[GET /reporting/v3/xsds/{reportDefinitionNameVersion}][%d] getXSDV2BadRequest ", 400)
 }
 
 func (o *GetXSDV2BadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -106,7 +105,7 @@ type GetXSDV2NotFound struct {
 }
 
 func (o *GetXSDV2NotFound) Error() string {
-	return fmt.Sprintf("[GET /xsds/{reportDefinitionNameVersion}][%d] getXSDV2NotFound ", 404)
+	return fmt.Sprintf("[GET /reporting/v3/xsds/{reportDefinitionNameVersion}][%d] getXSDV2NotFound ", 404)
 }
 
 func (o *GetXSDV2NotFound) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -127,7 +126,7 @@ type GetXSDV2InternalServerError struct {
 }
 
 func (o *GetXSDV2InternalServerError) Error() string {
-	return fmt.Sprintf("[GET /xsds/{reportDefinitionNameVersion}][%d] getXSDV2InternalServerError ", 500)
+	return fmt.Sprintf("[GET /reporting/v3/xsds/{reportDefinitionNameVersion}][%d] getXSDV2InternalServerError ", 500)
 }
 
 func (o *GetXSDV2InternalServerError) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

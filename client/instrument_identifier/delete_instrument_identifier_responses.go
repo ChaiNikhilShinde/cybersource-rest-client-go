@@ -8,12 +8,12 @@ package instrument_identifier
 import (
 	"fmt"
 	"io"
+	"strconv"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
-
-	strfmt "github.com/go-openapi/strfmt"
 )
 
 // DeleteInstrumentIdentifierReader is a Reader for the DeleteInstrumentIdentifier structure.
@@ -68,7 +68,7 @@ func (o *DeleteInstrumentIdentifierReader) ReadResponse(response runtime.ClientR
 		return nil, result
 
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
 	}
 }
 
@@ -79,22 +79,28 @@ func NewDeleteInstrumentIdentifierNoContent() *DeleteInstrumentIdentifierNoConte
 
 /*DeleteInstrumentIdentifierNoContent handles this case with default header values.
 
-An existing Instrument Identifier associated with the supplied `tokenId` has been deleted.
+The server fulfilled the request but does not need to return a body
 */
 type DeleteInstrumentIdentifierNoContent struct {
 	/*A globally unique ID associated with your request.
 	 */
 	UniqueTransactionID string
+	/*The mandatory correlation id passed by upstream (calling) system.
+	 */
+	VcCorrelationID string
 }
 
 func (o *DeleteInstrumentIdentifierNoContent) Error() string {
-	return fmt.Sprintf("[DELETE /tms/v1/instrumentidentifiers/{tokenId}][%d] deleteInstrumentIdentifierNoContent ", 204)
+	return fmt.Sprintf("[DELETE /tms/v1/instrumentidentifiers/{instrumentIdentifierTokenId}][%d] deleteInstrumentIdentifierNoContent ", 204)
 }
 
 func (o *DeleteInstrumentIdentifierNoContent) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	// response header uniqueTransactionID
 	o.UniqueTransactionID = response.GetHeader("uniqueTransactionID")
+
+	// response header v-c-correlation-id
+	o.VcCorrelationID = response.GetHeader("v-c-correlation-id")
 
 	return nil
 }
@@ -106,21 +112,24 @@ func NewDeleteInstrumentIdentifierForbidden() *DeleteInstrumentIdentifierForbidd
 
 /*DeleteInstrumentIdentifierForbidden handles this case with default header values.
 
-Forbidden. The profile might not have permission to perform the token operation.
+403ForbiddenResponse: e.g. The profile might not have permission to perform the operation.
 */
 type DeleteInstrumentIdentifierForbidden struct {
-	/*A globally unique ID associated with your request.
+	/*A globally unique id associated with your request.
 	 */
 	UniqueTransactionID string
+	/*The mandatory correlation id passed by upstream (calling) system.
+	 */
+	VcCorrelationID string
 
-	Payload []*DeleteInstrumentIdentifierForbiddenBodyItems0
+	Payload *DeleteInstrumentIdentifierForbiddenBody
 }
 
 func (o *DeleteInstrumentIdentifierForbidden) Error() string {
-	return fmt.Sprintf("[DELETE /tms/v1/instrumentidentifiers/{tokenId}][%d] deleteInstrumentIdentifierForbidden  %+v", 403, o.Payload)
+	return fmt.Sprintf("[DELETE /tms/v1/instrumentidentifiers/{instrumentIdentifierTokenId}][%d] deleteInstrumentIdentifierForbidden  %+v", 403, o.Payload)
 }
 
-func (o *DeleteInstrumentIdentifierForbidden) GetPayload() []*DeleteInstrumentIdentifierForbiddenBodyItems0 {
+func (o *DeleteInstrumentIdentifierForbidden) GetPayload() *DeleteInstrumentIdentifierForbiddenBody {
 	return o.Payload
 }
 
@@ -129,8 +138,13 @@ func (o *DeleteInstrumentIdentifierForbidden) readResponse(response runtime.Clie
 	// response header uniqueTransactionID
 	o.UniqueTransactionID = response.GetHeader("uniqueTransactionID")
 
+	// response header v-c-correlation-id
+	o.VcCorrelationID = response.GetHeader("v-c-correlation-id")
+
+	o.Payload = new(DeleteInstrumentIdentifierForbiddenBody)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -150,15 +164,18 @@ type DeleteInstrumentIdentifierNotFound struct {
 	/*A globally unique ID associated with your request.
 	 */
 	UniqueTransactionID string
+	/*The mandatory correlation id passed by upstream (calling) system.
+	 */
+	VcCorrelationID string
 
-	Payload []*DeleteInstrumentIdentifierNotFoundBodyItems0
+	Payload *DeleteInstrumentIdentifierNotFoundBody
 }
 
 func (o *DeleteInstrumentIdentifierNotFound) Error() string {
-	return fmt.Sprintf("[DELETE /tms/v1/instrumentidentifiers/{tokenId}][%d] deleteInstrumentIdentifierNotFound  %+v", 404, o.Payload)
+	return fmt.Sprintf("[DELETE /tms/v1/instrumentidentifiers/{instrumentIdentifierTokenId}][%d] deleteInstrumentIdentifierNotFound  %+v", 404, o.Payload)
 }
 
-func (o *DeleteInstrumentIdentifierNotFound) GetPayload() []*DeleteInstrumentIdentifierNotFoundBodyItems0 {
+func (o *DeleteInstrumentIdentifierNotFound) GetPayload() *DeleteInstrumentIdentifierNotFoundBody {
 	return o.Payload
 }
 
@@ -167,8 +184,13 @@ func (o *DeleteInstrumentIdentifierNotFound) readResponse(response runtime.Clien
 	// response header uniqueTransactionID
 	o.UniqueTransactionID = response.GetHeader("uniqueTransactionID")
 
+	// response header v-c-correlation-id
+	o.VcCorrelationID = response.GetHeader("v-c-correlation-id")
+
+	o.Payload = new(DeleteInstrumentIdentifierNotFoundBody)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -188,16 +210,13 @@ type DeleteInstrumentIdentifierConflict struct {
 	/*A globally unique ID associated with your request.
 	 */
 	UniqueTransactionID string
-
-	Payload []*DeleteInstrumentIdentifierConflictBodyItems0
+	/*The mandatory correlation id passed by upstream (calling) system.
+	 */
+	VcCorrelationID string
 }
 
 func (o *DeleteInstrumentIdentifierConflict) Error() string {
-	return fmt.Sprintf("[DELETE /tms/v1/instrumentidentifiers/{tokenId}][%d] deleteInstrumentIdentifierConflict  %+v", 409, o.Payload)
-}
-
-func (o *DeleteInstrumentIdentifierConflict) GetPayload() []*DeleteInstrumentIdentifierConflictBodyItems0 {
-	return o.Payload
+	return fmt.Sprintf("[DELETE /tms/v1/instrumentidentifiers/{instrumentIdentifierTokenId}][%d] deleteInstrumentIdentifierConflict ", 409)
 }
 
 func (o *DeleteInstrumentIdentifierConflict) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -205,10 +224,8 @@ func (o *DeleteInstrumentIdentifierConflict) readResponse(response runtime.Clien
 	// response header uniqueTransactionID
 	o.UniqueTransactionID = response.GetHeader("uniqueTransactionID")
 
-	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
-		return err
-	}
+	// response header v-c-correlation-id
+	o.VcCorrelationID = response.GetHeader("v-c-correlation-id")
 
 	return nil
 }
@@ -226,15 +243,18 @@ type DeleteInstrumentIdentifierGone struct {
 	/*A globally unique ID associated with your request.
 	 */
 	UniqueTransactionID string
+	/*The mandatory correlation id passed by upstream (calling) system.
+	 */
+	VcCorrelationID string
 
-	Payload []*DeleteInstrumentIdentifierGoneBodyItems0
+	Payload *DeleteInstrumentIdentifierGoneBody
 }
 
 func (o *DeleteInstrumentIdentifierGone) Error() string {
-	return fmt.Sprintf("[DELETE /tms/v1/instrumentidentifiers/{tokenId}][%d] deleteInstrumentIdentifierGone  %+v", 410, o.Payload)
+	return fmt.Sprintf("[DELETE /tms/v1/instrumentidentifiers/{instrumentIdentifierTokenId}][%d] deleteInstrumentIdentifierGone  %+v", 410, o.Payload)
 }
 
-func (o *DeleteInstrumentIdentifierGone) GetPayload() []*DeleteInstrumentIdentifierGoneBodyItems0 {
+func (o *DeleteInstrumentIdentifierGone) GetPayload() *DeleteInstrumentIdentifierGoneBody {
 	return o.Payload
 }
 
@@ -243,8 +263,13 @@ func (o *DeleteInstrumentIdentifierGone) readResponse(response runtime.ClientRes
 	// response header uniqueTransactionID
 	o.UniqueTransactionID = response.GetHeader("uniqueTransactionID")
 
+	// response header v-c-correlation-id
+	o.VcCorrelationID = response.GetHeader("v-c-correlation-id")
+
+	o.Payload = new(DeleteInstrumentIdentifierGoneBody)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -264,15 +289,18 @@ type DeleteInstrumentIdentifierFailedDependency struct {
 	/*A globally unique id associated with your request.
 	 */
 	UniqueTransactionID string
+	/*The mandatory correlation id passed by upstream (calling) system.
+	 */
+	VcCorrelationID string
 
-	Payload []*DeleteInstrumentIdentifierFailedDependencyBodyItems0
+	Payload *DeleteInstrumentIdentifierFailedDependencyBody
 }
 
 func (o *DeleteInstrumentIdentifierFailedDependency) Error() string {
-	return fmt.Sprintf("[DELETE /tms/v1/instrumentidentifiers/{tokenId}][%d] deleteInstrumentIdentifierFailedDependency  %+v", 424, o.Payload)
+	return fmt.Sprintf("[DELETE /tms/v1/instrumentidentifiers/{instrumentIdentifierTokenId}][%d] deleteInstrumentIdentifierFailedDependency  %+v", 424, o.Payload)
 }
 
-func (o *DeleteInstrumentIdentifierFailedDependency) GetPayload() []*DeleteInstrumentIdentifierFailedDependencyBodyItems0 {
+func (o *DeleteInstrumentIdentifierFailedDependency) GetPayload() *DeleteInstrumentIdentifierFailedDependencyBody {
 	return o.Payload
 }
 
@@ -281,8 +309,13 @@ func (o *DeleteInstrumentIdentifierFailedDependency) readResponse(response runti
 	// response header uniqueTransactionID
 	o.UniqueTransactionID = response.GetHeader("uniqueTransactionID")
 
+	// response header v-c-correlation-id
+	o.VcCorrelationID = response.GetHeader("v-c-correlation-id")
+
+	o.Payload = new(DeleteInstrumentIdentifierFailedDependencyBody)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -302,15 +335,18 @@ type DeleteInstrumentIdentifierInternalServerError struct {
 	/*A globally unique id associated with your request.
 	 */
 	UniqueTransactionID string
+	/*The mandatory correlation id passed by upstream (calling) system.
+	 */
+	VcCorrelationID string
 
-	Payload []*DeleteInstrumentIdentifierInternalServerErrorBodyItems0
+	Payload *DeleteInstrumentIdentifierInternalServerErrorBody
 }
 
 func (o *DeleteInstrumentIdentifierInternalServerError) Error() string {
-	return fmt.Sprintf("[DELETE /tms/v1/instrumentidentifiers/{tokenId}][%d] deleteInstrumentIdentifierInternalServerError  %+v", 500, o.Payload)
+	return fmt.Sprintf("[DELETE /tms/v1/instrumentidentifiers/{instrumentIdentifierTokenId}][%d] deleteInstrumentIdentifierInternalServerError  %+v", 500, o.Payload)
 }
 
-func (o *DeleteInstrumentIdentifierInternalServerError) GetPayload() []*DeleteInstrumentIdentifierInternalServerErrorBodyItems0 {
+func (o *DeleteInstrumentIdentifierInternalServerError) GetPayload() *DeleteInstrumentIdentifierInternalServerErrorBody {
 	return o.Payload
 }
 
@@ -319,31 +355,106 @@ func (o *DeleteInstrumentIdentifierInternalServerError) readResponse(response ru
 	// response header uniqueTransactionID
 	o.UniqueTransactionID = response.GetHeader("uniqueTransactionID")
 
+	// response header v-c-correlation-id
+	o.VcCorrelationID = response.GetHeader("v-c-correlation-id")
+
+	o.Payload = new(DeleteInstrumentIdentifierInternalServerErrorBody)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
 	return nil
 }
 
-/*DeleteInstrumentIdentifierConflictBodyItems0 delete instrument identifier conflict body items0
-swagger:model DeleteInstrumentIdentifierConflictBodyItems0
+/*DeleteInstrumentIdentifierFailedDependencyBody delete instrument identifier failed dependency body
+swagger:model DeleteInstrumentIdentifierFailedDependencyBody
 */
-type DeleteInstrumentIdentifierConflictBodyItems0 struct {
+type DeleteInstrumentIdentifierFailedDependencyBody struct {
+
+	// errors
+	// Read Only: true
+	Errors []*DeleteInstrumentIdentifierFailedDependencyBodyErrorsItems0 `json:"errors"`
+}
+
+// Validate validates this delete instrument identifier failed dependency body
+func (o *DeleteInstrumentIdentifierFailedDependencyBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateErrors(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *DeleteInstrumentIdentifierFailedDependencyBody) validateErrors(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Errors) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Errors); i++ {
+		if swag.IsZero(o.Errors[i]) { // not required
+			continue
+		}
+
+		if o.Errors[i] != nil {
+			if err := o.Errors[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("deleteInstrumentIdentifierFailedDependency" + "." + "errors" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *DeleteInstrumentIdentifierFailedDependencyBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *DeleteInstrumentIdentifierFailedDependencyBody) UnmarshalBinary(b []byte) error {
+	var res DeleteInstrumentIdentifierFailedDependencyBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*DeleteInstrumentIdentifierFailedDependencyBodyErrorsItems0 delete instrument identifier failed dependency body errors items0
+swagger:model DeleteInstrumentIdentifierFailedDependencyBodyErrorsItems0
+*/
+type DeleteInstrumentIdentifierFailedDependencyBodyErrorsItems0 struct {
 
 	// details
-	Details *DeleteInstrumentIdentifierConflictBodyItems0Details `json:"details,omitempty"`
+	// Read Only: true
+	Details []*DeleteInstrumentIdentifierFailedDependencyBodyErrorsItems0DetailsItems0 `json:"details"`
 
 	// The detailed message related to the type stated above.
+	// Read Only: true
 	Message string `json:"message,omitempty"`
 
-	// type
+	// The type of error.
+	// Read Only: true
 	Type string `json:"type,omitempty"`
 }
 
-// Validate validates this delete instrument identifier conflict body items0
-func (o *DeleteInstrumentIdentifierConflictBodyItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this delete instrument identifier failed dependency body errors items0
+func (o *DeleteInstrumentIdentifierFailedDependencyBodyErrorsItems0) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateDetails(formats); err != nil {
@@ -356,26 +467,33 @@ func (o *DeleteInstrumentIdentifierConflictBodyItems0) Validate(formats strfmt.R
 	return nil
 }
 
-func (o *DeleteInstrumentIdentifierConflictBodyItems0) validateDetails(formats strfmt.Registry) error {
+func (o *DeleteInstrumentIdentifierFailedDependencyBodyErrorsItems0) validateDetails(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
 
-	if o.Details != nil {
-		if err := o.Details.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("details")
-			}
-			return err
+	for i := 0; i < len(o.Details); i++ {
+		if swag.IsZero(o.Details[i]) { // not required
+			continue
 		}
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
 	}
 
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *DeleteInstrumentIdentifierConflictBodyItems0) MarshalBinary() ([]byte, error) {
+func (o *DeleteInstrumentIdentifierFailedDependencyBodyErrorsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -383,8 +501,8 @@ func (o *DeleteInstrumentIdentifierConflictBodyItems0) MarshalBinary() ([]byte, 
 }
 
 // UnmarshalBinary interface implementation
-func (o *DeleteInstrumentIdentifierConflictBodyItems0) UnmarshalBinary(b []byte) error {
-	var res DeleteInstrumentIdentifierConflictBodyItems0
+func (o *DeleteInstrumentIdentifierFailedDependencyBodyErrorsItems0) UnmarshalBinary(b []byte) error {
+	var res DeleteInstrumentIdentifierFailedDependencyBodyErrorsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -392,25 +510,27 @@ func (o *DeleteInstrumentIdentifierConflictBodyItems0) UnmarshalBinary(b []byte)
 	return nil
 }
 
-/*DeleteInstrumentIdentifierConflictBodyItems0Details delete instrument identifier conflict body items0 details
-swagger:model DeleteInstrumentIdentifierConflictBodyItems0Details
+/*DeleteInstrumentIdentifierFailedDependencyBodyErrorsItems0DetailsItems0 delete instrument identifier failed dependency body errors items0 details items0
+swagger:model DeleteInstrumentIdentifierFailedDependencyBodyErrorsItems0DetailsItems0
 */
-type DeleteInstrumentIdentifierConflictBodyItems0Details struct {
+type DeleteInstrumentIdentifierFailedDependencyBodyErrorsItems0DetailsItems0 struct {
 
-	// The location of the field that threw the error.
+	// The location of the field that caused the error.
+	// Read Only: true
 	Location string `json:"location,omitempty"`
 
-	// The name of the field that threw the error.
+	// The name of the field that caused the error.
+	// Read Only: true
 	Name string `json:"name,omitempty"`
 }
 
-// Validate validates this delete instrument identifier conflict body items0 details
-func (o *DeleteInstrumentIdentifierConflictBodyItems0Details) Validate(formats strfmt.Registry) error {
+// Validate validates this delete instrument identifier failed dependency body errors items0 details items0
+func (o *DeleteInstrumentIdentifierFailedDependencyBodyErrorsItems0DetailsItems0) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *DeleteInstrumentIdentifierConflictBodyItems0Details) MarshalBinary() ([]byte, error) {
+func (o *DeleteInstrumentIdentifierFailedDependencyBodyErrorsItems0DetailsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -418,8 +538,8 @@ func (o *DeleteInstrumentIdentifierConflictBodyItems0Details) MarshalBinary() ([
 }
 
 // UnmarshalBinary interface implementation
-func (o *DeleteInstrumentIdentifierConflictBodyItems0Details) UnmarshalBinary(b []byte) error {
-	var res DeleteInstrumentIdentifierConflictBodyItems0Details
+func (o *DeleteInstrumentIdentifierFailedDependencyBodyErrorsItems0DetailsItems0) UnmarshalBinary(b []byte) error {
+	var res DeleteInstrumentIdentifierFailedDependencyBodyErrorsItems0DetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -427,20 +547,21 @@ func (o *DeleteInstrumentIdentifierConflictBodyItems0Details) UnmarshalBinary(b 
 	return nil
 }
 
-/*DeleteInstrumentIdentifierConflictBodyLinks delete instrument identifier conflict body links
-swagger:model DeleteInstrumentIdentifierConflictBodyLinks
+/*DeleteInstrumentIdentifierForbiddenBody delete instrument identifier forbidden body
+swagger:model DeleteInstrumentIdentifierForbiddenBody
 */
-type DeleteInstrumentIdentifierConflictBodyLinks struct {
+type DeleteInstrumentIdentifierForbiddenBody struct {
 
-	// payment instruments
-	PaymentInstruments *DeleteInstrumentIdentifierConflictBodyLinksPaymentInstruments `json:"paymentInstruments,omitempty"`
+	// errors
+	// Read Only: true
+	Errors []*DeleteInstrumentIdentifierForbiddenBodyErrorsItems0 `json:"errors"`
 }
 
-// Validate validates this delete instrument identifier conflict body links
-func (o *DeleteInstrumentIdentifierConflictBodyLinks) Validate(formats strfmt.Registry) error {
+// Validate validates this delete instrument identifier forbidden body
+func (o *DeleteInstrumentIdentifierForbiddenBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validatePaymentInstruments(formats); err != nil {
+	if err := o.validateErrors(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -450,26 +571,33 @@ func (o *DeleteInstrumentIdentifierConflictBodyLinks) Validate(formats strfmt.Re
 	return nil
 }
 
-func (o *DeleteInstrumentIdentifierConflictBodyLinks) validatePaymentInstruments(formats strfmt.Registry) error {
+func (o *DeleteInstrumentIdentifierForbiddenBody) validateErrors(formats strfmt.Registry) error {
 
-	if swag.IsZero(o.PaymentInstruments) { // not required
+	if swag.IsZero(o.Errors) { // not required
 		return nil
 	}
 
-	if o.PaymentInstruments != nil {
-		if err := o.PaymentInstruments.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("deleteInstrumentIdentifierConflict" + "." + "_links" + "." + "paymentInstruments")
-			}
-			return err
+	for i := 0; i < len(o.Errors); i++ {
+		if swag.IsZero(o.Errors[i]) { // not required
+			continue
 		}
+
+		if o.Errors[i] != nil {
+			if err := o.Errors[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("deleteInstrumentIdentifierForbidden" + "." + "errors" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
 	}
 
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *DeleteInstrumentIdentifierConflictBodyLinks) MarshalBinary() ([]byte, error) {
+func (o *DeleteInstrumentIdentifierForbiddenBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -477,8 +605,8 @@ func (o *DeleteInstrumentIdentifierConflictBodyLinks) MarshalBinary() ([]byte, e
 }
 
 // UnmarshalBinary interface implementation
-func (o *DeleteInstrumentIdentifierConflictBodyLinks) UnmarshalBinary(b []byte) error {
-	var res DeleteInstrumentIdentifierConflictBodyLinks
+func (o *DeleteInstrumentIdentifierForbiddenBody) UnmarshalBinary(b []byte) error {
+	var res DeleteInstrumentIdentifierForbiddenBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -486,55 +614,26 @@ func (o *DeleteInstrumentIdentifierConflictBodyLinks) UnmarshalBinary(b []byte) 
 	return nil
 }
 
-/*DeleteInstrumentIdentifierConflictBodyLinksPaymentInstruments delete instrument identifier conflict body links payment instruments
-swagger:model DeleteInstrumentIdentifierConflictBodyLinksPaymentInstruments
+/*DeleteInstrumentIdentifierForbiddenBodyErrorsItems0 delete instrument identifier forbidden body errors items0
+swagger:model DeleteInstrumentIdentifierForbiddenBodyErrorsItems0
 */
-type DeleteInstrumentIdentifierConflictBodyLinksPaymentInstruments struct {
-
-	// href
-	Href string `json:"href,omitempty"`
-}
-
-// Validate validates this delete instrument identifier conflict body links payment instruments
-func (o *DeleteInstrumentIdentifierConflictBodyLinksPaymentInstruments) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *DeleteInstrumentIdentifierConflictBodyLinksPaymentInstruments) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *DeleteInstrumentIdentifierConflictBodyLinksPaymentInstruments) UnmarshalBinary(b []byte) error {
-	var res DeleteInstrumentIdentifierConflictBodyLinksPaymentInstruments
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*DeleteInstrumentIdentifierFailedDependencyBodyItems0 delete instrument identifier failed dependency body items0
-swagger:model DeleteInstrumentIdentifierFailedDependencyBodyItems0
-*/
-type DeleteInstrumentIdentifierFailedDependencyBodyItems0 struct {
+type DeleteInstrumentIdentifierForbiddenBodyErrorsItems0 struct {
 
 	// details
-	Details *DeleteInstrumentIdentifierFailedDependencyBodyItems0Details `json:"details,omitempty"`
+	// Read Only: true
+	Details []*DeleteInstrumentIdentifierForbiddenBodyErrorsItems0DetailsItems0 `json:"details"`
 
 	// The detailed message related to the type stated above.
+	// Read Only: true
 	Message string `json:"message,omitempty"`
 
-	// type
+	// The type of error.
+	// Read Only: true
 	Type string `json:"type,omitempty"`
 }
 
-// Validate validates this delete instrument identifier failed dependency body items0
-func (o *DeleteInstrumentIdentifierFailedDependencyBodyItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this delete instrument identifier forbidden body errors items0
+func (o *DeleteInstrumentIdentifierForbiddenBodyErrorsItems0) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateDetails(formats); err != nil {
@@ -547,26 +646,33 @@ func (o *DeleteInstrumentIdentifierFailedDependencyBodyItems0) Validate(formats 
 	return nil
 }
 
-func (o *DeleteInstrumentIdentifierFailedDependencyBodyItems0) validateDetails(formats strfmt.Registry) error {
+func (o *DeleteInstrumentIdentifierForbiddenBodyErrorsItems0) validateDetails(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
 
-	if o.Details != nil {
-		if err := o.Details.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("details")
-			}
-			return err
+	for i := 0; i < len(o.Details); i++ {
+		if swag.IsZero(o.Details[i]) { // not required
+			continue
 		}
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
 	}
 
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *DeleteInstrumentIdentifierFailedDependencyBodyItems0) MarshalBinary() ([]byte, error) {
+func (o *DeleteInstrumentIdentifierForbiddenBodyErrorsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -574,8 +680,8 @@ func (o *DeleteInstrumentIdentifierFailedDependencyBodyItems0) MarshalBinary() (
 }
 
 // UnmarshalBinary interface implementation
-func (o *DeleteInstrumentIdentifierFailedDependencyBodyItems0) UnmarshalBinary(b []byte) error {
-	var res DeleteInstrumentIdentifierFailedDependencyBodyItems0
+func (o *DeleteInstrumentIdentifierForbiddenBodyErrorsItems0) UnmarshalBinary(b []byte) error {
+	var res DeleteInstrumentIdentifierForbiddenBodyErrorsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -583,25 +689,27 @@ func (o *DeleteInstrumentIdentifierFailedDependencyBodyItems0) UnmarshalBinary(b
 	return nil
 }
 
-/*DeleteInstrumentIdentifierFailedDependencyBodyItems0Details delete instrument identifier failed dependency body items0 details
-swagger:model DeleteInstrumentIdentifierFailedDependencyBodyItems0Details
+/*DeleteInstrumentIdentifierForbiddenBodyErrorsItems0DetailsItems0 delete instrument identifier forbidden body errors items0 details items0
+swagger:model DeleteInstrumentIdentifierForbiddenBodyErrorsItems0DetailsItems0
 */
-type DeleteInstrumentIdentifierFailedDependencyBodyItems0Details struct {
+type DeleteInstrumentIdentifierForbiddenBodyErrorsItems0DetailsItems0 struct {
 
-	// The location of the field that threw the error.
+	// The location of the field that caused the error.
+	// Read Only: true
 	Location string `json:"location,omitempty"`
 
-	// The name of the field that threw the error.
+	// The name of the field that caused the error.
+	// Read Only: true
 	Name string `json:"name,omitempty"`
 }
 
-// Validate validates this delete instrument identifier failed dependency body items0 details
-func (o *DeleteInstrumentIdentifierFailedDependencyBodyItems0Details) Validate(formats strfmt.Registry) error {
+// Validate validates this delete instrument identifier forbidden body errors items0 details items0
+func (o *DeleteInstrumentIdentifierForbiddenBodyErrorsItems0DetailsItems0) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *DeleteInstrumentIdentifierFailedDependencyBodyItems0Details) MarshalBinary() ([]byte, error) {
+func (o *DeleteInstrumentIdentifierForbiddenBodyErrorsItems0DetailsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -609,8 +717,8 @@ func (o *DeleteInstrumentIdentifierFailedDependencyBodyItems0Details) MarshalBin
 }
 
 // UnmarshalBinary interface implementation
-func (o *DeleteInstrumentIdentifierFailedDependencyBodyItems0Details) UnmarshalBinary(b []byte) error {
-	var res DeleteInstrumentIdentifierFailedDependencyBodyItems0Details
+func (o *DeleteInstrumentIdentifierForbiddenBodyErrorsItems0DetailsItems0) UnmarshalBinary(b []byte) error {
+	var res DeleteInstrumentIdentifierForbiddenBodyErrorsItems0DetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -618,23 +726,93 @@ func (o *DeleteInstrumentIdentifierFailedDependencyBodyItems0Details) UnmarshalB
 	return nil
 }
 
-/*DeleteInstrumentIdentifierForbiddenBodyItems0 delete instrument identifier forbidden body items0
-swagger:model DeleteInstrumentIdentifierForbiddenBodyItems0
+/*DeleteInstrumentIdentifierGoneBody delete instrument identifier gone body
+swagger:model DeleteInstrumentIdentifierGoneBody
 */
-type DeleteInstrumentIdentifierForbiddenBodyItems0 struct {
+type DeleteInstrumentIdentifierGoneBody struct {
+
+	// errors
+	// Read Only: true
+	Errors []*DeleteInstrumentIdentifierGoneBodyErrorsItems0 `json:"errors"`
+}
+
+// Validate validates this delete instrument identifier gone body
+func (o *DeleteInstrumentIdentifierGoneBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateErrors(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *DeleteInstrumentIdentifierGoneBody) validateErrors(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Errors) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Errors); i++ {
+		if swag.IsZero(o.Errors[i]) { // not required
+			continue
+		}
+
+		if o.Errors[i] != nil {
+			if err := o.Errors[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("deleteInstrumentIdentifierGone" + "." + "errors" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *DeleteInstrumentIdentifierGoneBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *DeleteInstrumentIdentifierGoneBody) UnmarshalBinary(b []byte) error {
+	var res DeleteInstrumentIdentifierGoneBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*DeleteInstrumentIdentifierGoneBodyErrorsItems0 delete instrument identifier gone body errors items0
+swagger:model DeleteInstrumentIdentifierGoneBodyErrorsItems0
+*/
+type DeleteInstrumentIdentifierGoneBodyErrorsItems0 struct {
 
 	// details
-	Details *DeleteInstrumentIdentifierForbiddenBodyItems0Details `json:"details,omitempty"`
+	// Read Only: true
+	Details []*DeleteInstrumentIdentifierGoneBodyErrorsItems0DetailsItems0 `json:"details"`
 
 	// The detailed message related to the type stated above.
+	// Read Only: true
 	Message string `json:"message,omitempty"`
 
-	// type
+	// The type of error.
+	// Read Only: true
 	Type string `json:"type,omitempty"`
 }
 
-// Validate validates this delete instrument identifier forbidden body items0
-func (o *DeleteInstrumentIdentifierForbiddenBodyItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this delete instrument identifier gone body errors items0
+func (o *DeleteInstrumentIdentifierGoneBodyErrorsItems0) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateDetails(formats); err != nil {
@@ -647,26 +825,33 @@ func (o *DeleteInstrumentIdentifierForbiddenBodyItems0) Validate(formats strfmt.
 	return nil
 }
 
-func (o *DeleteInstrumentIdentifierForbiddenBodyItems0) validateDetails(formats strfmt.Registry) error {
+func (o *DeleteInstrumentIdentifierGoneBodyErrorsItems0) validateDetails(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
 
-	if o.Details != nil {
-		if err := o.Details.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("details")
-			}
-			return err
+	for i := 0; i < len(o.Details); i++ {
+		if swag.IsZero(o.Details[i]) { // not required
+			continue
 		}
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
 	}
 
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *DeleteInstrumentIdentifierForbiddenBodyItems0) MarshalBinary() ([]byte, error) {
+func (o *DeleteInstrumentIdentifierGoneBodyErrorsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -674,8 +859,8 @@ func (o *DeleteInstrumentIdentifierForbiddenBodyItems0) MarshalBinary() ([]byte,
 }
 
 // UnmarshalBinary interface implementation
-func (o *DeleteInstrumentIdentifierForbiddenBodyItems0) UnmarshalBinary(b []byte) error {
-	var res DeleteInstrumentIdentifierForbiddenBodyItems0
+func (o *DeleteInstrumentIdentifierGoneBodyErrorsItems0) UnmarshalBinary(b []byte) error {
+	var res DeleteInstrumentIdentifierGoneBodyErrorsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -683,25 +868,27 @@ func (o *DeleteInstrumentIdentifierForbiddenBodyItems0) UnmarshalBinary(b []byte
 	return nil
 }
 
-/*DeleteInstrumentIdentifierForbiddenBodyItems0Details delete instrument identifier forbidden body items0 details
-swagger:model DeleteInstrumentIdentifierForbiddenBodyItems0Details
+/*DeleteInstrumentIdentifierGoneBodyErrorsItems0DetailsItems0 delete instrument identifier gone body errors items0 details items0
+swagger:model DeleteInstrumentIdentifierGoneBodyErrorsItems0DetailsItems0
 */
-type DeleteInstrumentIdentifierForbiddenBodyItems0Details struct {
+type DeleteInstrumentIdentifierGoneBodyErrorsItems0DetailsItems0 struct {
 
-	// The location of the field that threw the error.
+	// The location of the field that caused the error.
+	// Read Only: true
 	Location string `json:"location,omitempty"`
 
-	// The name of the field that threw the error.
+	// The name of the field that caused the error.
+	// Read Only: true
 	Name string `json:"name,omitempty"`
 }
 
-// Validate validates this delete instrument identifier forbidden body items0 details
-func (o *DeleteInstrumentIdentifierForbiddenBodyItems0Details) Validate(formats strfmt.Registry) error {
+// Validate validates this delete instrument identifier gone body errors items0 details items0
+func (o *DeleteInstrumentIdentifierGoneBodyErrorsItems0DetailsItems0) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *DeleteInstrumentIdentifierForbiddenBodyItems0Details) MarshalBinary() ([]byte, error) {
+func (o *DeleteInstrumentIdentifierGoneBodyErrorsItems0DetailsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -709,8 +896,8 @@ func (o *DeleteInstrumentIdentifierForbiddenBodyItems0Details) MarshalBinary() (
 }
 
 // UnmarshalBinary interface implementation
-func (o *DeleteInstrumentIdentifierForbiddenBodyItems0Details) UnmarshalBinary(b []byte) error {
-	var res DeleteInstrumentIdentifierForbiddenBodyItems0Details
+func (o *DeleteInstrumentIdentifierGoneBodyErrorsItems0DetailsItems0) UnmarshalBinary(b []byte) error {
+	var res DeleteInstrumentIdentifierGoneBodyErrorsItems0DetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -718,23 +905,93 @@ func (o *DeleteInstrumentIdentifierForbiddenBodyItems0Details) UnmarshalBinary(b
 	return nil
 }
 
-/*DeleteInstrumentIdentifierGoneBodyItems0 delete instrument identifier gone body items0
-swagger:model DeleteInstrumentIdentifierGoneBodyItems0
+/*DeleteInstrumentIdentifierInternalServerErrorBody delete instrument identifier internal server error body
+swagger:model DeleteInstrumentIdentifierInternalServerErrorBody
 */
-type DeleteInstrumentIdentifierGoneBodyItems0 struct {
+type DeleteInstrumentIdentifierInternalServerErrorBody struct {
+
+	// errors
+	// Read Only: true
+	Errors []*DeleteInstrumentIdentifierInternalServerErrorBodyErrorsItems0 `json:"errors"`
+}
+
+// Validate validates this delete instrument identifier internal server error body
+func (o *DeleteInstrumentIdentifierInternalServerErrorBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateErrors(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *DeleteInstrumentIdentifierInternalServerErrorBody) validateErrors(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Errors) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Errors); i++ {
+		if swag.IsZero(o.Errors[i]) { // not required
+			continue
+		}
+
+		if o.Errors[i] != nil {
+			if err := o.Errors[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("deleteInstrumentIdentifierInternalServerError" + "." + "errors" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *DeleteInstrumentIdentifierInternalServerErrorBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *DeleteInstrumentIdentifierInternalServerErrorBody) UnmarshalBinary(b []byte) error {
+	var res DeleteInstrumentIdentifierInternalServerErrorBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*DeleteInstrumentIdentifierInternalServerErrorBodyErrorsItems0 delete instrument identifier internal server error body errors items0
+swagger:model DeleteInstrumentIdentifierInternalServerErrorBodyErrorsItems0
+*/
+type DeleteInstrumentIdentifierInternalServerErrorBodyErrorsItems0 struct {
 
 	// details
-	Details *DeleteInstrumentIdentifierGoneBodyItems0Details `json:"details,omitempty"`
+	// Read Only: true
+	Details []*DeleteInstrumentIdentifierInternalServerErrorBodyErrorsItems0DetailsItems0 `json:"details"`
 
 	// The detailed message related to the type stated above.
+	// Read Only: true
 	Message string `json:"message,omitempty"`
 
-	// type
+	// The type of error.
+	// Read Only: true
 	Type string `json:"type,omitempty"`
 }
 
-// Validate validates this delete instrument identifier gone body items0
-func (o *DeleteInstrumentIdentifierGoneBodyItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this delete instrument identifier internal server error body errors items0
+func (o *DeleteInstrumentIdentifierInternalServerErrorBodyErrorsItems0) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateDetails(formats); err != nil {
@@ -747,26 +1004,33 @@ func (o *DeleteInstrumentIdentifierGoneBodyItems0) Validate(formats strfmt.Regis
 	return nil
 }
 
-func (o *DeleteInstrumentIdentifierGoneBodyItems0) validateDetails(formats strfmt.Registry) error {
+func (o *DeleteInstrumentIdentifierInternalServerErrorBodyErrorsItems0) validateDetails(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
 
-	if o.Details != nil {
-		if err := o.Details.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("details")
-			}
-			return err
+	for i := 0; i < len(o.Details); i++ {
+		if swag.IsZero(o.Details[i]) { // not required
+			continue
 		}
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
 	}
 
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *DeleteInstrumentIdentifierGoneBodyItems0) MarshalBinary() ([]byte, error) {
+func (o *DeleteInstrumentIdentifierInternalServerErrorBodyErrorsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -774,8 +1038,8 @@ func (o *DeleteInstrumentIdentifierGoneBodyItems0) MarshalBinary() ([]byte, erro
 }
 
 // UnmarshalBinary interface implementation
-func (o *DeleteInstrumentIdentifierGoneBodyItems0) UnmarshalBinary(b []byte) error {
-	var res DeleteInstrumentIdentifierGoneBodyItems0
+func (o *DeleteInstrumentIdentifierInternalServerErrorBodyErrorsItems0) UnmarshalBinary(b []byte) error {
+	var res DeleteInstrumentIdentifierInternalServerErrorBodyErrorsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -783,25 +1047,27 @@ func (o *DeleteInstrumentIdentifierGoneBodyItems0) UnmarshalBinary(b []byte) err
 	return nil
 }
 
-/*DeleteInstrumentIdentifierGoneBodyItems0Details delete instrument identifier gone body items0 details
-swagger:model DeleteInstrumentIdentifierGoneBodyItems0Details
+/*DeleteInstrumentIdentifierInternalServerErrorBodyErrorsItems0DetailsItems0 delete instrument identifier internal server error body errors items0 details items0
+swagger:model DeleteInstrumentIdentifierInternalServerErrorBodyErrorsItems0DetailsItems0
 */
-type DeleteInstrumentIdentifierGoneBodyItems0Details struct {
+type DeleteInstrumentIdentifierInternalServerErrorBodyErrorsItems0DetailsItems0 struct {
 
-	// The location of the field that threw the error.
+	// The location of the field that caused the error.
+	// Read Only: true
 	Location string `json:"location,omitempty"`
 
-	// The name of the field that threw the error.
+	// The name of the field that caused the error.
+	// Read Only: true
 	Name string `json:"name,omitempty"`
 }
 
-// Validate validates this delete instrument identifier gone body items0 details
-func (o *DeleteInstrumentIdentifierGoneBodyItems0Details) Validate(formats strfmt.Registry) error {
+// Validate validates this delete instrument identifier internal server error body errors items0 details items0
+func (o *DeleteInstrumentIdentifierInternalServerErrorBodyErrorsItems0DetailsItems0) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *DeleteInstrumentIdentifierGoneBodyItems0Details) MarshalBinary() ([]byte, error) {
+func (o *DeleteInstrumentIdentifierInternalServerErrorBodyErrorsItems0DetailsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -809,8 +1075,8 @@ func (o *DeleteInstrumentIdentifierGoneBodyItems0Details) MarshalBinary() ([]byt
 }
 
 // UnmarshalBinary interface implementation
-func (o *DeleteInstrumentIdentifierGoneBodyItems0Details) UnmarshalBinary(b []byte) error {
-	var res DeleteInstrumentIdentifierGoneBodyItems0Details
+func (o *DeleteInstrumentIdentifierInternalServerErrorBodyErrorsItems0DetailsItems0) UnmarshalBinary(b []byte) error {
+	var res DeleteInstrumentIdentifierInternalServerErrorBodyErrorsItems0DetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -818,23 +1084,93 @@ func (o *DeleteInstrumentIdentifierGoneBodyItems0Details) UnmarshalBinary(b []by
 	return nil
 }
 
-/*DeleteInstrumentIdentifierInternalServerErrorBodyItems0 delete instrument identifier internal server error body items0
-swagger:model DeleteInstrumentIdentifierInternalServerErrorBodyItems0
+/*DeleteInstrumentIdentifierNotFoundBody delete instrument identifier not found body
+swagger:model DeleteInstrumentIdentifierNotFoundBody
 */
-type DeleteInstrumentIdentifierInternalServerErrorBodyItems0 struct {
+type DeleteInstrumentIdentifierNotFoundBody struct {
+
+	// errors
+	// Read Only: true
+	Errors []*DeleteInstrumentIdentifierNotFoundBodyErrorsItems0 `json:"errors"`
+}
+
+// Validate validates this delete instrument identifier not found body
+func (o *DeleteInstrumentIdentifierNotFoundBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateErrors(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *DeleteInstrumentIdentifierNotFoundBody) validateErrors(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Errors) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Errors); i++ {
+		if swag.IsZero(o.Errors[i]) { // not required
+			continue
+		}
+
+		if o.Errors[i] != nil {
+			if err := o.Errors[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("deleteInstrumentIdentifierNotFound" + "." + "errors" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *DeleteInstrumentIdentifierNotFoundBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *DeleteInstrumentIdentifierNotFoundBody) UnmarshalBinary(b []byte) error {
+	var res DeleteInstrumentIdentifierNotFoundBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*DeleteInstrumentIdentifierNotFoundBodyErrorsItems0 delete instrument identifier not found body errors items0
+swagger:model DeleteInstrumentIdentifierNotFoundBodyErrorsItems0
+*/
+type DeleteInstrumentIdentifierNotFoundBodyErrorsItems0 struct {
 
 	// details
-	Details *DeleteInstrumentIdentifierInternalServerErrorBodyItems0Details `json:"details,omitempty"`
+	// Read Only: true
+	Details []*DeleteInstrumentIdentifierNotFoundBodyErrorsItems0DetailsItems0 `json:"details"`
 
 	// The detailed message related to the type stated above.
+	// Read Only: true
 	Message string `json:"message,omitempty"`
 
-	// type
+	// The type of error.
+	// Read Only: true
 	Type string `json:"type,omitempty"`
 }
 
-// Validate validates this delete instrument identifier internal server error body items0
-func (o *DeleteInstrumentIdentifierInternalServerErrorBodyItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this delete instrument identifier not found body errors items0
+func (o *DeleteInstrumentIdentifierNotFoundBodyErrorsItems0) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateDetails(formats); err != nil {
@@ -847,26 +1183,33 @@ func (o *DeleteInstrumentIdentifierInternalServerErrorBodyItems0) Validate(forma
 	return nil
 }
 
-func (o *DeleteInstrumentIdentifierInternalServerErrorBodyItems0) validateDetails(formats strfmt.Registry) error {
+func (o *DeleteInstrumentIdentifierNotFoundBodyErrorsItems0) validateDetails(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
 
-	if o.Details != nil {
-		if err := o.Details.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("details")
-			}
-			return err
+	for i := 0; i < len(o.Details); i++ {
+		if swag.IsZero(o.Details[i]) { // not required
+			continue
 		}
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
 	}
 
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *DeleteInstrumentIdentifierInternalServerErrorBodyItems0) MarshalBinary() ([]byte, error) {
+func (o *DeleteInstrumentIdentifierNotFoundBodyErrorsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -874,8 +1217,8 @@ func (o *DeleteInstrumentIdentifierInternalServerErrorBodyItems0) MarshalBinary(
 }
 
 // UnmarshalBinary interface implementation
-func (o *DeleteInstrumentIdentifierInternalServerErrorBodyItems0) UnmarshalBinary(b []byte) error {
-	var res DeleteInstrumentIdentifierInternalServerErrorBodyItems0
+func (o *DeleteInstrumentIdentifierNotFoundBodyErrorsItems0) UnmarshalBinary(b []byte) error {
+	var res DeleteInstrumentIdentifierNotFoundBodyErrorsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -883,25 +1226,27 @@ func (o *DeleteInstrumentIdentifierInternalServerErrorBodyItems0) UnmarshalBinar
 	return nil
 }
 
-/*DeleteInstrumentIdentifierInternalServerErrorBodyItems0Details delete instrument identifier internal server error body items0 details
-swagger:model DeleteInstrumentIdentifierInternalServerErrorBodyItems0Details
+/*DeleteInstrumentIdentifierNotFoundBodyErrorsItems0DetailsItems0 delete instrument identifier not found body errors items0 details items0
+swagger:model DeleteInstrumentIdentifierNotFoundBodyErrorsItems0DetailsItems0
 */
-type DeleteInstrumentIdentifierInternalServerErrorBodyItems0Details struct {
+type DeleteInstrumentIdentifierNotFoundBodyErrorsItems0DetailsItems0 struct {
 
-	// The location of the field that threw the error.
+	// The location of the field that caused the error.
+	// Read Only: true
 	Location string `json:"location,omitempty"`
 
-	// The name of the field that threw the error.
+	// The name of the field that caused the error.
+	// Read Only: true
 	Name string `json:"name,omitempty"`
 }
 
-// Validate validates this delete instrument identifier internal server error body items0 details
-func (o *DeleteInstrumentIdentifierInternalServerErrorBodyItems0Details) Validate(formats strfmt.Registry) error {
+// Validate validates this delete instrument identifier not found body errors items0 details items0
+func (o *DeleteInstrumentIdentifierNotFoundBodyErrorsItems0DetailsItems0) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *DeleteInstrumentIdentifierInternalServerErrorBodyItems0Details) MarshalBinary() ([]byte, error) {
+func (o *DeleteInstrumentIdentifierNotFoundBodyErrorsItems0DetailsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -909,108 +1254,8 @@ func (o *DeleteInstrumentIdentifierInternalServerErrorBodyItems0Details) Marshal
 }
 
 // UnmarshalBinary interface implementation
-func (o *DeleteInstrumentIdentifierInternalServerErrorBodyItems0Details) UnmarshalBinary(b []byte) error {
-	var res DeleteInstrumentIdentifierInternalServerErrorBodyItems0Details
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*DeleteInstrumentIdentifierNotFoundBodyItems0 delete instrument identifier not found body items0
-swagger:model DeleteInstrumentIdentifierNotFoundBodyItems0
-*/
-type DeleteInstrumentIdentifierNotFoundBodyItems0 struct {
-
-	// details
-	Details *DeleteInstrumentIdentifierNotFoundBodyItems0Details `json:"details,omitempty"`
-
-	// The detailed message related to the type stated above.
-	Message string `json:"message,omitempty"`
-
-	// type
-	Type string `json:"type,omitempty"`
-}
-
-// Validate validates this delete instrument identifier not found body items0
-func (o *DeleteInstrumentIdentifierNotFoundBodyItems0) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateDetails(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *DeleteInstrumentIdentifierNotFoundBodyItems0) validateDetails(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Details) { // not required
-		return nil
-	}
-
-	if o.Details != nil {
-		if err := o.Details.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("details")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *DeleteInstrumentIdentifierNotFoundBodyItems0) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *DeleteInstrumentIdentifierNotFoundBodyItems0) UnmarshalBinary(b []byte) error {
-	var res DeleteInstrumentIdentifierNotFoundBodyItems0
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*DeleteInstrumentIdentifierNotFoundBodyItems0Details delete instrument identifier not found body items0 details
-swagger:model DeleteInstrumentIdentifierNotFoundBodyItems0Details
-*/
-type DeleteInstrumentIdentifierNotFoundBodyItems0Details struct {
-
-	// The location of the field that threw the error.
-	Location string `json:"location,omitempty"`
-
-	// The name of the field that threw the error.
-	Name string `json:"name,omitempty"`
-}
-
-// Validate validates this delete instrument identifier not found body items0 details
-func (o *DeleteInstrumentIdentifierNotFoundBodyItems0Details) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *DeleteInstrumentIdentifierNotFoundBodyItems0Details) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *DeleteInstrumentIdentifierNotFoundBodyItems0Details) UnmarshalBinary(b []byte) error {
-	var res DeleteInstrumentIdentifierNotFoundBodyItems0Details
+func (o *DeleteInstrumentIdentifierNotFoundBodyErrorsItems0DetailsItems0) UnmarshalBinary(b []byte) error {
+	var res DeleteInstrumentIdentifierNotFoundBodyErrorsItems0DetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

@@ -12,10 +12,9 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
-
-	strfmt "github.com/go-openapi/strfmt"
 )
 
 // GeneratePublicKeyReader is a Reader for the GeneratePublicKey structure.
@@ -127,6 +126,9 @@ type GeneratePublicKeyBody struct {
 	// How the card number should be encrypted in the subsequent Tokenize Card request. Possible values are RsaOaep256 or None (if using this value the card number must be in plain text when included in the Tokenize Card request). The Tokenize Card request uses a secure connection (TLS 1.2+) regardless of what encryption type is specified.
 	// Required: true
 	EncryptionType *string `json:"encryptionType"`
+
+	// The merchant origin (e.g. https://example.com) used to integrate with Flex API. Required to comply with CORS and CSP standards.
+	TargetOrigin string `json:"targetOrigin,omitempty"`
 }
 
 // Validate validates this generate public key body

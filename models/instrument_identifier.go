@@ -6,14 +6,14 @@ package models
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
 // InstrumentIdentifier instrument identifier
+//
 // swagger:model InstrumentIdentifier
 type InstrumentIdentifier struct {
 
@@ -23,17 +23,23 @@ type InstrumentIdentifier struct {
 	// bank account
 	BankAccount *InstrumentIdentifierBankAccount `json:"bankAccount,omitempty"`
 
+	// bill to
+	BillTo *InstrumentIdentifierBillTo `json:"billTo,omitempty"`
+
 	// card
 	Card *InstrumentIdentifierCard `json:"card,omitempty"`
 
-	// Unique identification number assigned by CyberSource to the submitted request.
-	// Read Only: true
+	// The id of the Instrument Identifier Token.
+	//
 	ID string `json:"id,omitempty"`
+
+	// issuer
+	Issuer *InstrumentIdentifierIssuer `json:"issuer,omitempty"`
 
 	// metadata
 	Metadata *InstrumentIdentifierMetadata `json:"metadata,omitempty"`
 
-	// 'Describes type of token.'
+	// The type of token.
 	//
 	// Valid values:
 	// - instrumentIdentifier
@@ -44,14 +50,22 @@ type InstrumentIdentifier struct {
 	// processing information
 	ProcessingInformation *InstrumentIdentifierProcessingInformation `json:"processingInformation,omitempty"`
 
-	// 'Current state of the token.'
-	//
+	// Issuers state for the card number.
 	// Valid values:
 	// - ACTIVE
-	// - CLOSED
+	// - CLOSED : The account has been closed.
 	//
 	// Read Only: true
 	State string `json:"state,omitempty"`
+
+	// tokenized card
+	TokenizedCard *InstrumentIdentifierTokenizedCard `json:"tokenizedCard,omitempty"`
+
+	// The type of Instrument Identifier.
+	// Valid values:
+	// - enrollable card
+	//
+	Type string `json:"type,omitempty"`
 }
 
 // Validate validates this instrument identifier
@@ -66,7 +80,15 @@ func (m *InstrumentIdentifier) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateBillTo(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateCard(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateIssuer(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -75,6 +97,10 @@ func (m *InstrumentIdentifier) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateProcessingInformation(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateTokenizedCard(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -120,6 +146,24 @@ func (m *InstrumentIdentifier) validateBankAccount(formats strfmt.Registry) erro
 	return nil
 }
 
+func (m *InstrumentIdentifier) validateBillTo(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.BillTo) { // not required
+		return nil
+	}
+
+	if m.BillTo != nil {
+		if err := m.BillTo.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("billTo")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *InstrumentIdentifier) validateCard(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.Card) { // not required
@@ -130,6 +174,24 @@ func (m *InstrumentIdentifier) validateCard(formats strfmt.Registry) error {
 		if err := m.Card.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("card")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *InstrumentIdentifier) validateIssuer(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Issuer) { // not required
+		return nil
+	}
+
+	if m.Issuer != nil {
+		if err := m.Issuer.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("issuer")
 			}
 			return err
 		}
@@ -174,6 +236,24 @@ func (m *InstrumentIdentifier) validateProcessingInformation(formats strfmt.Regi
 	return nil
 }
 
+func (m *InstrumentIdentifier) validateTokenizedCard(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.TokenizedCard) { // not required
+		return nil
+	}
+
+	if m.TokenizedCard != nil {
+		if err := m.TokenizedCard.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("tokenizedCard")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (m *InstrumentIdentifier) MarshalBinary() ([]byte, error) {
 	if m == nil {
@@ -193,17 +273,21 @@ func (m *InstrumentIdentifier) UnmarshalBinary(b []byte) error {
 }
 
 // InstrumentIdentifierBankAccount instrument identifier bank account
+//
 // swagger:model InstrumentIdentifierBankAccount
 type InstrumentIdentifierBankAccount struct {
 
-	// Checking account number.
-	// Max Length: 19
-	// Min Length: 1
+	// Account number.
+	//
+	// When processing encoded account numbers, use this field for the encoded account number.
+	//
+	// Max Length: 17
 	Number string `json:"number,omitempty"`
 
-	// Routing number.
-	// Max Length: 9
-	// Min Length: 1
+	// Bank routing number. This is also called the transit number.
+	//
+	// For details, see `ecp_rdfi` field description in the [Electronic Check Services Using the SCMP API Guide.](https://apps.cybersource.com/library/documentation/dev_guides/EChecks_SCMP_API/html/)
+	//
 	RoutingNumber string `json:"routingNumber,omitempty"`
 }
 
@@ -212,10 +296,6 @@ func (m *InstrumentIdentifierBankAccount) Validate(formats strfmt.Registry) erro
 	var res []error
 
 	if err := m.validateNumber(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateRoutingNumber(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -231,28 +311,7 @@ func (m *InstrumentIdentifierBankAccount) validateNumber(formats strfmt.Registry
 		return nil
 	}
 
-	if err := validate.MinLength("bankAccount"+"."+"number", "body", string(m.Number), 1); err != nil {
-		return err
-	}
-
-	if err := validate.MaxLength("bankAccount"+"."+"number", "body", string(m.Number), 19); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *InstrumentIdentifierBankAccount) validateRoutingNumber(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.RoutingNumber) { // not required
-		return nil
-	}
-
-	if err := validate.MinLength("bankAccount"+"."+"routingNumber", "body", string(m.RoutingNumber), 1); err != nil {
-		return err
-	}
-
-	if err := validate.MaxLength("bankAccount"+"."+"routingNumber", "body", string(m.RoutingNumber), 9); err != nil {
+	if err := validate.MaxLength("bankAccount"+"."+"number", "body", string(m.Number), 17); err != nil {
 		return err
 	}
 
@@ -277,27 +336,268 @@ func (m *InstrumentIdentifierBankAccount) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-// InstrumentIdentifierCard instrument identifier card
-// swagger:model InstrumentIdentifierCard
-type InstrumentIdentifierCard struct {
+// InstrumentIdentifierBillTo This information is sent to the issuer as part of network token enrollment and is not stored under the Instrument Identifier token.
+//
+//
+// swagger:model InstrumentIdentifierBillTo
+type InstrumentIdentifierBillTo struct {
 
-	// Customer’s credit card number.
-	// Max Length: 19
-	// Min Length: 12
-	Number string `json:"number,omitempty"`
+	// Payment card billing street address as it appears on the credit card issuer’s records.
+	//
+	// Max Length: 60
+	Address1 string `json:"address1,omitempty"`
+
+	// Additional address information.
+	//
+	// Max Length: 60
+	Address2 string `json:"address2,omitempty"`
+
+	// State or province of the billing address. Use the State, Province, and Territory Codes for the United States
+	// and Canada.
+	//
+	// Max Length: 20
+	AdministrativeArea string `json:"administrativeArea,omitempty"`
+
+	// Payment card billing country. Use the two-character ISO Standard Country Codes.
+	//
+	// Max Length: 2
+	Country string `json:"country,omitempty"`
+
+	// Payment card billing city.
+	//
+	// Max Length: 50
+	Locality string `json:"locality,omitempty"`
+
+	// Postal code for the billing address. The postal code must consist of 5 to 9 digits.
+	//
+	// When the billing country is the U.S., the 9-digit postal code must follow this format:
+	// [5 digits][dash][4 digits]
+	//
+	// **Example** `12345-6789`
+	//
+	// When the billing country is Canada, the 6-digit postal code must follow this format:
+	// [alpha][numeric][alpha][space][numeric][alpha][numeric]
+	//
+	// **Example** `A1B 2C3`
+	//
+	// Max Length: 10
+	PostalCode string `json:"postalCode,omitempty"`
 }
 
-// Validate validates this instrument identifier card
-func (m *InstrumentIdentifierCard) Validate(formats strfmt.Registry) error {
+// Validate validates this instrument identifier bill to
+func (m *InstrumentIdentifierBillTo) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateNumber(formats); err != nil {
+	if err := m.validateAddress1(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateAddress2(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateAdministrativeArea(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateCountry(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateLocality(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validatePostalCode(formats); err != nil {
 		res = append(res, err)
 	}
 
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *InstrumentIdentifierBillTo) validateAddress1(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Address1) { // not required
+		return nil
+	}
+
+	if err := validate.MaxLength("billTo"+"."+"address1", "body", string(m.Address1), 60); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *InstrumentIdentifierBillTo) validateAddress2(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Address2) { // not required
+		return nil
+	}
+
+	if err := validate.MaxLength("billTo"+"."+"address2", "body", string(m.Address2), 60); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *InstrumentIdentifierBillTo) validateAdministrativeArea(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.AdministrativeArea) { // not required
+		return nil
+	}
+
+	if err := validate.MaxLength("billTo"+"."+"administrativeArea", "body", string(m.AdministrativeArea), 20); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *InstrumentIdentifierBillTo) validateCountry(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Country) { // not required
+		return nil
+	}
+
+	if err := validate.MaxLength("billTo"+"."+"country", "body", string(m.Country), 2); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *InstrumentIdentifierBillTo) validateLocality(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Locality) { // not required
+		return nil
+	}
+
+	if err := validate.MaxLength("billTo"+"."+"locality", "body", string(m.Locality), 50); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *InstrumentIdentifierBillTo) validatePostalCode(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.PostalCode) { // not required
+		return nil
+	}
+
+	if err := validate.MaxLength("billTo"+"."+"postalCode", "body", string(m.PostalCode), 10); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (m *InstrumentIdentifierBillTo) MarshalBinary() ([]byte, error) {
+	if m == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(m)
+}
+
+// UnmarshalBinary interface implementation
+func (m *InstrumentIdentifierBillTo) UnmarshalBinary(b []byte) error {
+	var res InstrumentIdentifierBillTo
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*m = res
+	return nil
+}
+
+// InstrumentIdentifierCard The expirationMonth, expirationYear and securityCode is sent to the issuer as part of network token enrollment and is not stored under the Instrument Identifier token.
+//
+//
+// swagger:model InstrumentIdentifierCard
+type InstrumentIdentifierCard struct {
+
+	// Two-digit month in which the payment card expires.
+	//
+	// Format: `MM`.
+	//
+	// Valid values: `01` through `12`.
+	//
+	// Max Length: 2
+	ExpirationMonth string `json:"expirationMonth,omitempty"`
+
+	// Four-digit year in which the credit card expires.
+	//
+	// Format: `YYYY`.
+	//
+	// Max Length: 4
+	ExpirationYear string `json:"expirationYear,omitempty"`
+
+	// The customer’s payment card number, also known as the Primary Account Number (PAN). You can also use this field
+	// for encoded account numbers.
+	//
+	// Max Length: 19
+	// Min Length: 12
+	Number string `json:"number,omitempty"`
+
+	// Card Verification Number.
+	//
+	// Max Length: 4
+	SecurityCode string `json:"securityCode,omitempty"`
+}
+
+// Validate validates this instrument identifier card
+func (m *InstrumentIdentifierCard) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.validateExpirationMonth(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateExpirationYear(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateNumber(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSecurityCode(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *InstrumentIdentifierCard) validateExpirationMonth(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.ExpirationMonth) { // not required
+		return nil
+	}
+
+	if err := validate.MaxLength("card"+"."+"expirationMonth", "body", string(m.ExpirationMonth), 2); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *InstrumentIdentifierCard) validateExpirationYear(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.ExpirationYear) { // not required
+		return nil
+	}
+
+	if err := validate.MaxLength("card"+"."+"expirationYear", "body", string(m.ExpirationYear), 4); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -312,6 +612,19 @@ func (m *InstrumentIdentifierCard) validateNumber(formats strfmt.Registry) error
 	}
 
 	if err := validate.MaxLength("card"+"."+"number", "body", string(m.Number), 19); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *InstrumentIdentifierCard) validateSecurityCode(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.SecurityCode) { // not required
+		return nil
+	}
+
+	if err := validate.MaxLength("card"+"."+"securityCode", "body", string(m.SecurityCode), 4); err != nil {
 		return err
 	}
 
@@ -336,33 +649,23 @@ func (m *InstrumentIdentifierCard) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-// InstrumentIdentifierLinks instrument identifier links
-// swagger:model InstrumentIdentifierLinks
-type InstrumentIdentifierLinks struct {
+// InstrumentIdentifierIssuer instrument identifier issuer
+//
+// swagger:model InstrumentIdentifierIssuer
+type InstrumentIdentifierIssuer struct {
 
-	// ancestor
-	Ancestor *InstrumentIdentifierLinksAncestor `json:"ancestor,omitempty"`
-
-	// self
-	Self *InstrumentIdentifierLinksSelf `json:"self,omitempty"`
-
-	// successor
-	Successor *InstrumentIdentifierLinksSuccessor `json:"successor,omitempty"`
+	// This reference number serves as a link to the cardholder account and to all transactions for that account.
+	//
+	// Read Only: true
+	// Max Length: 32
+	PaymentAccountReference string `json:"paymentAccountReference,omitempty"`
 }
 
-// Validate validates this instrument identifier links
-func (m *InstrumentIdentifierLinks) Validate(formats strfmt.Registry) error {
+// Validate validates this instrument identifier issuer
+func (m *InstrumentIdentifierIssuer) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateAncestor(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateSelf(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateSuccessor(formats); err != nil {
+	if err := m.validatePaymentAccountReference(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -372,16 +675,77 @@ func (m *InstrumentIdentifierLinks) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *InstrumentIdentifierLinks) validateAncestor(formats strfmt.Registry) error {
+func (m *InstrumentIdentifierIssuer) validatePaymentAccountReference(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.Ancestor) { // not required
+	if swag.IsZero(m.PaymentAccountReference) { // not required
 		return nil
 	}
 
-	if m.Ancestor != nil {
-		if err := m.Ancestor.Validate(formats); err != nil {
+	if err := validate.MaxLength("issuer"+"."+"paymentAccountReference", "body", string(m.PaymentAccountReference), 32); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (m *InstrumentIdentifierIssuer) MarshalBinary() ([]byte, error) {
+	if m == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(m)
+}
+
+// UnmarshalBinary interface implementation
+func (m *InstrumentIdentifierIssuer) UnmarshalBinary(b []byte) error {
+	var res InstrumentIdentifierIssuer
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*m = res
+	return nil
+}
+
+// InstrumentIdentifierLinks instrument identifier links
+//
+// swagger:model InstrumentIdentifierLinks
+type InstrumentIdentifierLinks struct {
+
+	// payment instruments
+	PaymentInstruments *InstrumentIdentifierLinksPaymentInstruments `json:"paymentInstruments,omitempty"`
+
+	// self
+	Self *InstrumentIdentifierLinksSelf `json:"self,omitempty"`
+}
+
+// Validate validates this instrument identifier links
+func (m *InstrumentIdentifierLinks) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.validatePaymentInstruments(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSelf(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *InstrumentIdentifierLinks) validatePaymentInstruments(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.PaymentInstruments) { // not required
+		return nil
+	}
+
+	if m.PaymentInstruments != nil {
+		if err := m.PaymentInstruments.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("_links" + "." + "ancestor")
+				return ve.ValidateName("_links" + "." + "paymentInstruments")
 			}
 			return err
 		}
@@ -408,24 +772,6 @@ func (m *InstrumentIdentifierLinks) validateSelf(formats strfmt.Registry) error 
 	return nil
 }
 
-func (m *InstrumentIdentifierLinks) validateSuccessor(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.Successor) { // not required
-		return nil
-	}
-
-	if m.Successor != nil {
-		if err := m.Successor.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("_links" + "." + "successor")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
 // MarshalBinary interface implementation
 func (m *InstrumentIdentifierLinks) MarshalBinary() ([]byte, error) {
 	if m == nil {
@@ -444,21 +790,24 @@ func (m *InstrumentIdentifierLinks) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-// InstrumentIdentifierLinksAncestor instrument identifier links ancestor
-// swagger:model InstrumentIdentifierLinksAncestor
-type InstrumentIdentifierLinksAncestor struct {
+// InstrumentIdentifierLinksPaymentInstruments instrument identifier links payment instruments
+//
+// swagger:model InstrumentIdentifierLinksPaymentInstruments
+type InstrumentIdentifierLinksPaymentInstruments struct {
 
-	// href
+	// Link to the Instrument Identifiers Payment Instruments.
+	//
+	// Read Only: true
 	Href string `json:"href,omitempty"`
 }
 
-// Validate validates this instrument identifier links ancestor
-func (m *InstrumentIdentifierLinksAncestor) Validate(formats strfmt.Registry) error {
+// Validate validates this instrument identifier links payment instruments
+func (m *InstrumentIdentifierLinksPaymentInstruments) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (m *InstrumentIdentifierLinksAncestor) MarshalBinary() ([]byte, error) {
+func (m *InstrumentIdentifierLinksPaymentInstruments) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -466,8 +815,8 @@ func (m *InstrumentIdentifierLinksAncestor) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *InstrumentIdentifierLinksAncestor) UnmarshalBinary(b []byte) error {
-	var res InstrumentIdentifierLinksAncestor
+func (m *InstrumentIdentifierLinksPaymentInstruments) UnmarshalBinary(b []byte) error {
+	var res InstrumentIdentifierLinksPaymentInstruments
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -476,10 +825,13 @@ func (m *InstrumentIdentifierLinksAncestor) UnmarshalBinary(b []byte) error {
 }
 
 // InstrumentIdentifierLinksSelf instrument identifier links self
+//
 // swagger:model InstrumentIdentifierLinksSelf
 type InstrumentIdentifierLinksSelf struct {
 
-	// href
+	// Link to the Instrument Identifier.
+	//
+	// Read Only: true
 	Href string `json:"href,omitempty"`
 }
 
@@ -506,42 +858,13 @@ func (m *InstrumentIdentifierLinksSelf) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-// InstrumentIdentifierLinksSuccessor instrument identifier links successor
-// swagger:model InstrumentIdentifierLinksSuccessor
-type InstrumentIdentifierLinksSuccessor struct {
-
-	// href
-	Href string `json:"href,omitempty"`
-}
-
-// Validate validates this instrument identifier links successor
-func (m *InstrumentIdentifierLinksSuccessor) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (m *InstrumentIdentifierLinksSuccessor) MarshalBinary() ([]byte, error) {
-	if m == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(m)
-}
-
-// UnmarshalBinary interface implementation
-func (m *InstrumentIdentifierLinksSuccessor) UnmarshalBinary(b []byte) error {
-	var res InstrumentIdentifierLinksSuccessor
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*m = res
-	return nil
-}
-
 // InstrumentIdentifierMetadata instrument identifier metadata
+//
 // swagger:model InstrumentIdentifierMetadata
 type InstrumentIdentifierMetadata struct {
 
-	// The creator of the token.
+	// The creator of the Instrument Identifier token.
+	// Read Only: true
 	Creator string `json:"creator,omitempty"`
 }
 
@@ -569,6 +892,7 @@ func (m *InstrumentIdentifierMetadata) UnmarshalBinary(b []byte) error {
 }
 
 // InstrumentIdentifierProcessingInformation instrument identifier processing information
+//
 // swagger:model InstrumentIdentifierProcessingInformation
 type InstrumentIdentifierProcessingInformation struct {
 
@@ -627,6 +951,7 @@ func (m *InstrumentIdentifierProcessingInformation) UnmarshalBinary(b []byte) er
 }
 
 // InstrumentIdentifierProcessingInformationAuthorizationOptions instrument identifier processing information authorization options
+//
 // swagger:model InstrumentIdentifierProcessingInformationAuthorizationOptions
 type InstrumentIdentifierProcessingInformationAuthorizationOptions struct {
 
@@ -685,6 +1010,7 @@ func (m *InstrumentIdentifierProcessingInformationAuthorizationOptions) Unmarsha
 }
 
 // InstrumentIdentifierProcessingInformationAuthorizationOptionsInitiator instrument identifier processing information authorization options initiator
+//
 // swagger:model InstrumentIdentifierProcessingInformationAuthorizationOptionsInitiator
 type InstrumentIdentifierProcessingInformationAuthorizationOptionsInitiator struct {
 
@@ -743,10 +1069,14 @@ func (m *InstrumentIdentifierProcessingInformationAuthorizationOptionsInitiator)
 }
 
 // InstrumentIdentifierProcessingInformationAuthorizationOptionsInitiatorMerchantInitiatedTransaction instrument identifier processing information authorization options initiator merchant initiated transaction
+//
 // swagger:model InstrumentIdentifierProcessingInformationAuthorizationOptionsInitiatorMerchantInitiatedTransaction
 type InstrumentIdentifierProcessingInformationAuthorizationOptionsInitiatorMerchantInitiatedTransaction struct {
 
-	// Previous Consumer Initiated Transaction Id.
+	// Network transaction identifier that was returned in the payment response field _processorInformation.transactionID_
+	// in the reply message for either the original merchant-initiated payment in the series or the previous
+	// merchant-initiated payment in the series.
+	//
 	// Max Length: 15
 	PreviousTransactionID string `json:"previousTransactionId,omitempty"`
 }
@@ -789,6 +1119,236 @@ func (m *InstrumentIdentifierProcessingInformationAuthorizationOptionsInitiatorM
 // UnmarshalBinary interface implementation
 func (m *InstrumentIdentifierProcessingInformationAuthorizationOptionsInitiatorMerchantInitiatedTransaction) UnmarshalBinary(b []byte) error {
 	var res InstrumentIdentifierProcessingInformationAuthorizationOptionsInitiatorMerchantInitiatedTransaction
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*m = res
+	return nil
+}
+
+// InstrumentIdentifierTokenizedCard instrument identifier tokenized card
+//
+// swagger:model InstrumentIdentifierTokenizedCard
+type InstrumentIdentifierTokenizedCard struct {
+
+	// card
+	Card *InstrumentIdentifierTokenizedCardCard `json:"card,omitempty"`
+
+	// Generated value used in conjunction with the network token for making a payment.
+	//
+	// Read Only: true
+	Cryptogram string `json:"cryptogram,omitempty"`
+
+	// Two-digit month in which the network token expires.
+	//
+	// Format: `MM`.
+	//
+	// Valid values: `01` through `12`.
+	//
+	// Read Only: true
+	// Max Length: 2
+	ExpirationMonth string `json:"expirationMonth,omitempty"`
+
+	// Four-digit year in which the network token expires.
+	//
+	// Format: `YYYY`.
+	//
+	// Read Only: true
+	// Max Length: 4
+	ExpirationYear string `json:"expirationYear,omitempty"`
+
+	// The token requestors customer’s payment network token
+	//
+	// Read Only: true
+	Number string `json:"number,omitempty"`
+
+	// Issuers state for the network token
+	// Valid values:
+	// - ACTIVE
+	// - SUSPENDED : This state can change to ACTIVE or DELETED.
+	// - DELETED : This is a final state for the network token.
+	//
+	// Read Only: true
+	State string `json:"state,omitempty"`
+
+	// The network token card association brand
+	// Valid values:
+	// - visa
+	// - mastercard
+	//
+	// Read Only: true
+	Type string `json:"type,omitempty"`
+}
+
+// Validate validates this instrument identifier tokenized card
+func (m *InstrumentIdentifierTokenizedCard) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.validateCard(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateExpirationMonth(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateExpirationYear(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *InstrumentIdentifierTokenizedCard) validateCard(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Card) { // not required
+		return nil
+	}
+
+	if m.Card != nil {
+		if err := m.Card.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("tokenizedCard" + "." + "card")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *InstrumentIdentifierTokenizedCard) validateExpirationMonth(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.ExpirationMonth) { // not required
+		return nil
+	}
+
+	if err := validate.MaxLength("tokenizedCard"+"."+"expirationMonth", "body", string(m.ExpirationMonth), 2); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *InstrumentIdentifierTokenizedCard) validateExpirationYear(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.ExpirationYear) { // not required
+		return nil
+	}
+
+	if err := validate.MaxLength("tokenizedCard"+"."+"expirationYear", "body", string(m.ExpirationYear), 4); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (m *InstrumentIdentifierTokenizedCard) MarshalBinary() ([]byte, error) {
+	if m == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(m)
+}
+
+// UnmarshalBinary interface implementation
+func (m *InstrumentIdentifierTokenizedCard) UnmarshalBinary(b []byte) error {
+	var res InstrumentIdentifierTokenizedCard
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*m = res
+	return nil
+}
+
+// InstrumentIdentifierTokenizedCardCard The latest card details associated with the network token
+//
+// swagger:model InstrumentIdentifierTokenizedCardCard
+type InstrumentIdentifierTokenizedCardCard struct {
+
+	//
+	// Two-digit month in which the customer’s latest payment card expires.
+	//
+	// Format: `MM`.
+	//
+	// Valid values: `01` through `12`.
+	//
+	// Read Only: true
+	// Max Length: 2
+	ExpirationMonth string `json:"expirationMonth,omitempty"`
+
+	// Four-digit year in which the customer’s latest payment card expires.
+	//
+	// Format: `YYYY`.
+	//
+	// Read Only: true
+	// Max Length: 4
+	ExpirationYear string `json:"expirationYear,omitempty"`
+
+	// The customer’s latest payment card number suffix
+	//
+	// Read Only: true
+	Suffix string `json:"suffix,omitempty"`
+}
+
+// Validate validates this instrument identifier tokenized card card
+func (m *InstrumentIdentifierTokenizedCardCard) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.validateExpirationMonth(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateExpirationYear(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *InstrumentIdentifierTokenizedCardCard) validateExpirationMonth(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.ExpirationMonth) { // not required
+		return nil
+	}
+
+	if err := validate.MaxLength("tokenizedCard"+"."+"card"+"."+"expirationMonth", "body", string(m.ExpirationMonth), 2); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *InstrumentIdentifierTokenizedCardCard) validateExpirationYear(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.ExpirationYear) { // not required
+		return nil
+	}
+
+	if err := validate.MaxLength("tokenizedCard"+"."+"card"+"."+"expirationYear", "body", string(m.ExpirationYear), 4); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (m *InstrumentIdentifierTokenizedCardCard) MarshalBinary() ([]byte, error) {
+	if m == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(m)
+}
+
+// UnmarshalBinary interface implementation
+func (m *InstrumentIdentifierTokenizedCardCard) UnmarshalBinary(b []byte) error {
+	var res InstrumentIdentifierTokenizedCardCard
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

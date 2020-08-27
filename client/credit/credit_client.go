@@ -9,12 +9,11 @@ import (
 	"fmt"
 
 	"github.com/go-openapi/runtime"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 )
 
 // New creates a new credit API client.
-func New(transport runtime.ClientTransport, formats strfmt.Registry) *Client {
+func New(transport runtime.ClientTransport, formats strfmt.Registry) ClientService {
 	return &Client{transport: transport, formats: formats}
 }
 
@@ -26,10 +25,17 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
-/*
-CreateCredit processes a credit
+// ClientService is the interface for Client methods
+type ClientService interface {
+	CreateCredit(params *CreateCreditParams) (*CreateCreditCreated, error)
 
-POST to the credit resource to credit funds to a specified credit card.
+	SetTransport(transport runtime.ClientTransport)
+}
+
+/*
+  CreateCredit processes a credit
+
+  POST to the credit resource to credit funds to a specified credit card.
 */
 func (a *Client) CreateCredit(params *CreateCreditParams) (*CreateCreditCreated, error) {
 	// TODO: Validate the params before sending
@@ -40,8 +46,8 @@ func (a *Client) CreateCredit(params *CreateCreditParams) (*CreateCreditCreated,
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "createCredit",
 		Method:             "POST",
-		PathPattern:        "/pts/v2/credits/",
-		ProducesMediaTypes: []string{"application/json;charset=utf-8"},
+		PathPattern:        "/pts/v2/credits",
+		ProducesMediaTypes: []string{"application/hal+json;charset=utf-8"},
 		ConsumesMediaTypes: []string{"application/json;charset=utf-8"},
 		Schemes:            []string{"https"},
 		Params:             params,

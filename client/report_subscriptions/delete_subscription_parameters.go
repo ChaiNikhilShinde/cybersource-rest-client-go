@@ -13,8 +13,7 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	cr "github.com/go-openapi/runtime/client"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 )
 
 // NewDeleteSubscriptionParams creates a new DeleteSubscriptionParams object
@@ -61,6 +60,11 @@ for the delete subscription operation typically these are written to a http.Requ
 */
 type DeleteSubscriptionParams struct {
 
+	/*OrganizationID
+	  Valid Cybersource Organization Id
+
+	*/
+	OrganizationID *string
 	/*ReportName
 	  Name of the Report to Delete
 
@@ -105,6 +109,17 @@ func (o *DeleteSubscriptionParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
+// WithOrganizationID adds the organizationID to the delete subscription params
+func (o *DeleteSubscriptionParams) WithOrganizationID(organizationID *string) *DeleteSubscriptionParams {
+	o.SetOrganizationID(organizationID)
+	return o
+}
+
+// SetOrganizationID adds the organizationId to the delete subscription params
+func (o *DeleteSubscriptionParams) SetOrganizationID(organizationID *string) {
+	o.OrganizationID = organizationID
+}
+
 // WithReportName adds the reportName to the delete subscription params
 func (o *DeleteSubscriptionParams) WithReportName(reportName string) *DeleteSubscriptionParams {
 	o.SetReportName(reportName)
@@ -123,6 +138,22 @@ func (o *DeleteSubscriptionParams) WriteToRequest(r runtime.ClientRequest, reg s
 		return err
 	}
 	var res []error
+
+	if o.OrganizationID != nil {
+
+		// query param organizationId
+		var qrOrganizationID string
+		if o.OrganizationID != nil {
+			qrOrganizationID = *o.OrganizationID
+		}
+		qOrganizationID := qrOrganizationID
+		if qOrganizationID != "" {
+			if err := r.SetQueryParam("organizationId", qOrganizationID); err != nil {
+				return err
+			}
+		}
+
+	}
 
 	// path param reportName
 	if err := r.SetPathParam("reportName", o.ReportName); err != nil {

@@ -12,10 +12,9 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
-
-	strfmt "github.com/go-openapi/strfmt"
 )
 
 // GetSubscriptionReader is a Reader for the GetSubscription structure.
@@ -46,7 +45,7 @@ func (o *GetSubscriptionReader) ReadResponse(response runtime.ClientResponse, co
 		return nil, result
 
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
 	}
 }
 
@@ -147,7 +146,7 @@ type GetSubscriptionBadRequestBody struct {
 	// Error field list
 	//
 	// Required: true
-	Details []*DetailsItems0 `json:"details"`
+	Details []*GetSubscriptionBadRequestBodyDetailsItems0 `json:"details"`
 
 	// Short descriptive message to the user.
 	//
@@ -266,7 +265,45 @@ func (o *GetSubscriptionBadRequestBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetSubscriptionOKBody reportingV3ReportsSbscriptionsNameGet200Response
+/*GetSubscriptionBadRequestBodyDetailsItems0 Provides failed validation input field detail
+//
+swagger:model GetSubscriptionBadRequestBodyDetailsItems0
+*/
+type GetSubscriptionBadRequestBodyDetailsItems0 struct {
+
+	// Field in request that caused an error
+	//
+	Field string `json:"field,omitempty"`
+
+	// Documented reason code
+	//
+	Reason string `json:"reason,omitempty"`
+}
+
+// Validate validates this get subscription bad request body details items0
+func (o *GetSubscriptionBadRequestBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetSubscriptionBadRequestBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetSubscriptionBadRequestBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res GetSubscriptionBadRequestBodyDetailsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*GetSubscriptionOKBody reportingV3ReportsSubscriptionsNameGet200Response
 //
 // Subscription Details
 swagger:model GetSubscriptionOKBody
@@ -292,14 +329,25 @@ type GetSubscriptionOKBody struct {
 	ReportFilters map[string][]string `json:"reportFilters,omitempty"`
 
 	// 'Report Frequency'
+	// **NOTE: Do not document USER_DEFINED Frequency field in developer center**
 	//
 	// Valid values:
 	// - DAILY
 	// - WEEKLY
 	// - MONTHLY
-	// - ADHOC
+	// - USER_DEFINED
 	//
 	ReportFrequency string `json:"reportFrequency,omitempty"`
+
+	// If the reportFrequency is User-defined, reportInterval should be in **ISO 8601 time format**
+	// Please refer the following link to know more about ISO 8601 format.[Rfc Time Format](https://en.wikipedia.org/wiki/ISO_8601#Durations)
+	//
+	// **Example time format for 2 hours and 30 Mins:**
+	//   - PT2H30M
+	// **NOTE: Do not document reportInterval field in developer center**
+	//
+	// Pattern: ^PT((([1-9]|1[0-9]|2[0-3])H(([1-9]|[1-4][0-9]|5[0-9])M)?)|((([1-9]|1[0-9]|2[0-3])H)?([1-9]|[1-4][0-9]|5[0-9])M))$
+	ReportInterval string `json:"reportInterval,omitempty"`
 
 	// Report Format
 	//
@@ -330,6 +378,10 @@ type GetSubscriptionOKBody struct {
 func (o *GetSubscriptionOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := o.validateReportInterval(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := o.validateReportPreferences(formats); err != nil {
 		res = append(res, err)
 	}
@@ -341,6 +393,19 @@ func (o *GetSubscriptionOKBody) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (o *GetSubscriptionOKBody) validateReportInterval(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.ReportInterval) { // not required
+		return nil
+	}
+
+	if err := validate.Pattern("getSubscriptionOK"+"."+"reportInterval", "body", string(o.ReportInterval), `^PT((([1-9]|1[0-9]|2[0-3])H(([1-9]|[1-4][0-9]|5[0-9])M)?)|((([1-9]|1[0-9]|2[0-3])H)?([1-9]|[1-4][0-9]|5[0-9])M))$`); err != nil {
+		return err
+	}
+
 	return nil
 }
 

@@ -12,10 +12,9 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
-
-	strfmt "github.com/go-openapi/strfmt"
 )
 
 // VoidCaptureReader is a Reader for the VoidCapture structure.
@@ -46,7 +45,7 @@ func (o *VoidCaptureReader) ReadResponse(response runtime.ClientResponse, consum
 		return nil, result
 
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
 	}
 }
 
@@ -149,46 +148,6 @@ func (o *VoidCaptureBadGateway) readResponse(response runtime.ClientResponse, co
 	return nil
 }
 
-/*DetailsItems0 details items0
-swagger:model DetailsItems0
-*/
-type DetailsItems0 struct {
-
-	// This is the flattened JSON object field name/path that is either missing or invalid.
-	Field string `json:"field,omitempty"`
-
-	// Possible reasons for the error.
-	//
-	// Possible values:
-	//  - MISSING_FIELD
-	//  - INVALID_DATA
-	//
-	Reason string `json:"reason,omitempty"`
-}
-
-// Validate validates this details items0
-func (o *DetailsItems0) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *DetailsItems0) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *DetailsItems0) UnmarshalBinary(b []byte) error {
-	var res DetailsItems0
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
 /*VoidCaptureBadGatewayBody ptsV2CapturesVoidsPost502Response
 swagger:model VoidCaptureBadGatewayBody
 */
@@ -203,7 +162,6 @@ type VoidCaptureBadGatewayBody struct {
 	//  - SYSTEM_ERROR
 	//  - SERVER_TIMEOUT
 	//  - SERVICE_TIMEOUT
-	//  - INVALID_OR_MISSING_CONFIG
 	//
 	Reason string `json:"reason,omitempty"`
 
@@ -215,8 +173,15 @@ type VoidCaptureBadGatewayBody struct {
 	Status string `json:"status,omitempty"`
 
 	// Time of request in UTC. Format: `YYYY-MM-DDThh:mm:ssZ`
-	// Example `2016-08-11T22:47:57Z` equals August 11, 2016, at 22:47:57 (10:47:57 p.m.). The `T` separates the date and the
-	// time. The `Z` indicates UTC.
+	// **Example** `2016-08-11T22:47:57Z` equals August 11, 2016, at 22:47:57 (10:47:57 p.m.).
+	// The `T` separates the date and the time. The `Z` indicates UTC.
+	//
+	// Returned by authorization service.
+	//
+	// #### PIN debit
+	// Time when the PIN debit credit, PIN debit purchase or PIN debit reversal was requested.
+	//
+	// Returned by PIN debit credit, PIN debit purchase or PIN debit reversal.
 	//
 	SubmitTimeUtc string `json:"submitTimeUtc,omitempty"`
 }
@@ -250,7 +215,7 @@ swagger:model VoidCaptureBadRequestBody
 type VoidCaptureBadRequestBody struct {
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*VoidCaptureBadRequestBodyDetailsItems0 `json:"details"`
 
 	// The detail message related to the status and reason listed above.
 	Message string `json:"message,omitempty"`
@@ -274,8 +239,15 @@ type VoidCaptureBadRequestBody struct {
 	Status string `json:"status,omitempty"`
 
 	// Time of request in UTC. Format: `YYYY-MM-DDThh:mm:ssZ`
-	// Example `2016-08-11T22:47:57Z` equals August 11, 2016, at 22:47:57 (10:47:57 p.m.). The `T` separates the date and the
-	// time. The `Z` indicates UTC.
+	// **Example** `2016-08-11T22:47:57Z` equals August 11, 2016, at 22:47:57 (10:47:57 p.m.).
+	// The `T` separates the date and the time. The `Z` indicates UTC.
+	//
+	// Returned by authorization service.
+	//
+	// #### PIN debit
+	// Time when the PIN debit credit, PIN debit purchase or PIN debit reversal was requested.
+	//
+	// Returned by PIN debit credit, PIN debit purchase or PIN debit reversal.
 	//
 	SubmitTimeUtc string `json:"submitTimeUtc,omitempty"`
 }
@@ -337,6 +309,46 @@ func (o *VoidCaptureBadRequestBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
+/*VoidCaptureBadRequestBodyDetailsItems0 void capture bad request body details items0
+swagger:model VoidCaptureBadRequestBodyDetailsItems0
+*/
+type VoidCaptureBadRequestBodyDetailsItems0 struct {
+
+	// This is the flattened JSON object field name/path that is either missing or invalid.
+	Field string `json:"field,omitempty"`
+
+	// Possible reasons for the error.
+	//
+	// Possible values:
+	//  - MISSING_FIELD
+	//  - INVALID_DATA
+	//
+	Reason string `json:"reason,omitempty"`
+}
+
+// Validate validates this void capture bad request body details items0
+func (o *VoidCaptureBadRequestBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *VoidCaptureBadRequestBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *VoidCaptureBadRequestBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res VoidCaptureBadRequestBodyDetailsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*VoidCaptureBody void capture body
 swagger:model VoidCaptureBody
 */
@@ -344,6 +356,9 @@ type VoidCaptureBody struct {
 
 	// client reference information
 	ClientReferenceInformation *VoidCaptureParamsBodyClientReferenceInformation `json:"clientReferenceInformation,omitempty"`
+
+	// payment information
+	PaymentInformation *VoidCaptureParamsBodyPaymentInformation `json:"paymentInformation,omitempty"`
 }
 
 // Validate validates this void capture body
@@ -351,6 +366,10 @@ func (o *VoidCaptureBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateClientReferenceInformation(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validatePaymentInformation(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -370,6 +389,24 @@ func (o *VoidCaptureBody) validateClientReferenceInformation(formats strfmt.Regi
 		if err := o.ClientReferenceInformation.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("voidCaptureRequest" + "." + "clientReferenceInformation")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *VoidCaptureBody) validatePaymentInformation(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.PaymentInformation) { // not required
+		return nil
+	}
+
+	if o.PaymentInformation != nil {
+		if err := o.PaymentInformation.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("voidCaptureRequest" + "." + "paymentInformation")
 			}
 			return err
 		}
@@ -407,9 +444,18 @@ type VoidCaptureCreatedBody struct {
 	// client reference information
 	ClientReferenceInformation *VoidCaptureCreatedBodyClientReferenceInformation `json:"clientReferenceInformation,omitempty"`
 
-	// An unique identification number assigned by CyberSource to identify the submitted request. It is also appended to the endpoint of the resource.
+	// An unique identification number to identify the submitted request. It is also appended to the endpoint of the resource.
+	//
+	// On incremental authorizations, this value with be the same as the identification number returned in the original authorization response.
+	//
+	// #### PIN debit
+	// Returned for all PIN debit services.
+	//
 	// Max Length: 26
 	ID string `json:"id,omitempty"`
+
+	// processor information
+	ProcessorInformation *VoidCaptureCreatedBodyProcessorInformation `json:"processorInformation,omitempty"`
 
 	// The status of the submitted transaction.
 	//
@@ -419,8 +465,15 @@ type VoidCaptureCreatedBody struct {
 	Status string `json:"status,omitempty"`
 
 	// Time of request in UTC. Format: `YYYY-MM-DDThh:mm:ssZ`
-	// Example `2016-08-11T22:47:57Z` equals August 11, 2016, at 22:47:57 (10:47:57 p.m.). The `T` separates the date and the
-	// time. The `Z` indicates UTC.
+	// **Example** `2016-08-11T22:47:57Z` equals August 11, 2016, at 22:47:57 (10:47:57 p.m.).
+	// The `T` separates the date and the time. The `Z` indicates UTC.
+	//
+	// Returned by authorization service.
+	//
+	// #### PIN debit
+	// Time when the PIN debit credit, PIN debit purchase or PIN debit reversal was requested.
+	//
+	// Returned by PIN debit credit, PIN debit purchase or PIN debit reversal.
 	//
 	SubmitTimeUtc string `json:"submitTimeUtc,omitempty"`
 
@@ -441,6 +494,10 @@ func (o *VoidCaptureCreatedBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateProcessorInformation(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -503,6 +560,24 @@ func (o *VoidCaptureCreatedBody) validateID(formats strfmt.Registry) error {
 	return nil
 }
 
+func (o *VoidCaptureCreatedBody) validateProcessorInformation(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.ProcessorInformation) { // not required
+		return nil
+	}
+
+	if o.ProcessorInformation != nil {
+		if err := o.ProcessorInformation.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("voidCaptureCreated" + "." + "processorInformation")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (o *VoidCaptureCreatedBody) validateVoidAmountDetails(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.VoidAmountDetails) { // not required
@@ -544,10 +619,18 @@ swagger:model VoidCaptureCreatedBodyClientReferenceInformation
 */
 type VoidCaptureCreatedBodyClientReferenceInformation struct {
 
-	// Client-generated order reference or tracking number. CyberSource recommends that you send a unique value for each
+	// Merchant-generated order reference or tracking number. It is recommended that you send a unique value for each
 	// transaction so that you can perform meaningful searches for the transaction.
 	//
-	// For information about tracking orders, see "Tracking and Reconciling Your Orders" in [Getting Started with CyberSource Advanced for the SCMP API.](https://apps.cybersource.com/library/documentation/dev_guides/Getting_Started_SCMP/html/wwhelp/wwhimpl/js/html/wwhelp.htm)
+	// #### Used by
+	// **Authorization**
+	// Required field.
+	//
+	// #### PIN Debit
+	// Requests for PIN debit reversals need to use the same merchant reference number that was used in the transaction that is being
+	// reversed.
+	//
+	// Required field for all PIN Debit requests (purchase, credit, and reversal).
 	//
 	// #### FDC Nashville Global
 	// Certain circumstances can cause the processor to truncate this value to 15 or 17 characters for Level II and Level III processing, which can cause a discrepancy between the value you submit and the value included in some processor reports.
@@ -563,13 +646,14 @@ type VoidCaptureCreatedBodyClientReferenceInformation struct {
 	// If your CyberSource account is enabled for Payment Tokenization, this field is returned only if you are using
 	// profile sharing and if your merchant ID is in the same merchant ID pool as the owner merchant ID.
 	//
-	// For details about how this field is used for Recurring Billing or Payment Tokenization, see the `ecp_debit_owner_merchant_id` field description in the [Electronic Check Services Using the SCMP API Guide.](https://apps.cybersource.com/library/documentation/dev_guides/EChecks_SCMP_API/html/wwhelp/wwhimpl/js/html/wwhelp.htm)
-	//
 	OwnerMerchantID string `json:"ownerMerchantId,omitempty"`
 
 	// Date and time at your physical location.
 	//
 	// Format: `YYYYMMDDhhmmss`, where YYYY = year, MM = month, DD = day, hh = hour, mm = minutes ss = seconds
+	//
+	// #### PIN Debit
+	// Optional field for PIN Debit purchase and credit requests.
 	//
 	// Max Length: 14
 	SubmitLocalDateTime string `json:"submitLocalDateTime,omitempty"`
@@ -731,19 +815,123 @@ func (o *VoidCaptureCreatedBodyLinksSelf) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
+/*VoidCaptureCreatedBodyProcessorInformation void capture created body processor information
+swagger:model VoidCaptureCreatedBodyProcessorInformation
+*/
+type VoidCaptureCreatedBodyProcessorInformation struct {
+
+	// For most processors, this is the error message sent directly from the bank. Returned only when the processor
+	// returns this value.
+	//
+	// **Important** Do not use this field to evaluate the result of the authorization.
+	//
+	// #### PIN debit
+	// Response value that is returned by the processor or bank.
+	// **Important** Do not use this field to evaluate the results of the transaction request.
+	//
+	// Returned by PIN debit credit, PIN debit purchase, and PIN debit reversal.
+	//
+	// #### AIBMS
+	// If this value is `08`, you can accept the transaction if the customer provides you with identification.
+	//
+	// #### Atos
+	// This value is the response code sent from Atos and it might also include the response code from the bank.
+	// Format: `aa,bb` with the two values separated by a comma and where:
+	// - `aa` is the two-digit error message from Atos.
+	// - `bb` is the optional two-digit error message from the bank.
+	//
+	// #### Comercio Latino
+	// This value is the status code and the error or response code received from the processor separated by a colon.
+	// Format: [status code]:E[error code] or [status code]:R[response code]
+	// Example `2:R06`
+	//
+	// #### JCN Gateway
+	// Processor-defined detail error code. The associated response category code is in the `processorInformation.responseCategoryCode` field.
+	// String (3)
+	//
+	// Max Length: 10
+	ResponseCode string `json:"responseCode,omitempty"`
+}
+
+// Validate validates this void capture created body processor information
+func (o *VoidCaptureCreatedBodyProcessorInformation) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateResponseCode(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *VoidCaptureCreatedBodyProcessorInformation) validateResponseCode(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.ResponseCode) { // not required
+		return nil
+	}
+
+	if err := validate.MaxLength("voidCaptureCreated"+"."+"processorInformation"+"."+"responseCode", "body", string(o.ResponseCode), 10); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *VoidCaptureCreatedBodyProcessorInformation) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *VoidCaptureCreatedBodyProcessorInformation) UnmarshalBinary(b []byte) error {
+	var res VoidCaptureCreatedBodyProcessorInformation
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*VoidCaptureCreatedBodyVoidAmountDetails void capture created body void amount details
 swagger:model VoidCaptureCreatedBodyVoidAmountDetails
 */
 type VoidCaptureCreatedBodyVoidAmountDetails struct {
 
-	// Currency used for the order. Use the three-character I[ISO Standard Currency Codes.](http://apps.cybersource.com/library/documentation/sbc/quickref/currencies.pdf)
+	// Currency used for the order. Use the three-character [ISO Standard Currency Codes.](http://apps.cybersource.com/library/documentation/sbc/quickref/currencies.pdf)
 	//
-	// For details about currency as used in partial authorizations, see "Features for Debit Cards and Prepaid Cards" in the [Credit Card Services Using the SCMP API Guide](https://apps.cybersource.com/library/documentation/dev_guides/CC_Svcs_SCMP_API/html/wwhelp/wwhimpl/js/html/wwhelp.htm)
+	// #### Used by
+	// **Authorization**
+	// Required field.
 	//
+	// **Authorization Reversal**
 	// For an authorization reversal (`reversalInformation`) or a capture (`processingOptions.capture` is set to `true`), you must use the same currency that you used in your payment authorization request.
+	//
+	// #### PIN Debit
+	// Currency for the amount you requested for the PIN debit purchase. This value is returned for partial authorizations. The issuing bank can approve a partial amount if the balance on the debit card is less than the requested transaction amount. For the possible values, see the [ISO Standard Currency Codes](https://developer.cybersource.com/library/documentation/sbc/quickref/currencies.pdf).
+	// Returned by PIN debit purchase.
+	//
+	// For PIN debit reversal requests, you must use the same currency that was used for the PIN debit purchase or PIN debit credit that you are reversing.
+	// For the possible values, see the [ISO Standard Currency Codes](https://developer.cybersource.com/library/documentation/sbc/quickref/currencies.pdf).
+	//
+	// Required field for PIN Debit purchase and PIN Debit credit requests.
+	// Optional field for PIN Debit reversal requests.
+	//
+	// #### GPX
+	// This field is optional for reversing an authorization or credit.
 	//
 	// #### DCC for First Data
 	// Your local currency. For details, see the `currency` field description in [Dynamic Currency Conversion For First Data Using the SCMP API](http://apps.cybersource.com/library/documentation/dev_guides/DCC_FirstData_SCMP/DCC_FirstData_SCMP_API.pdf).
+	//
+	// #### Tax Calculation
+	// Required for international tax and value added tax only.
+	// Optional for U.S. and Canadian taxes.
+	// Your local currency.
 	//
 	// Max Length: 3
 	Currency string `json:"currency,omitempty"`
@@ -752,6 +940,12 @@ type VoidCaptureCreatedBodyVoidAmountDetails struct {
 	OriginalTransactionAmount string `json:"originalTransactionAmount,omitempty"`
 
 	// Total amount of the void.
+	//
+	// #### PIN Debit
+	// Amount of the reversal.
+	//
+	// Returned by PIN debit reversal.
+	//
 	VoidAmount string `json:"voidAmount,omitempty"`
 }
 
@@ -805,10 +999,30 @@ swagger:model VoidCaptureParamsBodyClientReferenceInformation
 */
 type VoidCaptureParamsBodyClientReferenceInformation struct {
 
-	// Client-generated order reference or tracking number. CyberSource recommends that you send a unique value for each
+	// The name of the Connection Method client (such as Virtual Terminal or SOAP Toolkit API) that the merchant uses to send a transaction request to CyberSource.
+	//
+	ApplicationName string `json:"applicationName,omitempty"`
+
+	// The entity that is responsible for running the transaction and submitting the processing request to CyberSource. This could be a person, a system, or a connection method.
+	//
+	ApplicationUser string `json:"applicationUser,omitempty"`
+
+	// Version of the CyberSource application or integration used for a transaction.
+	//
+	ApplicationVersion string `json:"applicationVersion,omitempty"`
+
+	// Merchant-generated order reference or tracking number. It is recommended that you send a unique value for each
 	// transaction so that you can perform meaningful searches for the transaction.
 	//
-	// For information about tracking orders, see "Tracking and Reconciling Your Orders" in [Getting Started with CyberSource Advanced for the SCMP API.](https://apps.cybersource.com/library/documentation/dev_guides/Getting_Started_SCMP/html/wwhelp/wwhimpl/js/html/wwhelp.htm)
+	// #### Used by
+	// **Authorization**
+	// Required field.
+	//
+	// #### PIN Debit
+	// Requests for PIN debit reversals need to use the same merchant reference number that was used in the transaction that is being
+	// reversed.
+	//
+	// Required field for all PIN Debit requests (purchase, credit, and reversal).
 	//
 	// #### FDC Nashville Global
 	// Certain circumstances can cause the processor to truncate this value to 15 or 17 characters for Level II and Level III processing, which can cause a discrepancy between the value you submit and the value included in some processor reports.
@@ -909,10 +1123,24 @@ type VoidCaptureParamsBodyClientReferenceInformationPartner struct {
 	//
 	// Send this value in all requests that are sent through the partner solution. CyberSource assigns the ID to the partner.
 	//
-	// **Note** When you see a partner ID of 999 in reports, the partner ID that was submitted is incorrect.
+	// **Note** When you see a solutionId of 999 in reports, the solutionId that was submitted is incorrect.
 	//
 	// Max Length: 8
 	SolutionID string `json:"solutionId,omitempty"`
+
+	// Value that identifies the application vendor and application version for a third party gateway.
+	// CyberSource provides you with this value during testing and validation.
+	// This field is supported only on CyberSource through VisaNet.
+	//
+	// #### Used by
+	// **Authorization, Authorization Reversal, Capture, Credit, Incremental Authorization, and Void**
+	// Optional field.
+	//
+	// #### PIN debit
+	// Required field for PIN debit credit, PIN debit purchase, or PIN debit reversal request.
+	//
+	// Max Length: 12
+	ThirdPartyCertificationNumber string `json:"thirdPartyCertificationNumber,omitempty"`
 }
 
 // Validate validates this void capture params body client reference information partner
@@ -924,6 +1152,10 @@ func (o *VoidCaptureParamsBodyClientReferenceInformationPartner) Validate(format
 	}
 
 	if err := o.validateSolutionID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateThirdPartyCertificationNumber(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -959,6 +1191,19 @@ func (o *VoidCaptureParamsBodyClientReferenceInformationPartner) validateSolutio
 	return nil
 }
 
+func (o *VoidCaptureParamsBodyClientReferenceInformationPartner) validateThirdPartyCertificationNumber(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.ThirdPartyCertificationNumber) { // not required
+		return nil
+	}
+
+	if err := validate.MaxLength("voidCaptureRequest"+"."+"clientReferenceInformation"+"."+"partner"+"."+"thirdPartyCertificationNumber", "body", string(o.ThirdPartyCertificationNumber), 12); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *VoidCaptureParamsBodyClientReferenceInformationPartner) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -970,6 +1215,171 @@ func (o *VoidCaptureParamsBodyClientReferenceInformationPartner) MarshalBinary()
 // UnmarshalBinary interface implementation
 func (o *VoidCaptureParamsBodyClientReferenceInformationPartner) UnmarshalBinary(b []byte) error {
 	var res VoidCaptureParamsBodyClientReferenceInformationPartner
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*VoidCaptureParamsBodyPaymentInformation void capture params body payment information
+swagger:model VoidCaptureParamsBodyPaymentInformation
+*/
+type VoidCaptureParamsBodyPaymentInformation struct {
+
+	// payment type
+	PaymentType *VoidCaptureParamsBodyPaymentInformationPaymentType `json:"paymentType,omitempty"`
+}
+
+// Validate validates this void capture params body payment information
+func (o *VoidCaptureParamsBodyPaymentInformation) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validatePaymentType(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *VoidCaptureParamsBodyPaymentInformation) validatePaymentType(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.PaymentType) { // not required
+		return nil
+	}
+
+	if o.PaymentType != nil {
+		if err := o.PaymentType.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("voidCaptureRequest" + "." + "paymentInformation" + "." + "paymentType")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *VoidCaptureParamsBodyPaymentInformation) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *VoidCaptureParamsBodyPaymentInformation) UnmarshalBinary(b []byte) error {
+	var res VoidCaptureParamsBodyPaymentInformation
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*VoidCaptureParamsBodyPaymentInformationPaymentType void capture params body payment information payment type
+swagger:model VoidCaptureParamsBodyPaymentInformationPaymentType
+*/
+type VoidCaptureParamsBodyPaymentInformationPaymentType struct {
+
+	// method
+	Method *VoidCaptureParamsBodyPaymentInformationPaymentTypeMethod `json:"method,omitempty"`
+
+	// A Payment Type is an agreed means for a payee to receive legal tender from a payer. The way one pays for a commercial financial transaction. Examples: Card, Bank Transfer, Digital, Direct Debit.
+	// Possible values:
+	// - `CARD` (use this for a PIN debit transaction)
+	// - `CHECK` (use this for all eCheck payment transactions - ECP Debit, ECP Follow-on Credit, ECP StandAlone Credit)
+	//
+	Name string `json:"name,omitempty"`
+
+	// Detailed information about the Payment Type. Possible values:
+	// - `DEBIT`: Use this value to indicate a PIN debit transaction.
+	//
+	// Examples: For Card, if Credit or Debit or PrePaid. For Bank Transfer, if Online Bank Transfer or Wire Transfers.
+	//
+	SubTypeName string `json:"subTypeName,omitempty"`
+}
+
+// Validate validates this void capture params body payment information payment type
+func (o *VoidCaptureParamsBodyPaymentInformationPaymentType) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateMethod(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *VoidCaptureParamsBodyPaymentInformationPaymentType) validateMethod(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Method) { // not required
+		return nil
+	}
+
+	if o.Method != nil {
+		if err := o.Method.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("voidCaptureRequest" + "." + "paymentInformation" + "." + "paymentType" + "." + "method")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *VoidCaptureParamsBodyPaymentInformationPaymentType) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *VoidCaptureParamsBodyPaymentInformationPaymentType) UnmarshalBinary(b []byte) error {
+	var res VoidCaptureParamsBodyPaymentInformationPaymentType
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*VoidCaptureParamsBodyPaymentInformationPaymentTypeMethod void capture params body payment information payment type method
+swagger:model VoidCaptureParamsBodyPaymentInformationPaymentTypeMethod
+*/
+type VoidCaptureParamsBodyPaymentInformationPaymentTypeMethod struct {
+
+	// A Payment Type is enabled through a Method. Examples: Visa, Master Card, ApplePay, iDeal
+	//
+	Name string `json:"name,omitempty"`
+}
+
+// Validate validates this void capture params body payment information payment type method
+func (o *VoidCaptureParamsBodyPaymentInformationPaymentTypeMethod) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *VoidCaptureParamsBodyPaymentInformationPaymentTypeMethod) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *VoidCaptureParamsBodyPaymentInformationPaymentTypeMethod) UnmarshalBinary(b []byte) error {
+	var res VoidCaptureParamsBodyPaymentInformationPaymentTypeMethod
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

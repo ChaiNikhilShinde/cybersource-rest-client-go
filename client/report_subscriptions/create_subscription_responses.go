@@ -12,10 +12,9 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
-
-	strfmt "github.com/go-openapi/strfmt"
 )
 
 // CreateSubscriptionReader is a Reader for the CreateSubscription structure.
@@ -46,7 +45,7 @@ func (o *CreateSubscriptionReader) ReadResponse(response runtime.ClientResponse,
 		return nil, result
 
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
 	}
 }
 
@@ -141,7 +140,7 @@ type CreateSubscriptionBadRequestBody struct {
 	Detail string `json:"detail,omitempty"`
 
 	// Error fields List
-	Fields []*FieldsItems0 `json:"fields"`
+	Fields []*CreateSubscriptionBadRequestBodyFieldsItems0 `json:"fields"`
 
 	// Localization Key Name
 	LocalizationKey string `json:"localizationKey,omitempty"`
@@ -234,6 +233,44 @@ func (o *CreateSubscriptionBadRequestBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
+/*CreateSubscriptionBadRequestBodyFieldsItems0 Provide validation failed input field details
+swagger:model CreateSubscriptionBadRequestBodyFieldsItems0
+*/
+type CreateSubscriptionBadRequestBodyFieldsItems0 struct {
+
+	// Localized Key Name
+	LocalizationKey string `json:"localizationKey,omitempty"`
+
+	// Error description about validation failed field
+	Message string `json:"message,omitempty"`
+
+	// Path of the failed property
+	Path string `json:"path,omitempty"`
+}
+
+// Validate validates this create subscription bad request body fields items0
+func (o *CreateSubscriptionBadRequestBodyFieldsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *CreateSubscriptionBadRequestBodyFieldsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *CreateSubscriptionBadRequestBodyFieldsItems0) UnmarshalBinary(b []byte) error {
+	var res CreateSubscriptionBadRequestBodyFieldsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*CreateSubscriptionBody create subscription body
 swagger:model CreateSubscriptionBody
 */
@@ -262,15 +299,25 @@ type CreateSubscriptionBody struct {
 	ReportFilters map[string][]string `json:"reportFilters,omitempty"`
 
 	// 'The frequency for which subscription is created.'
-	//
-	// Valid values:
-	// - 'DAILY'
-	// - 'WEEKLY'
-	// - 'MONTHLY'
-	// - 'ADHOC'
+	// **NOTE: Do not document USER_DEFINED Frequency field in developer center**
+	// Valid Values:
+	//   - 'DAILY'
+	//   - 'WEEKLY'
+	//   - 'MONTHLY'
+	//   - 'USER_DEFINED'
 	//
 	// Required: true
 	ReportFrequency *string `json:"reportFrequency"`
+
+	// If the reportFrequency is User-defined, reportInterval should be in **ISO 8601 time format**
+	// Please refer the following link to know more about ISO 8601 format.[Rfc Time Format](https://en.wikipedia.org/wiki/ISO_8601#Durations)
+	//
+	// **Example time format for 2 hours and 30 Mins:**
+	//   - PT2H30M
+	// **NOTE: Do not document reportInterval field in developer center**
+	//
+	// Pattern: ^PT((([1-9]|1[0-9]|2[0-3])H(([1-9]|[1-4][0-9]|5[0-9])M)?)|((([1-9]|1[0-9]|2[0-3])H)?([1-9]|[1-4][0-9]|5[0-9])M))$
+	ReportInterval string `json:"reportInterval,omitempty"`
 
 	// Valid values:
 	// - application/xml
@@ -327,6 +374,10 @@ func (o *CreateSubscriptionBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := o.validateReportInterval(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := o.validateReportMimeType(formats); err != nil {
 		res = append(res, err)
 	}
@@ -363,7 +414,7 @@ func (o *CreateSubscriptionBody) validateGroupName(formats strfmt.Registry) erro
 		return nil
 	}
 
-	if err := validate.Pattern("requestBody"+"."+"groupName", "body", string(o.GroupName), `[a-zA-Z0-9-_ ]+`); err != nil {
+	if err := validate.Pattern("createReportSubscriptionRequest"+"."+"groupName", "body", string(o.GroupName), `[a-zA-Z0-9-_ ]+`); err != nil {
 		return err
 	}
 
@@ -376,7 +427,7 @@ func (o *CreateSubscriptionBody) validateOrganizationID(formats strfmt.Registry)
 		return nil
 	}
 
-	if err := validate.Pattern("requestBody"+"."+"organizationId", "body", string(o.OrganizationID), `[a-zA-Z0-9-_]+`); err != nil {
+	if err := validate.Pattern("createReportSubscriptionRequest"+"."+"organizationId", "body", string(o.OrganizationID), `[a-zA-Z0-9-_]+`); err != nil {
 		return err
 	}
 
@@ -385,19 +436,19 @@ func (o *CreateSubscriptionBody) validateOrganizationID(formats strfmt.Registry)
 
 func (o *CreateSubscriptionBody) validateReportDefinitionName(formats strfmt.Registry) error {
 
-	if err := validate.Required("requestBody"+"."+"reportDefinitionName", "body", o.ReportDefinitionName); err != nil {
+	if err := validate.Required("createReportSubscriptionRequest"+"."+"reportDefinitionName", "body", o.ReportDefinitionName); err != nil {
 		return err
 	}
 
-	if err := validate.MinLength("requestBody"+"."+"reportDefinitionName", "body", string(*o.ReportDefinitionName), 1); err != nil {
+	if err := validate.MinLength("createReportSubscriptionRequest"+"."+"reportDefinitionName", "body", string(*o.ReportDefinitionName), 1); err != nil {
 		return err
 	}
 
-	if err := validate.MaxLength("requestBody"+"."+"reportDefinitionName", "body", string(*o.ReportDefinitionName), 80); err != nil {
+	if err := validate.MaxLength("createReportSubscriptionRequest"+"."+"reportDefinitionName", "body", string(*o.ReportDefinitionName), 80); err != nil {
 		return err
 	}
 
-	if err := validate.Pattern("requestBody"+"."+"reportDefinitionName", "body", string(*o.ReportDefinitionName), `[a-zA-Z0-9-]+`); err != nil {
+	if err := validate.Pattern("createReportSubscriptionRequest"+"."+"reportDefinitionName", "body", string(*o.ReportDefinitionName), `[a-zA-Z0-9-]+`); err != nil {
 		return err
 	}
 
@@ -406,7 +457,7 @@ func (o *CreateSubscriptionBody) validateReportDefinitionName(formats strfmt.Reg
 
 func (o *CreateSubscriptionBody) validateReportFields(formats strfmt.Registry) error {
 
-	if err := validate.Required("requestBody"+"."+"reportFields", "body", o.ReportFields); err != nil {
+	if err := validate.Required("createReportSubscriptionRequest"+"."+"reportFields", "body", o.ReportFields); err != nil {
 		return err
 	}
 
@@ -415,7 +466,20 @@ func (o *CreateSubscriptionBody) validateReportFields(formats strfmt.Registry) e
 
 func (o *CreateSubscriptionBody) validateReportFrequency(formats strfmt.Registry) error {
 
-	if err := validate.Required("requestBody"+"."+"reportFrequency", "body", o.ReportFrequency); err != nil {
+	if err := validate.Required("createReportSubscriptionRequest"+"."+"reportFrequency", "body", o.ReportFrequency); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *CreateSubscriptionBody) validateReportInterval(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.ReportInterval) { // not required
+		return nil
+	}
+
+	if err := validate.Pattern("createReportSubscriptionRequest"+"."+"reportInterval", "body", string(o.ReportInterval), `^PT((([1-9]|1[0-9]|2[0-3])H(([1-9]|[1-4][0-9]|5[0-9])M)?)|((([1-9]|1[0-9]|2[0-3])H)?([1-9]|[1-4][0-9]|5[0-9])M))$`); err != nil {
 		return err
 	}
 
@@ -424,7 +488,7 @@ func (o *CreateSubscriptionBody) validateReportFrequency(formats strfmt.Registry
 
 func (o *CreateSubscriptionBody) validateReportMimeType(formats strfmt.Registry) error {
 
-	if err := validate.Required("requestBody"+"."+"reportMimeType", "body", o.ReportMimeType); err != nil {
+	if err := validate.Required("createReportSubscriptionRequest"+"."+"reportMimeType", "body", o.ReportMimeType); err != nil {
 		return err
 	}
 
@@ -433,19 +497,19 @@ func (o *CreateSubscriptionBody) validateReportMimeType(formats strfmt.Registry)
 
 func (o *CreateSubscriptionBody) validateReportName(formats strfmt.Registry) error {
 
-	if err := validate.Required("requestBody"+"."+"reportName", "body", o.ReportName); err != nil {
+	if err := validate.Required("createReportSubscriptionRequest"+"."+"reportName", "body", o.ReportName); err != nil {
 		return err
 	}
 
-	if err := validate.MinLength("requestBody"+"."+"reportName", "body", string(*o.ReportName), 1); err != nil {
+	if err := validate.MinLength("createReportSubscriptionRequest"+"."+"reportName", "body", string(*o.ReportName), 1); err != nil {
 		return err
 	}
 
-	if err := validate.MaxLength("requestBody"+"."+"reportName", "body", string(*o.ReportName), 128); err != nil {
+	if err := validate.MaxLength("createReportSubscriptionRequest"+"."+"reportName", "body", string(*o.ReportName), 128); err != nil {
 		return err
 	}
 
-	if err := validate.Pattern("requestBody"+"."+"reportName", "body", string(*o.ReportName), `[a-zA-Z0-9-_ ]+`); err != nil {
+	if err := validate.Pattern("createReportSubscriptionRequest"+"."+"reportName", "body", string(*o.ReportName), `[a-zA-Z0-9-_ ]+`); err != nil {
 		return err
 	}
 
@@ -461,7 +525,7 @@ func (o *CreateSubscriptionBody) validateReportPreferences(formats strfmt.Regist
 	if o.ReportPreferences != nil {
 		if err := o.ReportPreferences.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("requestBody" + "." + "reportPreferences")
+				return ve.ValidateName("createReportSubscriptionRequest" + "." + "reportPreferences")
 			}
 			return err
 		}
@@ -476,11 +540,11 @@ func (o *CreateSubscriptionBody) validateStartDay(formats strfmt.Registry) error
 		return nil
 	}
 
-	if err := validate.MinimumInt("requestBody"+"."+"startDay", "body", int64(o.StartDay), 1, false); err != nil {
+	if err := validate.MinimumInt("createReportSubscriptionRequest"+"."+"startDay", "body", int64(o.StartDay), 1, false); err != nil {
 		return err
 	}
 
-	if err := validate.MaximumInt("requestBody"+"."+"startDay", "body", int64(o.StartDay), 31, false); err != nil {
+	if err := validate.MaximumInt("createReportSubscriptionRequest"+"."+"startDay", "body", int64(o.StartDay), 31, false); err != nil {
 		return err
 	}
 
@@ -489,7 +553,7 @@ func (o *CreateSubscriptionBody) validateStartDay(formats strfmt.Registry) error
 
 func (o *CreateSubscriptionBody) validateStartTime(formats strfmt.Registry) error {
 
-	if err := validate.Required("requestBody"+"."+"startTime", "body", o.StartTime); err != nil {
+	if err := validate.Required("createReportSubscriptionRequest"+"."+"startTime", "body", o.StartTime); err != nil {
 		return err
 	}
 
@@ -498,7 +562,7 @@ func (o *CreateSubscriptionBody) validateStartTime(formats strfmt.Registry) erro
 
 func (o *CreateSubscriptionBody) validateTimezone(formats strfmt.Registry) error {
 
-	if err := validate.Required("requestBody"+"."+"timezone", "body", o.Timezone); err != nil {
+	if err := validate.Required("createReportSubscriptionRequest"+"."+"timezone", "body", o.Timezone); err != nil {
 		return err
 	}
 
@@ -556,44 +620,6 @@ func (o *CreateSubscriptionParamsBodyReportPreferences) MarshalBinary() ([]byte,
 // UnmarshalBinary interface implementation
 func (o *CreateSubscriptionParamsBodyReportPreferences) UnmarshalBinary(b []byte) error {
 	var res CreateSubscriptionParamsBodyReportPreferences
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*FieldsItems0 Provide validation failed input field details
-swagger:model FieldsItems0
-*/
-type FieldsItems0 struct {
-
-	// Localized Key Name
-	LocalizationKey string `json:"localizationKey,omitempty"`
-
-	// Error description about validation failed field
-	Message string `json:"message,omitempty"`
-
-	// Path of the failed property
-	Path string `json:"path,omitempty"`
-}
-
-// Validate validates this fields items0
-func (o *FieldsItems0) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *FieldsItems0) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *FieldsItems0) UnmarshalBinary(b []byte) error {
-	var res FieldsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

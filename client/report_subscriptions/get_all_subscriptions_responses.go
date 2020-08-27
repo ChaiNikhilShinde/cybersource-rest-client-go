@@ -12,10 +12,9 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
-
-	strfmt "github.com/go-openapi/strfmt"
 )
 
 // GetAllSubscriptionsReader is a Reader for the GetAllSubscriptions structure.
@@ -46,7 +45,7 @@ func (o *GetAllSubscriptionsReader) ReadResponse(response runtime.ClientResponse
 		return nil, result
 
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
 	}
 }
 
@@ -147,7 +146,7 @@ type GetAllSubscriptionsBadRequestBody struct {
 	// Error field list
 	//
 	// Required: true
-	Details []*DetailsItems0 `json:"details"`
+	Details []*GetAllSubscriptionsBadRequestBodyDetailsItems0 `json:"details"`
 
 	// Short descriptive message to the user.
 	//
@@ -266,13 +265,51 @@ func (o *GetAllSubscriptionsBadRequestBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
+/*GetAllSubscriptionsBadRequestBodyDetailsItems0 Provides failed validation input field detail
+//
+swagger:model GetAllSubscriptionsBadRequestBodyDetailsItems0
+*/
+type GetAllSubscriptionsBadRequestBodyDetailsItems0 struct {
+
+	// Field in request that caused an error
+	//
+	Field string `json:"field,omitempty"`
+
+	// Documented reason code
+	//
+	Reason string `json:"reason,omitempty"`
+}
+
+// Validate validates this get all subscriptions bad request body details items0
+func (o *GetAllSubscriptionsBadRequestBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetAllSubscriptionsBadRequestBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetAllSubscriptionsBadRequestBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res GetAllSubscriptionsBadRequestBodyDetailsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*GetAllSubscriptionsOKBody reportingV3ReportSubscriptionsGet200Response
 swagger:model GetAllSubscriptionsOKBody
 */
 type GetAllSubscriptionsOKBody struct {
 
 	// subscriptions
-	Subscriptions []*SubscriptionsItems0 `json:"subscriptions"`
+	Subscriptions []*GetAllSubscriptionsOKBodySubscriptionsItems0 `json:"subscriptions"`
 }
 
 // Validate validates this get all subscriptions o k body
@@ -332,10 +369,10 @@ func (o *GetAllSubscriptionsOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*SubscriptionsItems0 Subscription Details
-swagger:model SubscriptionsItems0
+/*GetAllSubscriptionsOKBodySubscriptionsItems0 Subscription Details
+swagger:model GetAllSubscriptionsOKBodySubscriptionsItems0
 */
-type SubscriptionsItems0 struct {
+type GetAllSubscriptionsOKBodySubscriptionsItems0 struct {
 
 	// Id for the selected group.
 	GroupID string `json:"groupId,omitempty"`
@@ -356,14 +393,25 @@ type SubscriptionsItems0 struct {
 	ReportFilters map[string][]string `json:"reportFilters,omitempty"`
 
 	// 'Report Frequency'
+	// **NOTE: Do not document USER_DEFINED Frequency field in developer center**
 	//
 	// Valid values:
 	// - DAILY
 	// - WEEKLY
 	// - MONTHLY
-	// - ADHOC
+	// - USER_DEFINED
 	//
 	ReportFrequency string `json:"reportFrequency,omitempty"`
+
+	// If the reportFrequency is User-defined, reportInterval should be in **ISO 8601 time format**
+	// Please refer the following link to know more about ISO 8601 format.[Rfc Time Format](https://en.wikipedia.org/wiki/ISO_8601#Durations)
+	//
+	// **Example time format for 2 hours and 30 Mins:**
+	//   - PT2H30M
+	// **NOTE: Do not document reportInterval field in developer center**
+	//
+	// Pattern: ^PT((([1-9]|1[0-9]|2[0-3])H(([1-9]|[1-4][0-9]|5[0-9])M)?)|((([1-9]|1[0-9]|2[0-3])H)?([1-9]|[1-4][0-9]|5[0-9])M))$
+	ReportInterval string `json:"reportInterval,omitempty"`
 
 	// Report Format
 	//
@@ -377,7 +425,7 @@ type SubscriptionsItems0 struct {
 	ReportName string `json:"reportName,omitempty"`
 
 	// report preferences
-	ReportPreferences *SubscriptionsItems0ReportPreferences `json:"reportPreferences,omitempty"`
+	ReportPreferences *GetAllSubscriptionsOKBodySubscriptionsItems0ReportPreferences `json:"reportPreferences,omitempty"`
 
 	// Start Day
 	StartDay int32 `json:"startDay,omitempty"`
@@ -390,9 +438,13 @@ type SubscriptionsItems0 struct {
 	Timezone string `json:"timezone,omitempty"`
 }
 
-// Validate validates this subscriptions items0
-func (o *SubscriptionsItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this get all subscriptions o k body subscriptions items0
+func (o *GetAllSubscriptionsOKBodySubscriptionsItems0) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := o.validateReportInterval(formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := o.validateReportPreferences(formats); err != nil {
 		res = append(res, err)
@@ -408,7 +460,20 @@ func (o *SubscriptionsItems0) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *SubscriptionsItems0) validateReportPreferences(formats strfmt.Registry) error {
+func (o *GetAllSubscriptionsOKBodySubscriptionsItems0) validateReportInterval(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.ReportInterval) { // not required
+		return nil
+	}
+
+	if err := validate.Pattern("reportInterval", "body", string(o.ReportInterval), `^PT((([1-9]|1[0-9]|2[0-3])H(([1-9]|[1-4][0-9]|5[0-9])M)?)|((([1-9]|1[0-9]|2[0-3])H)?([1-9]|[1-4][0-9]|5[0-9])M))$`); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *GetAllSubscriptionsOKBodySubscriptionsItems0) validateReportPreferences(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.ReportPreferences) { // not required
 		return nil
@@ -426,7 +491,7 @@ func (o *SubscriptionsItems0) validateReportPreferences(formats strfmt.Registry)
 	return nil
 }
 
-func (o *SubscriptionsItems0) validateStartTime(formats strfmt.Registry) error {
+func (o *GetAllSubscriptionsOKBodySubscriptionsItems0) validateStartTime(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.StartTime) { // not required
 		return nil
@@ -440,7 +505,7 @@ func (o *SubscriptionsItems0) validateStartTime(formats strfmt.Registry) error {
 }
 
 // MarshalBinary interface implementation
-func (o *SubscriptionsItems0) MarshalBinary() ([]byte, error) {
+func (o *GetAllSubscriptionsOKBodySubscriptionsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -448,8 +513,8 @@ func (o *SubscriptionsItems0) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *SubscriptionsItems0) UnmarshalBinary(b []byte) error {
-	var res SubscriptionsItems0
+func (o *GetAllSubscriptionsOKBodySubscriptionsItems0) UnmarshalBinary(b []byte) error {
+	var res GetAllSubscriptionsOKBodySubscriptionsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -457,10 +522,10 @@ func (o *SubscriptionsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*SubscriptionsItems0ReportPreferences Report Preferences
-swagger:model SubscriptionsItems0ReportPreferences
+/*GetAllSubscriptionsOKBodySubscriptionsItems0ReportPreferences Report Preferences
+swagger:model GetAllSubscriptionsOKBodySubscriptionsItems0ReportPreferences
 */
-type SubscriptionsItems0ReportPreferences struct {
+type GetAllSubscriptionsOKBodySubscriptionsItems0ReportPreferences struct {
 
 	// Specify the field naming convention to be followed in reports (applicable to only csv report formats)
 	//
@@ -474,13 +539,13 @@ type SubscriptionsItems0ReportPreferences struct {
 	SignedAmounts bool `json:"signedAmounts,omitempty"`
 }
 
-// Validate validates this subscriptions items0 report preferences
-func (o *SubscriptionsItems0ReportPreferences) Validate(formats strfmt.Registry) error {
+// Validate validates this get all subscriptions o k body subscriptions items0 report preferences
+func (o *GetAllSubscriptionsOKBodySubscriptionsItems0ReportPreferences) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *SubscriptionsItems0ReportPreferences) MarshalBinary() ([]byte, error) {
+func (o *GetAllSubscriptionsOKBodySubscriptionsItems0ReportPreferences) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -488,8 +553,8 @@ func (o *SubscriptionsItems0ReportPreferences) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *SubscriptionsItems0ReportPreferences) UnmarshalBinary(b []byte) error {
-	var res SubscriptionsItems0ReportPreferences
+func (o *GetAllSubscriptionsOKBodySubscriptionsItems0ReportPreferences) UnmarshalBinary(b []byte) error {
+	var res GetAllSubscriptionsOKBodySubscriptionsItems0ReportPreferences
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

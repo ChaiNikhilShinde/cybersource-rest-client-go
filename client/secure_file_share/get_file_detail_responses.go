@@ -12,10 +12,9 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
-
-	strfmt "github.com/go-openapi/strfmt"
 )
 
 // GetFileDetailReader is a Reader for the GetFileDetail structure.
@@ -58,7 +57,7 @@ func (o *GetFileDetailReader) ReadResponse(response runtime.ClientResponse, cons
 		return nil, result
 
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
 	}
 }
 
@@ -227,122 +226,6 @@ func (o *GetFileDetailInternalServerError) readResponse(response runtime.ClientR
 	return nil
 }
 
-/*FileDetailsItems0 file details items0
-swagger:model FileDetailsItems0
-*/
-type FileDetailsItems0 struct {
-
-	// Date and time for the file in PST
-	// Format: date-time
-	CreatedTime strfmt.DateTime `json:"createdTime,omitempty"`
-
-	// Date and time for the file in PST
-	// Format: date
-	Date strfmt.Date `json:"date,omitempty"`
-
-	// Unique identifier of a file
-	FileID string `json:"fileId,omitempty"`
-
-	// Date and time for the file in PST
-	// Format: date-time
-	LastModifiedTime strfmt.DateTime `json:"lastModifiedTime,omitempty"`
-
-	// 'File extension'
-	//
-	// Valid values:
-	// - 'application/xml'
-	// - 'text/csv'
-	// - 'application/pdf'
-	// - 'application/octet-stream'
-	//
-	MimeType string `json:"mimeType,omitempty"`
-
-	// Name of the file
-	Name string `json:"name,omitempty"`
-
-	// Size of the file in bytes
-	Size int64 `json:"size,omitempty"`
-}
-
-// Validate validates this file details items0
-func (o *FileDetailsItems0) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateCreatedTime(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateDate(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateLastModifiedTime(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *FileDetailsItems0) validateCreatedTime(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.CreatedTime) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("createdTime", "body", "date-time", o.CreatedTime.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (o *FileDetailsItems0) validateDate(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Date) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("date", "body", "date", o.Date.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (o *FileDetailsItems0) validateLastModifiedTime(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.LastModifiedTime) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("lastModifiedTime", "body", "date-time", o.LastModifiedTime.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *FileDetailsItems0) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *FileDetailsItems0) UnmarshalBinary(b []byte) error {
-	var res FileDetailsItems0
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
 /*GetFileDetailBadRequestBody V1FilesGet400Response
 //
 // Error Bean
@@ -361,7 +244,7 @@ type GetFileDetailBadRequestBody struct {
 	Detail string `json:"detail,omitempty"`
 
 	// Error fields List
-	Fields []*FieldsItems0 `json:"fields"`
+	Fields []*GetFileDetailBadRequestBodyFieldsItems0 `json:"fields"`
 
 	// Localization Key Name
 	LocalizationKey string `json:"localizationKey,omitempty"`
@@ -454,6 +337,44 @@ func (o *GetFileDetailBadRequestBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
+/*GetFileDetailBadRequestBodyFieldsItems0 Provide validation failed input field details
+swagger:model GetFileDetailBadRequestBodyFieldsItems0
+*/
+type GetFileDetailBadRequestBodyFieldsItems0 struct {
+
+	// Localized Key Name
+	LocalizationKey string `json:"localizationKey,omitempty"`
+
+	// Error description about validation failed field
+	Message string `json:"message,omitempty"`
+
+	// Path of the failed property
+	Path string `json:"path,omitempty"`
+}
+
+// Validate validates this get file detail bad request body fields items0
+func (o *GetFileDetailBadRequestBodyFieldsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetFileDetailBadRequestBodyFieldsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetFileDetailBadRequestBodyFieldsItems0) UnmarshalBinary(b []byte) error {
+	var res GetFileDetailBadRequestBodyFieldsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*GetFileDetailInternalServerErrorBody V1FileDetailsGet500Response
 //
 // Error Bean
@@ -472,7 +393,7 @@ type GetFileDetailInternalServerErrorBody struct {
 	Detail string `json:"detail,omitempty"`
 
 	// Error fields List
-	Fields []*FieldsItems0 `json:"fields"`
+	Fields []*GetFileDetailInternalServerErrorBodyFieldsItems0 `json:"fields"`
 
 	// Localization Key Name
 	LocalizationKey string `json:"localizationKey,omitempty"`
@@ -565,6 +486,44 @@ func (o *GetFileDetailInternalServerErrorBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
+/*GetFileDetailInternalServerErrorBodyFieldsItems0 Provide validation failed input field details
+swagger:model GetFileDetailInternalServerErrorBodyFieldsItems0
+*/
+type GetFileDetailInternalServerErrorBodyFieldsItems0 struct {
+
+	// Localized Key Name
+	LocalizationKey string `json:"localizationKey,omitempty"`
+
+	// Error description about validation failed field
+	Message string `json:"message,omitempty"`
+
+	// Path of the failed property
+	Path string `json:"path,omitempty"`
+}
+
+// Validate validates this get file detail internal server error body fields items0
+func (o *GetFileDetailInternalServerErrorBodyFieldsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetFileDetailInternalServerErrorBodyFieldsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetFileDetailInternalServerErrorBodyFieldsItems0) UnmarshalBinary(b []byte) error {
+	var res GetFileDetailInternalServerErrorBodyFieldsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*GetFileDetailNotFoundBody V1FileDetailsGet404Response
 //
 // Error Bean
@@ -583,7 +542,7 @@ type GetFileDetailNotFoundBody struct {
 	Detail string `json:"detail,omitempty"`
 
 	// Error fields List
-	Fields []*FieldsItems0 `json:"fields"`
+	Fields []*GetFileDetailNotFoundBodyFieldsItems0 `json:"fields"`
 
 	// Localization Key Name
 	LocalizationKey string `json:"localizationKey,omitempty"`
@@ -676,6 +635,44 @@ func (o *GetFileDetailNotFoundBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
+/*GetFileDetailNotFoundBodyFieldsItems0 Provide validation failed input field details
+swagger:model GetFileDetailNotFoundBodyFieldsItems0
+*/
+type GetFileDetailNotFoundBodyFieldsItems0 struct {
+
+	// Localized Key Name
+	LocalizationKey string `json:"localizationKey,omitempty"`
+
+	// Error description about validation failed field
+	Message string `json:"message,omitempty"`
+
+	// Path of the failed property
+	Path string `json:"path,omitempty"`
+}
+
+// Validate validates this get file detail not found body fields items0
+func (o *GetFileDetailNotFoundBodyFieldsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetFileDetailNotFoundBodyFieldsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetFileDetailNotFoundBodyFieldsItems0) UnmarshalBinary(b []byte) error {
+	var res GetFileDetailNotFoundBodyFieldsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*GetFileDetailOKBody V1FileDetailsGet200Response
 swagger:model GetFileDetailOKBody
 */
@@ -685,7 +682,7 @@ type GetFileDetailOKBody struct {
 	Links *GetFileDetailOKBodyLinks `json:"_links,omitempty"`
 
 	// file details
-	FileDetails []*FileDetailsItems0 `json:"fileDetails"`
+	FileDetails []*GetFileDetailOKBodyFileDetailsItems0 `json:"fileDetails"`
 }
 
 // Validate validates this get file detail o k body
@@ -760,6 +757,122 @@ func (o *GetFileDetailOKBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *GetFileDetailOKBody) UnmarshalBinary(b []byte) error {
 	var res GetFileDetailOKBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*GetFileDetailOKBodyFileDetailsItems0 get file detail o k body file details items0
+swagger:model GetFileDetailOKBodyFileDetailsItems0
+*/
+type GetFileDetailOKBodyFileDetailsItems0 struct {
+
+	// Date and time for the file in PST
+	// Format: date-time
+	CreatedTime strfmt.DateTime `json:"createdTime,omitempty"`
+
+	// Date and time for the file in PST
+	// Format: date
+	Date strfmt.Date `json:"date,omitempty"`
+
+	// Unique identifier of a file
+	FileID string `json:"fileId,omitempty"`
+
+	// Date and time for the file in PST
+	// Format: date-time
+	LastModifiedTime strfmt.DateTime `json:"lastModifiedTime,omitempty"`
+
+	// 'File extension'
+	//
+	// Valid values:
+	// - 'application/xml'
+	// - 'text/csv'
+	// - 'application/pdf'
+	// - 'application/octet-stream'
+	//
+	MimeType string `json:"mimeType,omitempty"`
+
+	// Name of the file
+	Name string `json:"name,omitempty"`
+
+	// Size of the file in bytes
+	Size int64 `json:"size,omitempty"`
+}
+
+// Validate validates this get file detail o k body file details items0
+func (o *GetFileDetailOKBodyFileDetailsItems0) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateCreatedTime(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLastModifiedTime(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetFileDetailOKBodyFileDetailsItems0) validateCreatedTime(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.CreatedTime) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("createdTime", "body", "date-time", o.CreatedTime.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *GetFileDetailOKBodyFileDetailsItems0) validateDate(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Date) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("date", "body", "date", o.Date.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *GetFileDetailOKBodyFileDetailsItems0) validateLastModifiedTime(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.LastModifiedTime) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("lastModifiedTime", "body", "date-time", o.LastModifiedTime.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetFileDetailOKBodyFileDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetFileDetailOKBodyFileDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res GetFileDetailOKBodyFileDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -949,7 +1062,7 @@ type GetFileDetailUnauthorizedBody struct {
 	Detail string `json:"detail,omitempty"`
 
 	// Error fields List
-	Fields []*FieldsItems0 `json:"fields"`
+	Fields []*GetFileDetailUnauthorizedBodyFieldsItems0 `json:"fields"`
 
 	// Localization Key Name
 	LocalizationKey string `json:"localizationKey,omitempty"`
@@ -1035,6 +1148,44 @@ func (o *GetFileDetailUnauthorizedBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *GetFileDetailUnauthorizedBody) UnmarshalBinary(b []byte) error {
 	var res GetFileDetailUnauthorizedBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*GetFileDetailUnauthorizedBodyFieldsItems0 Provide validation failed input field details
+swagger:model GetFileDetailUnauthorizedBodyFieldsItems0
+*/
+type GetFileDetailUnauthorizedBodyFieldsItems0 struct {
+
+	// Localized Key Name
+	LocalizationKey string `json:"localizationKey,omitempty"`
+
+	// Error description about validation failed field
+	Message string `json:"message,omitempty"`
+
+	// Path of the failed property
+	Path string `json:"path,omitempty"`
+}
+
+// Validate validates this get file detail unauthorized body fields items0
+func (o *GetFileDetailUnauthorizedBodyFieldsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetFileDetailUnauthorizedBodyFieldsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetFileDetailUnauthorizedBodyFieldsItems0) UnmarshalBinary(b []byte) error {
+	var res GetFileDetailUnauthorizedBodyFieldsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

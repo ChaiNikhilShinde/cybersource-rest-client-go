@@ -12,10 +12,9 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
-
-	strfmt "github.com/go-openapi/strfmt"
 )
 
 // GetUsersReader is a Reader for the GetUsers structure.
@@ -46,7 +45,7 @@ func (o *GetUsersReader) ReadResponse(response runtime.ClientResponse, consumer 
 		return nil, result
 
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
 	}
 }
 
@@ -137,53 +136,13 @@ func (o *GetUsersInternalServerError) readResponse(response runtime.ClientRespon
 	return nil
 }
 
-/*DetailsItems0 details items0
-swagger:model DetailsItems0
-*/
-type DetailsItems0 struct {
-
-	// This is the flattened JSON object field name/path that is either missing or invalid.
-	Field string `json:"field,omitempty"`
-
-	// Possible reasons for the error.
-	//
-	// Possible values:
-	//  - MISSING_FIELD
-	//  - INVALID_DATA
-	//
-	Reason string `json:"reason,omitempty"`
-}
-
-// Validate validates this details items0
-func (o *DetailsItems0) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *DetailsItems0) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *DetailsItems0) UnmarshalBinary(b []byte) error {
-	var res DetailsItems0
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
 /*GetUsersBadRequestBody umsV1UsersGet400Response
 swagger:model GetUsersBadRequestBody
 */
 type GetUsersBadRequestBody struct {
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*GetUsersBadRequestBodyDetailsItems0 `json:"details"`
 
 	// The detail message related to the status and reason listed above.
 	Message string `json:"message,omitempty"`
@@ -210,8 +169,15 @@ type GetUsersBadRequestBody struct {
 	Status string `json:"status,omitempty"`
 
 	// Time of request in UTC. Format: `YYYY-MM-DDThh:mm:ssZ`
-	// Example `2016-08-11T22:47:57Z` equals August 11, 2016, at 22:47:57 (10:47:57 p.m.). The `T` separates the date and the
-	// time. The `Z` indicates UTC.
+	// **Example** `2016-08-11T22:47:57Z` equals August 11, 2016, at 22:47:57 (10:47:57 p.m.).
+	// The `T` separates the date and the time. The `Z` indicates UTC.
+	//
+	// Returned by authorization service.
+	//
+	// #### PIN debit
+	// Time when the PIN debit credit, PIN debit purchase or PIN debit reversal was requested.
+	//
+	// Returned by PIN debit credit, PIN debit purchase or PIN debit reversal.
 	//
 	SubmitTimeUtc string `json:"submitTimeUtc,omitempty"`
 }
@@ -273,13 +239,53 @@ func (o *GetUsersBadRequestBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
+/*GetUsersBadRequestBodyDetailsItems0 get users bad request body details items0
+swagger:model GetUsersBadRequestBodyDetailsItems0
+*/
+type GetUsersBadRequestBodyDetailsItems0 struct {
+
+	// This is the flattened JSON object field name/path that is either missing or invalid.
+	Field string `json:"field,omitempty"`
+
+	// Possible reasons for the error.
+	//
+	// Possible values:
+	//  - MISSING_FIELD
+	//  - INVALID_DATA
+	//
+	Reason string `json:"reason,omitempty"`
+}
+
+// Validate validates this get users bad request body details items0
+func (o *GetUsersBadRequestBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetUsersBadRequestBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetUsersBadRequestBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res GetUsersBadRequestBodyDetailsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*GetUsersOKBody umsV1UsersGet200Response
 swagger:model GetUsersOKBody
 */
 type GetUsersOKBody struct {
 
 	// users
-	Users []*UsersItems0 `json:"users"`
+	Users []*GetUsersOKBodyUsersItems0 `json:"users"`
 }
 
 // Validate validates this get users o k body
@@ -339,26 +345,26 @@ func (o *GetUsersOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*UsersItems0 users items0
-swagger:model UsersItems0
+/*GetUsersOKBodyUsersItems0 get users o k body users items0
+swagger:model GetUsersOKBodyUsersItems0
 */
-type UsersItems0 struct {
+type GetUsersOKBodyUsersItems0 struct {
 
 	// account information
-	AccountInformation *UsersItems0AccountInformation `json:"accountInformation,omitempty"`
+	AccountInformation *GetUsersOKBodyUsersItems0AccountInformation `json:"accountInformation,omitempty"`
 
 	// contact information
-	ContactInformation *UsersItems0ContactInformation `json:"contactInformation,omitempty"`
+	ContactInformation *GetUsersOKBodyUsersItems0ContactInformation `json:"contactInformation,omitempty"`
 
 	// custom fields
 	CustomFields map[string]string `json:"customFields,omitempty"`
 
 	// organization information
-	OrganizationInformation *UsersItems0OrganizationInformation `json:"organizationInformation,omitempty"`
+	OrganizationInformation *GetUsersOKBodyUsersItems0OrganizationInformation `json:"organizationInformation,omitempty"`
 }
 
-// Validate validates this users items0
-func (o *UsersItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this get users o k body users items0
+func (o *GetUsersOKBodyUsersItems0) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateAccountInformation(formats); err != nil {
@@ -379,7 +385,7 @@ func (o *UsersItems0) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *UsersItems0) validateAccountInformation(formats strfmt.Registry) error {
+func (o *GetUsersOKBodyUsersItems0) validateAccountInformation(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.AccountInformation) { // not required
 		return nil
@@ -397,7 +403,7 @@ func (o *UsersItems0) validateAccountInformation(formats strfmt.Registry) error 
 	return nil
 }
 
-func (o *UsersItems0) validateContactInformation(formats strfmt.Registry) error {
+func (o *GetUsersOKBodyUsersItems0) validateContactInformation(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.ContactInformation) { // not required
 		return nil
@@ -415,7 +421,7 @@ func (o *UsersItems0) validateContactInformation(formats strfmt.Registry) error 
 	return nil
 }
 
-func (o *UsersItems0) validateOrganizationInformation(formats strfmt.Registry) error {
+func (o *GetUsersOKBodyUsersItems0) validateOrganizationInformation(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.OrganizationInformation) { // not required
 		return nil
@@ -434,7 +440,7 @@ func (o *UsersItems0) validateOrganizationInformation(formats strfmt.Registry) e
 }
 
 // MarshalBinary interface implementation
-func (o *UsersItems0) MarshalBinary() ([]byte, error) {
+func (o *GetUsersOKBodyUsersItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -442,8 +448,8 @@ func (o *UsersItems0) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *UsersItems0) UnmarshalBinary(b []byte) error {
-	var res UsersItems0
+func (o *GetUsersOKBodyUsersItems0) UnmarshalBinary(b []byte) error {
+	var res GetUsersOKBodyUsersItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -451,10 +457,10 @@ func (o *UsersItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*UsersItems0AccountInformation users items0 account information
-swagger:model UsersItems0AccountInformation
+/*GetUsersOKBodyUsersItems0AccountInformation get users o k body users items0 account information
+swagger:model GetUsersOKBodyUsersItems0AccountInformation
 */
-type UsersItems0AccountInformation struct {
+type GetUsersOKBodyUsersItems0AccountInformation struct {
 
 	// created time
 	// Format: date-time
@@ -490,8 +496,8 @@ type UsersItems0AccountInformation struct {
 	UserName string `json:"userName,omitempty"`
 }
 
-// Validate validates this users items0 account information
-func (o *UsersItems0AccountInformation) Validate(formats strfmt.Registry) error {
+// Validate validates this get users o k body users items0 account information
+func (o *GetUsersOKBodyUsersItems0AccountInformation) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateCreatedTime(formats); err != nil {
@@ -508,7 +514,7 @@ func (o *UsersItems0AccountInformation) Validate(formats strfmt.Registry) error 
 	return nil
 }
 
-func (o *UsersItems0AccountInformation) validateCreatedTime(formats strfmt.Registry) error {
+func (o *GetUsersOKBodyUsersItems0AccountInformation) validateCreatedTime(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.CreatedTime) { // not required
 		return nil
@@ -521,7 +527,7 @@ func (o *UsersItems0AccountInformation) validateCreatedTime(formats strfmt.Regis
 	return nil
 }
 
-func (o *UsersItems0AccountInformation) validateLastAccessTime(formats strfmt.Registry) error {
+func (o *GetUsersOKBodyUsersItems0AccountInformation) validateLastAccessTime(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.LastAccessTime) { // not required
 		return nil
@@ -535,7 +541,7 @@ func (o *UsersItems0AccountInformation) validateLastAccessTime(formats strfmt.Re
 }
 
 // MarshalBinary interface implementation
-func (o *UsersItems0AccountInformation) MarshalBinary() ([]byte, error) {
+func (o *GetUsersOKBodyUsersItems0AccountInformation) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -543,8 +549,8 @@ func (o *UsersItems0AccountInformation) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *UsersItems0AccountInformation) UnmarshalBinary(b []byte) error {
-	var res UsersItems0AccountInformation
+func (o *GetUsersOKBodyUsersItems0AccountInformation) UnmarshalBinary(b []byte) error {
+	var res GetUsersOKBodyUsersItems0AccountInformation
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -552,10 +558,10 @@ func (o *UsersItems0AccountInformation) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*UsersItems0ContactInformation users items0 contact information
-swagger:model UsersItems0ContactInformation
+/*GetUsersOKBodyUsersItems0ContactInformation get users o k body users items0 contact information
+swagger:model GetUsersOKBodyUsersItems0ContactInformation
 */
-type UsersItems0ContactInformation struct {
+type GetUsersOKBodyUsersItems0ContactInformation struct {
 
 	// email
 	Email string `json:"email,omitempty"`
@@ -570,13 +576,13 @@ type UsersItems0ContactInformation struct {
 	PhoneNumber string `json:"phoneNumber,omitempty"`
 }
 
-// Validate validates this users items0 contact information
-func (o *UsersItems0ContactInformation) Validate(formats strfmt.Registry) error {
+// Validate validates this get users o k body users items0 contact information
+func (o *GetUsersOKBodyUsersItems0ContactInformation) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *UsersItems0ContactInformation) MarshalBinary() ([]byte, error) {
+func (o *GetUsersOKBodyUsersItems0ContactInformation) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -584,8 +590,8 @@ func (o *UsersItems0ContactInformation) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *UsersItems0ContactInformation) UnmarshalBinary(b []byte) error {
-	var res UsersItems0ContactInformation
+func (o *GetUsersOKBodyUsersItems0ContactInformation) UnmarshalBinary(b []byte) error {
+	var res GetUsersOKBodyUsersItems0ContactInformation
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -593,22 +599,22 @@ func (o *UsersItems0ContactInformation) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*UsersItems0OrganizationInformation users items0 organization information
-swagger:model UsersItems0OrganizationInformation
+/*GetUsersOKBodyUsersItems0OrganizationInformation get users o k body users items0 organization information
+swagger:model GetUsersOKBodyUsersItems0OrganizationInformation
 */
-type UsersItems0OrganizationInformation struct {
+type GetUsersOKBodyUsersItems0OrganizationInformation struct {
 
 	// organization Id
 	OrganizationID string `json:"organizationId,omitempty"`
 }
 
-// Validate validates this users items0 organization information
-func (o *UsersItems0OrganizationInformation) Validate(formats strfmt.Registry) error {
+// Validate validates this get users o k body users items0 organization information
+func (o *GetUsersOKBodyUsersItems0OrganizationInformation) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *UsersItems0OrganizationInformation) MarshalBinary() ([]byte, error) {
+func (o *GetUsersOKBodyUsersItems0OrganizationInformation) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -616,8 +622,8 @@ func (o *UsersItems0OrganizationInformation) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *UsersItems0OrganizationInformation) UnmarshalBinary(b []byte) error {
-	var res UsersItems0OrganizationInformation
+func (o *GetUsersOKBodyUsersItems0OrganizationInformation) UnmarshalBinary(b []byte) error {
+	var res GetUsersOKBodyUsersItems0OrganizationInformation
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

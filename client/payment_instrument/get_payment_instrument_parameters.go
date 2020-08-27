@@ -13,8 +13,7 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	cr "github.com/go-openapi/runtime/client"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 )
 
 // NewGetPaymentInstrumentParams creates a new GetPaymentInstrumentParams object
@@ -61,16 +60,16 @@ for the get payment instrument operation typically these are written to a http.R
 */
 type GetPaymentInstrumentParams struct {
 
+	/*PaymentInstrumentTokenID
+	  The TokenId of a payment instrument.
+
+	*/
+	PaymentInstrumentTokenID string
 	/*ProfileID
 	  The id of a profile containing user specific TMS configuration.
 
 	*/
-	ProfileID string
-	/*TokenID
-	  The TokenId of a Payment Instrument.
-
-	*/
-	TokenID string
+	ProfileID *string
 
 	timeout    time.Duration
 	Context    context.Context
@@ -110,26 +109,26 @@ func (o *GetPaymentInstrumentParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
+// WithPaymentInstrumentTokenID adds the paymentInstrumentTokenID to the get payment instrument params
+func (o *GetPaymentInstrumentParams) WithPaymentInstrumentTokenID(paymentInstrumentTokenID string) *GetPaymentInstrumentParams {
+	o.SetPaymentInstrumentTokenID(paymentInstrumentTokenID)
+	return o
+}
+
+// SetPaymentInstrumentTokenID adds the paymentInstrumentTokenId to the get payment instrument params
+func (o *GetPaymentInstrumentParams) SetPaymentInstrumentTokenID(paymentInstrumentTokenID string) {
+	o.PaymentInstrumentTokenID = paymentInstrumentTokenID
+}
+
 // WithProfileID adds the profileID to the get payment instrument params
-func (o *GetPaymentInstrumentParams) WithProfileID(profileID string) *GetPaymentInstrumentParams {
+func (o *GetPaymentInstrumentParams) WithProfileID(profileID *string) *GetPaymentInstrumentParams {
 	o.SetProfileID(profileID)
 	return o
 }
 
 // SetProfileID adds the profileId to the get payment instrument params
-func (o *GetPaymentInstrumentParams) SetProfileID(profileID string) {
+func (o *GetPaymentInstrumentParams) SetProfileID(profileID *string) {
 	o.ProfileID = profileID
-}
-
-// WithTokenID adds the tokenID to the get payment instrument params
-func (o *GetPaymentInstrumentParams) WithTokenID(tokenID string) *GetPaymentInstrumentParams {
-	o.SetTokenID(tokenID)
-	return o
-}
-
-// SetTokenID adds the tokenId to the get payment instrument params
-func (o *GetPaymentInstrumentParams) SetTokenID(tokenID string) {
-	o.TokenID = tokenID
 }
 
 // WriteToRequest writes these params to a swagger request
@@ -140,14 +139,18 @@ func (o *GetPaymentInstrumentParams) WriteToRequest(r runtime.ClientRequest, reg
 	}
 	var res []error
 
-	// header param profile-id
-	if err := r.SetHeaderParam("profile-id", o.ProfileID); err != nil {
+	// path param paymentInstrumentTokenId
+	if err := r.SetPathParam("paymentInstrumentTokenId", o.PaymentInstrumentTokenID); err != nil {
 		return err
 	}
 
-	// path param tokenId
-	if err := r.SetPathParam("tokenId", o.TokenID); err != nil {
-		return err
+	if o.ProfileID != nil {
+
+		// header param profile-id
+		if err := r.SetHeaderParam("profile-id", *o.ProfileID); err != nil {
+			return err
+		}
+
 	}
 
 	if len(res) > 0 {

@@ -13,15 +13,17 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	cr "github.com/go-openapi/runtime/client"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 )
 
 // NewGeneratePublicKeyParams creates a new GeneratePublicKeyParams object
 // with the default values initialized.
 func NewGeneratePublicKeyParams() *GeneratePublicKeyParams {
-	var ()
+	var (
+		formatDefault = string("JWT")
+	)
 	return &GeneratePublicKeyParams{
+		Format: formatDefault,
 
 		timeout: cr.DefaultTimeout,
 	}
@@ -30,8 +32,11 @@ func NewGeneratePublicKeyParams() *GeneratePublicKeyParams {
 // NewGeneratePublicKeyParamsWithTimeout creates a new GeneratePublicKeyParams object
 // with the default values initialized, and the ability to set a timeout on a request
 func NewGeneratePublicKeyParamsWithTimeout(timeout time.Duration) *GeneratePublicKeyParams {
-	var ()
+	var (
+		formatDefault = string("JWT")
+	)
 	return &GeneratePublicKeyParams{
+		Format: formatDefault,
 
 		timeout: timeout,
 	}
@@ -40,8 +45,11 @@ func NewGeneratePublicKeyParamsWithTimeout(timeout time.Duration) *GeneratePubli
 // NewGeneratePublicKeyParamsWithContext creates a new GeneratePublicKeyParams object
 // with the default values initialized, and the ability to set a context for a request
 func NewGeneratePublicKeyParamsWithContext(ctx context.Context) *GeneratePublicKeyParams {
-	var ()
+	var (
+		formatDefault = string("JWT")
+	)
 	return &GeneratePublicKeyParams{
+		Format: formatDefault,
 
 		Context: ctx,
 	}
@@ -50,8 +58,11 @@ func NewGeneratePublicKeyParamsWithContext(ctx context.Context) *GeneratePublicK
 // NewGeneratePublicKeyParamsWithHTTPClient creates a new GeneratePublicKeyParams object
 // with the default values initialized, and the ability to set a custom HTTPClient for a request
 func NewGeneratePublicKeyParamsWithHTTPClient(client *http.Client) *GeneratePublicKeyParams {
-	var ()
+	var (
+		formatDefault = string("JWT")
+	)
 	return &GeneratePublicKeyParams{
+		Format:     formatDefault,
 		HTTPClient: client,
 	}
 }
@@ -61,6 +72,11 @@ for the generate public key operation typically these are written to a http.Requ
 */
 type GeneratePublicKeyParams struct {
 
+	/*Format
+	  Indicator to enable the receipt of the Keys response in Flex 11+ format (JWT) or legacy (parameter not required)
+
+	*/
+	Format string
 	/*GeneratePublicKeyRequest*/
 	GeneratePublicKeyRequest GeneratePublicKeyBody
 
@@ -102,6 +118,17 @@ func (o *GeneratePublicKeyParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
+// WithFormat adds the format to the generate public key params
+func (o *GeneratePublicKeyParams) WithFormat(format string) *GeneratePublicKeyParams {
+	o.SetFormat(format)
+	return o
+}
+
+// SetFormat adds the format to the generate public key params
+func (o *GeneratePublicKeyParams) SetFormat(format string) {
+	o.Format = format
+}
+
 // WithGeneratePublicKeyRequest adds the generatePublicKeyRequest to the generate public key params
 func (o *GeneratePublicKeyParams) WithGeneratePublicKeyRequest(generatePublicKeyRequest GeneratePublicKeyBody) *GeneratePublicKeyParams {
 	o.SetGeneratePublicKeyRequest(generatePublicKeyRequest)
@@ -120,6 +147,15 @@ func (o *GeneratePublicKeyParams) WriteToRequest(r runtime.ClientRequest, reg st
 		return err
 	}
 	var res []error
+
+	// query param format
+	qrFormat := o.Format
+	qFormat := qrFormat
+	if qFormat != "" {
+		if err := r.SetQueryParam("format", qFormat); err != nil {
+			return err
+		}
+	}
 
 	if err := r.SetBodyParam(o.GeneratePublicKeyRequest); err != nil {
 		return err

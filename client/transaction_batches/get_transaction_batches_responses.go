@@ -12,10 +12,9 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
-
-	strfmt "github.com/go-openapi/strfmt"
 )
 
 // GetTransactionBatchesReader is a Reader for the GetTransactionBatches structure.
@@ -64,7 +63,7 @@ func (o *GetTransactionBatchesReader) ReadResponse(response runtime.ClientRespon
 		return nil, result
 
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
 	}
 }
 
@@ -275,8 +274,15 @@ type GetTransactionBatchesBadRequestBody struct {
 	ErrorInformation *GetTransactionBatchesBadRequestBodyErrorInformation `json:"errorInformation,omitempty"`
 
 	// Time of request in UTC. Format: `YYYY-MM-DDThh:mm:ssZ`
-	// Example `2016-08-11T22:47:57Z` equals August 11, 2016, at 22:47:57 (10:47:57 p.m.). The `T` separates the date and the
-	// time. The `Z` indicates UTC.
+	// **Example** `2016-08-11T22:47:57Z` equals August 11, 2016, at 22:47:57 (10:47:57 p.m.).
+	// The `T` separates the date and the time. The `Z` indicates UTC.
+	//
+	// Returned by authorization service.
+	//
+	// #### PIN debit
+	// Time when the PIN debit credit, PIN debit purchase or PIN debit reversal was requested.
+	//
+	// Returned by PIN debit credit, PIN debit purchase or PIN debit reversal.
 	//
 	SubmitTimeUtc string `json:"submitTimeUtc,omitempty"`
 }
@@ -449,8 +455,15 @@ type GetTransactionBatchesForbiddenBody struct {
 	ErrorInformation *GetTransactionBatchesForbiddenBodyErrorInformation `json:"errorInformation,omitempty"`
 
 	// Time of request in UTC. Format: `YYYY-MM-DDThh:mm:ssZ`
-	// Example `2016-08-11T22:47:57Z` equals August 11, 2016, at 22:47:57 (10:47:57 p.m.). The `T` separates the date and the
-	// time. The `Z` indicates UTC.
+	// **Example** `2016-08-11T22:47:57Z` equals August 11, 2016, at 22:47:57 (10:47:57 p.m.).
+	// The `T` separates the date and the time. The `Z` indicates UTC.
+	//
+	// Returned by authorization service.
+	//
+	// #### PIN debit
+	// Time when the PIN debit credit, PIN debit purchase or PIN debit reversal was requested.
+	//
+	// Returned by PIN debit credit, PIN debit purchase or PIN debit reversal.
 	//
 	SubmitTimeUtc string `json:"submitTimeUtc,omitempty"`
 }
@@ -623,8 +636,15 @@ type GetTransactionBatchesInternalServerErrorBody struct {
 	ErrorInformation *GetTransactionBatchesInternalServerErrorBodyErrorInformation `json:"errorInformation,omitempty"`
 
 	// Time of request in UTC. Format: `YYYY-MM-DDThh:mm:ssZ`
-	// Example `2016-08-11T22:47:57Z` equals August 11, 2016, at 22:47:57 (10:47:57 p.m.). The `T` separates the date and the
-	// time. The `Z` indicates UTC.
+	// **Example** `2016-08-11T22:47:57Z` equals August 11, 2016, at 22:47:57 (10:47:57 p.m.).
+	// The `T` separates the date and the time. The `Z` indicates UTC.
+	//
+	// Returned by authorization service.
+	//
+	// #### PIN debit
+	// Time when the PIN debit credit, PIN debit purchase or PIN debit reversal was requested.
+	//
+	// Returned by PIN debit credit, PIN debit purchase or PIN debit reversal.
 	//
 	SubmitTimeUtc string `json:"submitTimeUtc,omitempty"`
 }
@@ -723,8 +743,15 @@ type GetTransactionBatchesNotFoundBody struct {
 	ErrorInformation *GetTransactionBatchesNotFoundBodyErrorInformation `json:"errorInformation,omitempty"`
 
 	// Time of request in UTC. Format: `YYYY-MM-DDThh:mm:ssZ`
-	// Example `2016-08-11T22:47:57Z` equals August 11, 2016, at 22:47:57 (10:47:57 p.m.). The `T` separates the date and the
-	// time. The `Z` indicates UTC.
+	// **Example** `2016-08-11T22:47:57Z` equals August 11, 2016, at 22:47:57 (10:47:57 p.m.).
+	// The `T` separates the date and the time. The `Z` indicates UTC.
+	//
+	// Returned by authorization service.
+	//
+	// #### PIN debit
+	// Time when the PIN debit credit, PIN debit purchase or PIN debit reversal was requested.
+	//
+	// Returned by PIN debit credit, PIN debit purchase or PIN debit reversal.
 	//
 	SubmitTimeUtc string `json:"submitTimeUtc,omitempty"`
 }
@@ -897,13 +924,20 @@ type GetTransactionBatchesOKBody struct {
 	Links *GetTransactionBatchesOKBodyLinks `json:"_links,omitempty"`
 
 	// Time of request in UTC. Format: `YYYY-MM-DDThh:mm:ssZ`
-	// Example `2016-08-11T22:47:57Z` equals August 11, 2016, at 22:47:57 (10:47:57 p.m.). The `T` separates the date and the
-	// time. The `Z` indicates UTC.
+	// **Example** `2016-08-11T22:47:57Z` equals August 11, 2016, at 22:47:57 (10:47:57 p.m.).
+	// The `T` separates the date and the time. The `Z` indicates UTC.
+	//
+	// Returned by authorization service.
+	//
+	// #### PIN debit
+	// Time when the PIN debit credit, PIN debit purchase or PIN debit reversal was requested.
+	//
+	// Returned by PIN debit credit, PIN debit purchase or PIN debit reversal.
 	//
 	SubmitTimeUtc string `json:"submitTimeUtc,omitempty"`
 
 	// transaction batches
-	TransactionBatches []*TransactionBatchesItems0 `json:"transactionBatches"`
+	TransactionBatches []*GetTransactionBatchesOKBodyTransactionBatchesItems0 `json:"transactionBatches"`
 }
 
 // Validate validates this get transaction batches o k body
@@ -1079,6 +1113,89 @@ func (o *GetTransactionBatchesOKBodyLinksSelf) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
+/*GetTransactionBatchesOKBodyTransactionBatchesItems0 get transaction batches o k body transaction batches items0
+swagger:model GetTransactionBatchesOKBodyTransactionBatchesItems0
+*/
+type GetTransactionBatchesOKBodyTransactionBatchesItems0 struct {
+
+	// Number of transactions accepted.
+	AcceptedTransactionCount int64 `json:"acceptedTransactionCount,omitempty"`
+
+	// The date when the batch template processing completed.
+	CompletionDate string `json:"completionDate,omitempty"`
+
+	// Unique identifier assigned to the batch file.
+	// Max Length: 8
+	// Min Length: 1
+	// Pattern: ^[a-zA-Z0-9_+-]*$
+	ID string `json:"id,omitempty"`
+
+	// Number of transactions rejected.
+	RejectedTransactionCount string `json:"rejectedTransactionCount,omitempty"`
+
+	// The status of you batch template processing.
+	Status string `json:"status,omitempty"`
+
+	// Number of transactions in the transaction.
+	TransactionCount int64 `json:"transactionCount,omitempty"`
+
+	// Date when the batch template was update.
+	UploadDate string `json:"uploadDate,omitempty"`
+}
+
+// Validate validates this get transaction batches o k body transaction batches items0
+func (o *GetTransactionBatchesOKBodyTransactionBatchesItems0) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetTransactionBatchesOKBodyTransactionBatchesItems0) validateID(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.ID) { // not required
+		return nil
+	}
+
+	if err := validate.MinLength("id", "body", string(o.ID), 1); err != nil {
+		return err
+	}
+
+	if err := validate.MaxLength("id", "body", string(o.ID), 8); err != nil {
+		return err
+	}
+
+	if err := validate.Pattern("id", "body", string(o.ID), `^[a-zA-Z0-9_+-]*$`); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetTransactionBatchesOKBodyTransactionBatchesItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetTransactionBatchesOKBodyTransactionBatchesItems0) UnmarshalBinary(b []byte) error {
+	var res GetTransactionBatchesOKBodyTransactionBatchesItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*GetTransactionBatchesUnauthorizedBody ptsV1TransactionBatchesGet401Response
 swagger:model GetTransactionBatchesUnauthorizedBody
 */
@@ -1088,8 +1205,15 @@ type GetTransactionBatchesUnauthorizedBody struct {
 	ErrorInformation *GetTransactionBatchesUnauthorizedBodyErrorInformation `json:"errorInformation,omitempty"`
 
 	// Time of request in UTC. Format: `YYYY-MM-DDThh:mm:ssZ`
-	// Example `2016-08-11T22:47:57Z` equals August 11, 2016, at 22:47:57 (10:47:57 p.m.). The `T` separates the date and the
-	// time. The `Z` indicates UTC.
+	// **Example** `2016-08-11T22:47:57Z` equals August 11, 2016, at 22:47:57 (10:47:57 p.m.).
+	// The `T` separates the date and the time. The `Z` indicates UTC.
+	//
+	// Returned by authorization service.
+	//
+	// #### PIN debit
+	// Time when the PIN debit credit, PIN debit purchase or PIN debit reversal was requested.
+	//
+	// Returned by PIN debit credit, PIN debit purchase or PIN debit reversal.
 	//
 	SubmitTimeUtc string `json:"submitTimeUtc,omitempty"`
 }
@@ -1246,89 +1370,6 @@ func (o *GetTransactionBatchesUnauthorizedBodyErrorInformationDetailsItems0) Mar
 // UnmarshalBinary interface implementation
 func (o *GetTransactionBatchesUnauthorizedBodyErrorInformationDetailsItems0) UnmarshalBinary(b []byte) error {
 	var res GetTransactionBatchesUnauthorizedBodyErrorInformationDetailsItems0
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*TransactionBatchesItems0 transaction batches items0
-swagger:model TransactionBatchesItems0
-*/
-type TransactionBatchesItems0 struct {
-
-	// Number of transactions accepted.
-	AcceptedTransactionCount int64 `json:"acceptedTransactionCount,omitempty"`
-
-	// The date when the batch template processing completed.
-	CompletionDate string `json:"completionDate,omitempty"`
-
-	// Unique identifier assigned to the batch file.
-	// Max Length: 8
-	// Min Length: 1
-	// Pattern: ^[a-zA-Z0-9_+-]*$
-	ID string `json:"id,omitempty"`
-
-	// Number of transactions rejected.
-	RejectedTransactionCount string `json:"rejectedTransactionCount,omitempty"`
-
-	// The status of you batch template processing.
-	Status string `json:"status,omitempty"`
-
-	// Number of transactions in the transaction.
-	TransactionCount int64 `json:"transactionCount,omitempty"`
-
-	// Date when the batch template was update.
-	UploadDate string `json:"uploadDate,omitempty"`
-}
-
-// Validate validates this transaction batches items0
-func (o *TransactionBatchesItems0) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateID(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *TransactionBatchesItems0) validateID(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.ID) { // not required
-		return nil
-	}
-
-	if err := validate.MinLength("id", "body", string(o.ID), 1); err != nil {
-		return err
-	}
-
-	if err := validate.MaxLength("id", "body", string(o.ID), 8); err != nil {
-		return err
-	}
-
-	if err := validate.Pattern("id", "body", string(o.ID), `^[a-zA-Z0-9_+-]*$`); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *TransactionBatchesItems0) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *TransactionBatchesItems0) UnmarshalBinary(b []byte) error {
-	var res TransactionBatchesItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

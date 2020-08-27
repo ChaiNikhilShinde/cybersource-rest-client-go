@@ -9,12 +9,11 @@ import (
 	"fmt"
 
 	"github.com/go-openapi/runtime"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 )
 
 // New creates a new purchase and refund details API client.
-func New(transport runtime.ClientTransport, formats strfmt.Registry) *Client {
+func New(transport runtime.ClientTransport, formats strfmt.Registry) ClientService {
 	return &Client{transport: transport, formats: formats}
 }
 
@@ -26,10 +25,17 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
-/*
-GetPurchaseAndRefundDetails gets purchase and refund details
+// ClientService is the interface for Client methods
+type ClientService interface {
+	GetPurchaseAndRefundDetails(params *GetPurchaseAndRefundDetailsParams) (*GetPurchaseAndRefundDetailsOK, error)
 
-Download the Purchase and Refund Details
+	SetTransport(transport runtime.ClientTransport)
+}
+
+/*
+  GetPurchaseAndRefundDetails gets purchase and refund details
+
+  Download the Purchase and Refund Details
 report. This report report includes all purchases and refund
 transactions, as well as all activities related to transactions
 resulting in an adjustment to the net proceeds.
@@ -45,7 +51,7 @@ func (a *Client) GetPurchaseAndRefundDetails(params *GetPurchaseAndRefundDetails
 		ID:                 "getPurchaseAndRefundDetails",
 		Method:             "GET",
 		PathPattern:        "/reporting/v3/purchase-refund-details",
-		ProducesMediaTypes: []string{"application/hal+json"},
+		ProducesMediaTypes: []string{"application/hal+json", "application/xml", "text/csv"},
 		ConsumesMediaTypes: []string{"application/json;charset=utf-8"},
 		Schemes:            []string{"https"},
 		Params:             params,

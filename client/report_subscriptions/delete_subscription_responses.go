@@ -12,10 +12,9 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
-
-	strfmt "github.com/go-openapi/strfmt"
 )
 
 // DeleteSubscriptionReader is a Reader for the DeleteSubscription structure.
@@ -46,7 +45,7 @@ func (o *DeleteSubscriptionReader) ReadResponse(response runtime.ClientResponse,
 		return nil, result
 
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
 	}
 }
 
@@ -147,7 +146,7 @@ type DeleteSubscriptionBadRequestBody struct {
 	// Error field list
 	//
 	// Required: true
-	Details []*DetailsItems0 `json:"details"`
+	Details []*DeleteSubscriptionBadRequestBodyDetailsItems0 `json:"details"`
 
 	// Short descriptive message to the user.
 	//
@@ -266,6 +265,44 @@ func (o *DeleteSubscriptionBadRequestBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
+/*DeleteSubscriptionBadRequestBodyDetailsItems0 Provides failed validation input field detail
+//
+swagger:model DeleteSubscriptionBadRequestBodyDetailsItems0
+*/
+type DeleteSubscriptionBadRequestBodyDetailsItems0 struct {
+
+	// Field in request that caused an error
+	//
+	Field string `json:"field,omitempty"`
+
+	// Documented reason code
+	//
+	Reason string `json:"reason,omitempty"`
+}
+
+// Validate validates this delete subscription bad request body details items0
+func (o *DeleteSubscriptionBadRequestBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *DeleteSubscriptionBadRequestBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *DeleteSubscriptionBadRequestBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res DeleteSubscriptionBadRequestBodyDetailsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*DeleteSubscriptionNotFoundBody reportingV3ReportSubscriptionsnameDelete404Response
 //
 // HTTP status code for client application
@@ -276,7 +313,7 @@ type DeleteSubscriptionNotFoundBody struct {
 	// Error field list
 	//
 	// Required: true
-	Details []*DetailsItems0 `json:"details"`
+	Details []*DeleteSubscriptionNotFoundBodyDetailsItems0 `json:"details"`
 
 	// Short descriptive message to the user.
 	//
@@ -395,11 +432,11 @@ func (o *DeleteSubscriptionNotFoundBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*DetailsItems0 Provides failed validation input field detail
+/*DeleteSubscriptionNotFoundBodyDetailsItems0 Provides failed validation input field detail
 //
-swagger:model DetailsItems0
+swagger:model DeleteSubscriptionNotFoundBodyDetailsItems0
 */
-type DetailsItems0 struct {
+type DeleteSubscriptionNotFoundBodyDetailsItems0 struct {
 
 	// Field in request that caused an error
 	//
@@ -410,13 +447,13 @@ type DetailsItems0 struct {
 	Reason string `json:"reason,omitempty"`
 }
 
-// Validate validates this details items0
-func (o *DetailsItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this delete subscription not found body details items0
+func (o *DeleteSubscriptionNotFoundBodyDetailsItems0) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *DetailsItems0) MarshalBinary() ([]byte, error) {
+func (o *DeleteSubscriptionNotFoundBodyDetailsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -424,8 +461,8 @@ func (o *DetailsItems0) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *DetailsItems0) UnmarshalBinary(b []byte) error {
-	var res DetailsItems0
+func (o *DeleteSubscriptionNotFoundBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res DeleteSubscriptionNotFoundBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

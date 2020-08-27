@@ -13,8 +13,7 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	cr "github.com/go-openapi/runtime/client"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 )
 
 // NewDeleteInstrumentIdentifierParams creates a new DeleteInstrumentIdentifierParams object
@@ -61,16 +60,16 @@ for the delete instrument identifier operation typically these are written to a 
 */
 type DeleteInstrumentIdentifierParams struct {
 
+	/*InstrumentIdentifierTokenID
+	  The TokenId of a Instrument Identifier.
+
+	*/
+	InstrumentIdentifierTokenID string
 	/*ProfileID
 	  The id of a profile containing user specific TMS configuration.
 
 	*/
-	ProfileID string
-	/*TokenID
-	  The TokenId of an Instrument Identifier.
-
-	*/
-	TokenID string
+	ProfileID *string
 
 	timeout    time.Duration
 	Context    context.Context
@@ -110,26 +109,26 @@ func (o *DeleteInstrumentIdentifierParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
+// WithInstrumentIdentifierTokenID adds the instrumentIdentifierTokenID to the delete instrument identifier params
+func (o *DeleteInstrumentIdentifierParams) WithInstrumentIdentifierTokenID(instrumentIdentifierTokenID string) *DeleteInstrumentIdentifierParams {
+	o.SetInstrumentIdentifierTokenID(instrumentIdentifierTokenID)
+	return o
+}
+
+// SetInstrumentIdentifierTokenID adds the instrumentIdentifierTokenId to the delete instrument identifier params
+func (o *DeleteInstrumentIdentifierParams) SetInstrumentIdentifierTokenID(instrumentIdentifierTokenID string) {
+	o.InstrumentIdentifierTokenID = instrumentIdentifierTokenID
+}
+
 // WithProfileID adds the profileID to the delete instrument identifier params
-func (o *DeleteInstrumentIdentifierParams) WithProfileID(profileID string) *DeleteInstrumentIdentifierParams {
+func (o *DeleteInstrumentIdentifierParams) WithProfileID(profileID *string) *DeleteInstrumentIdentifierParams {
 	o.SetProfileID(profileID)
 	return o
 }
 
 // SetProfileID adds the profileId to the delete instrument identifier params
-func (o *DeleteInstrumentIdentifierParams) SetProfileID(profileID string) {
+func (o *DeleteInstrumentIdentifierParams) SetProfileID(profileID *string) {
 	o.ProfileID = profileID
-}
-
-// WithTokenID adds the tokenID to the delete instrument identifier params
-func (o *DeleteInstrumentIdentifierParams) WithTokenID(tokenID string) *DeleteInstrumentIdentifierParams {
-	o.SetTokenID(tokenID)
-	return o
-}
-
-// SetTokenID adds the tokenId to the delete instrument identifier params
-func (o *DeleteInstrumentIdentifierParams) SetTokenID(tokenID string) {
-	o.TokenID = tokenID
 }
 
 // WriteToRequest writes these params to a swagger request
@@ -140,14 +139,18 @@ func (o *DeleteInstrumentIdentifierParams) WriteToRequest(r runtime.ClientReques
 	}
 	var res []error
 
-	// header param profile-id
-	if err := r.SetHeaderParam("profile-id", o.ProfileID); err != nil {
+	// path param instrumentIdentifierTokenId
+	if err := r.SetPathParam("instrumentIdentifierTokenId", o.InstrumentIdentifierTokenID); err != nil {
 		return err
 	}
 
-	// path param tokenId
-	if err := r.SetPathParam("tokenId", o.TokenID); err != nil {
-		return err
+	if o.ProfileID != nil {
+
+		// header param profile-id
+		if err := r.SetHeaderParam("profile-id", *o.ProfileID); err != nil {
+			return err
+		}
+
 	}
 
 	if len(res) > 0 {

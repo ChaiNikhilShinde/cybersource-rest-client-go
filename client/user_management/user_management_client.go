@@ -9,12 +9,11 @@ import (
 	"fmt"
 
 	"github.com/go-openapi/runtime"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 )
 
 // New creates a new user management API client.
-func New(transport runtime.ClientTransport, formats strfmt.Registry) *Client {
+func New(transport runtime.ClientTransport, formats strfmt.Registry) ClientService {
 	return &Client{transport: transport, formats: formats}
 }
 
@@ -26,10 +25,17 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
-/*
-GetUsers gets user information
+// ClientService is the interface for Client methods
+type ClientService interface {
+	GetUsers(params *GetUsersParams) (*GetUsersOK, error)
 
-This endpoint is to get all the user information depending on the filter criteria passed in the query.
+	SetTransport(transport runtime.ClientTransport)
+}
+
+/*
+  GetUsers gets user information deprecated
+
+  This endpoint is deprecated. Please use the search end point.
 */
 func (a *Client) GetUsers(params *GetUsersParams) (*GetUsersOK, error) {
 	// TODO: Validate the params before sending
@@ -41,7 +47,7 @@ func (a *Client) GetUsers(params *GetUsersParams) (*GetUsersOK, error) {
 		ID:                 "getUsers",
 		Method:             "GET",
 		PathPattern:        "/ums/v1/users",
-		ProducesMediaTypes: []string{"application/json;charset=utf-8"},
+		ProducesMediaTypes: []string{"application/hal+json;charset=utf-8"},
 		ConsumesMediaTypes: []string{"application/json;charset=utf-8"},
 		Schemes:            []string{"https"},
 		Params:             params,

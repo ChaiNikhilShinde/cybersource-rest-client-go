@@ -12,10 +12,9 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
-
-	strfmt "github.com/go-openapi/strfmt"
 )
 
 // GetReportByReportIDReader is a Reader for the GetReportByReportID structure.
@@ -46,7 +45,7 @@ func (o *GetReportByReportIDReader) ReadResponse(response runtime.ClientResponse
 		return nil, result
 
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
 	}
 }
 
@@ -147,7 +146,7 @@ type GetReportByReportIDBadRequestBody struct {
 	// Error field list
 	//
 	// Required: true
-	Details []*DetailsItems0 `json:"details"`
+	Details []*GetReportByReportIDBadRequestBodyDetailsItems0 `json:"details"`
 
 	// Short descriptive message to the user.
 	//
@@ -259,6 +258,44 @@ func (o *GetReportByReportIDBadRequestBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *GetReportByReportIDBadRequestBody) UnmarshalBinary(b []byte) error {
 	var res GetReportByReportIDBadRequestBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*GetReportByReportIDBadRequestBodyDetailsItems0 Provides failed validation input field detail
+//
+swagger:model GetReportByReportIDBadRequestBodyDetailsItems0
+*/
+type GetReportByReportIDBadRequestBodyDetailsItems0 struct {
+
+	// Field in request that caused an error
+	//
+	Field string `json:"field,omitempty"`
+
+	// Documented reason code
+	//
+	Reason string `json:"reason,omitempty"`
+}
+
+// Validate validates this get report by report ID bad request body details items0
+func (o *GetReportByReportIDBadRequestBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetReportByReportIDBadRequestBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetReportByReportIDBadRequestBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res GetReportByReportIDBadRequestBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
