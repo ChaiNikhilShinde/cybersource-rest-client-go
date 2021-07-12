@@ -1,10 +1,10 @@
 # Go Client SDK for the CyberSource REST API
 
-[![Documentation](https://godoc.org/github.com/tooolbox/cybersource-rest-client-go?status.svg)](https://godoc.org/github.com/tooolbox/cybersource-rest-client-go)
+[![Documentation](https://godoc.org/github.com/ChaiNikhilShinde/cybersource-rest-client-go?status.svg)](https://godoc.org/github.com/ChaiNikhilShinde/cybersource-rest-client-go)
 
 The CyberSource Go client provides convenient access to the [CyberSource REST API](https://developer.cybersource.com/api/reference/api-reference.html) from your Go application.
 
-## Requirements  
+## Requirements
 * Go version 1.13 or higher
 * A CyberSource account (see _Registration & Configuration_ section below)
 
@@ -14,14 +14,14 @@ The CyberSource Go client provides convenient access to the [CyberSource REST AP
 Go Modules:
 ```shell
 # In your project:
-go get github.com/tooolbox/cybersource-rest-client-go
+go get github.com/ChaiNikhilShinde/cybersource-rest-client-go
 ```
 
 
 ## Registration & Configuration
 Use of this SDK and the CyberSource APIs requires having an account. You can find details of getting a test account and creating your keys [here](https://developer.cybersource.com/api/developer-guides/dita-gettingstarted/registration.html)
 
-Remember this SDK is for use in server-side Go applications that access the CyberSource REST API and credentials should always be securely stored and accessed appropriately. 
+Remember this SDK is for use in server-side Go applications that access the CyberSource REST API and credentials should always be securely stored and accessed appropriately.
 
 
 ## SDK Usage Examples and Sample Code
